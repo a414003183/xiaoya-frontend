@@ -875,6 +875,73 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  # ───────────────────────── platform · 审计日志 ─────────────────────────
+  /audit-logs:
+    get:
+      operationId: listAuditLogs
+      summary: 操作日志列表（谁在什么时候做了什么；只读，行由写端点的审计横切落库）
+      description: >-
+        audit_log 流水只读视图（B1 §H3）：登录与每次成功的写请求各一行，按 created_at 倒序（缺省 -createdAt）。
+        支持 filters[account]/filters[action]/filters[objectType]/filters[objectId]（等值或逗号 IN）
+        与 filters[createdAt] 时间区间，以及 q 关键词（LIKE account/action）。无写端点：行由 AuditRecorder 追加。
+      tags: [platform]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: sort
+          in: query
+          description: 排序，白名单 id/createdAt（缺省 -createdAt）
+          schema: { type: string, default: '-createdAt' }
+        - name: filters[account]
+          in: query
+          description: 操作人账号（等值 / 逗号 IN）
+          schema: { type: string }
+        - name: filters[action]
+          in: query
+          description: 动作名（等值 / 逗号 IN；如 login、login-failed、account-create、patch /api/v1/products/{productId}）
+          schema: { type: string }
+        - name: filters[objectType]
+          in: query
+          description: 对象类型（等值 / 逗号 IN；如 account、product）
+          schema: { type: string }
+        - name: filters[objectId]
+          in: query
+          description: 对象 id（等值 / 逗号 IN）
+          schema: { type: string }
+        - name: filters[createdAt]
+          in: query
+          description: 时间区间 a..b（含当日；开区间 a.. 或 ..b）
+          schema: { type: string }
+        - name: q
+          in: query
+          description: LIKE account/action
+          schema: { type: string }
+      responses:
+        '200':
+          description: 审计日志分页列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogList'
+        '400':
+          description: 未注册过滤/排序字段（40001）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: 未登录或会话过期（40101）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: 无 audit-log-view（40301）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
   # ───────────────────────── platform · 评论 ─────────────────────────
   /comments:
     post:
@@ -10697,6 +10764,63 @@ components:
           type: array
           items: { $ref: '#/components/schemas/LangImportView' }
         total: { type: integer, format: int64 }
+
+    # ── platform · 审计日志 ──
+    AuditLogView:
+      type: object
+      description: 审计日志行（B1 §H3；只读，无写端点——行由写请求的审计横切追加）
+      required: [id, action, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1024
+        account:
+          type: [string, 'null']
+          maxLength: 64
+          description: 操作人账号；无会话主体的动作（如登录失败）为 null
+          example: admin
+        action:
+          type: string
+          maxLength: 64
+          description: 动作名（@Audit 声明值或「HTTP 方法 + 路由」推导值）
+          example: account-create
+        objectType:
+          type: [string, 'null']
+          maxLength: 64
+          example: account
+        objectId:
+          type: [integer, 'null']
+          format: int64
+          example: 42
+        detail:
+          type: [string, 'null']
+          description: 动作明细：当前写路径记「HTTP 方法 + 实际 URI」，便于回溯请求现场
+          example: 'PATCH /api/v1/products/42'
+        ip:
+          type: [string, 'null']
+          maxLength: 64
+          example: 10.0.0.7
+        traceId:
+          type: [string, 'null']
+          maxLength: 64
+          description: 链路 id（同响应头 X-Trace-Id），可与服务日志/APM 关联
+          example: 4f2a1c9d8b7e6a5f
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-09-20T10:15:30Z'
+    AuditLogList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AuditLogView' }
+        total:
+          type: integer
+          format: int64
+          example: 128
 
     # ── platform · 评论 / 动态流 ──
     CommentView:
