@@ -15,8 +15,10 @@ export type NavigationGroup = {
   children: (NavigationItem | NavigationSection)[]
 }
 
+const AuditLogListPage = lazy(() => import('../features/platform/pages/audit-log-list-page.page'))
 const LangItemPage = lazy(() => import('../features/platform/pages/lang-item-page.page'))
 const LangUploadPage = lazy(() => import('../features/platform/pages/lang-upload-page.page'))
+const LoginLogListPage = lazy(() => import('../features/platform/pages/login-log-list-page.page'))
 const RoleListPage = lazy(() => import('../features/org/pages/role-list-page.page'))
 const SettingPage = lazy(() => import('../features/platform/pages/setting-page.page'))
 const BoardSpaceListPage = lazy(() => import('../features/board/pages/board-space-list-page.page'))
@@ -115,6 +117,11 @@ const withSuspense = (node: ReactNode) => <Suspense fallback={<PageLoading />}>{
 
 export const generatedRoutes: RouteObject[] = [
   {
+    path: '/admin/audit-logs',
+    element: withSuspense(<AuditLogListPage />),
+    handle: { title: 'platform.auditLog.title', perm: 'audit-log-view' },
+  },
+  {
     path: '/admin/lang-items',
     element: withSuspense(<LangItemPage />),
     handle: { title: 'platform.lang.title', perm: 'lang-manage' },
@@ -123,6 +130,11 @@ export const generatedRoutes: RouteObject[] = [
     path: '/admin/lang-upload',
     element: withSuspense(<LangUploadPage />),
     handle: { title: 'platform.langUpload.title', perm: 'lang-manage' },
+  },
+  {
+    path: '/admin/login-logs',
+    element: withSuspense(<LoginLogListPage />),
+    handle: { title: 'platform.loginLog.title', perm: 'audit-log-view' },
   },
   {
     path: '/admin/roles',
@@ -671,6 +683,15 @@ export const navigation: NavigationGroup[] = [
       },
       { path: '/settings/stages', title: 'stage.title.list', order: 3, perm: 'stage-view' },
       { path: '/admin/roles', title: 'org.role.title', order: 4, perm: 'role-view' },
+      {
+        key: 'admin/audit',
+        title: 'nav.section.auditLog',
+        order: 5,
+        children: [
+          { path: '/admin/audit-logs', title: 'platform.auditLog.title', order: 1, perm: 'audit-log-view' },
+          { path: '/admin/login-logs', title: 'platform.loginLog.title', order: 2, perm: 'audit-log-view' },
+        ],
+      },
     ],
   },
 ]

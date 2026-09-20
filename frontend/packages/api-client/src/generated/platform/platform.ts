@@ -28,6 +28,7 @@ import type {
 
 import type {
   AccountView,
+  AuditLogList,
   BadRequestResponse,
   ColumnPrefUpdateRequest,
   ColumnPrefView,
@@ -50,6 +51,7 @@ import type {
   LangItemView,
   LangItemsUpdateRequest,
   LangOverrideList,
+  ListAuditLogsParams,
   ListCommentsParams,
   ListFilesParams,
   ListLangImportsParams,
@@ -3308,6 +3310,143 @@ export function useListLangImports<TData = Awaited<ReturnType<typeof listLangImp
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getListLangImportsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listAuditLogsResponse200 = {
+  data: AuditLogList
+  status: 200
+}
+
+export type listAuditLogsResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listAuditLogsResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listAuditLogsResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listAuditLogsResponseSuccess = (listAuditLogsResponse200) & {
+  headers: Headers;
+};
+export type listAuditLogsResponseError = (listAuditLogsResponse400 | listAuditLogsResponse401 | listAuditLogsResponse403) & {
+  headers: Headers;
+};
+
+export type listAuditLogsResponse = (listAuditLogsResponseSuccess | listAuditLogsResponseError)
+
+export const getListAuditLogsUrl = (params?: ListAuditLogsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/audit-logs?${stringifiedParams}` : `/api/v1/audit-logs`
+}
+
+/**
+ * audit_log 流水只读视图（B1 §H3）：登录与每次成功的写请求各一行，按 created_at 倒序（缺省 -createdAt）。 支持 filters[account]/filters[action]/filters[objectType]/filters[objectId]（等值或逗号 IN） 与 filters[createdAt] 时间区间，以及 q 关键词（LIKE account/action）。无写端点：行由 AuditRecorder 追加。
+ * @summary 操作日志列表（谁在什么时候做了什么；只读，行由写端点的审计横切落库）
+ */
+export const listAuditLogs = async (params?: ListAuditLogsParams, options?: Parameters<typeof httpFetch>[1]): Promise<listAuditLogsResponse> => {
+
+  return httpFetch<listAuditLogsResponse>(getListAuditLogsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAuditLogsQueryKey = (params?: ListAuditLogsParams,) => {
+    return [
+    `/api/v1/audit-logs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAuditLogsQueryOptions = <TData = Awaited<ReturnType<typeof listAuditLogs>>, TError = ErrorEnvelope>(params?: ListAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAuditLogsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAuditLogs>>> = ({ signal }) => listAuditLogs(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListAuditLogsQueryResult = NonNullable<Awaited<ReturnType<typeof listAuditLogs>>>
+export type ListAuditLogsQueryError = ErrorEnvelope
+
+
+export function useListAuditLogs<TData = Awaited<ReturnType<typeof listAuditLogs>>, TError = ErrorEnvelope>(
+ params: undefined |  ListAuditLogsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAuditLogs>>,
+          TError,
+          Awaited<ReturnType<typeof listAuditLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAuditLogs<TData = Awaited<ReturnType<typeof listAuditLogs>>, TError = ErrorEnvelope>(
+ params?: ListAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAuditLogs>>,
+          TError,
+          Awaited<ReturnType<typeof listAuditLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAuditLogs<TData = Awaited<ReturnType<typeof listAuditLogs>>, TError = ErrorEnvelope>(
+ params?: ListAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 操作日志列表（谁在什么时候做了什么；只读，行由写端点的审计横切落库）
+ */
+
+export function useListAuditLogs<TData = Awaited<ReturnType<typeof listAuditLogs>>, TError = ErrorEnvelope>(
+ params?: ListAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListAuditLogsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

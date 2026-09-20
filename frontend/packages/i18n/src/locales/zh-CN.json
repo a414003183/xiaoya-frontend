@@ -10,7 +10,8 @@
       "admin": "系统"
     },
     "section": {
-      "adminLang": "多语言"
+      "adminLang": "多语言",
+      "auditLog": "审计日志"
     },
     "theme": {
       "light": "亮色",
@@ -278,6 +279,26 @@
       "reason.empty-row": "该行没有填任何语言",
       "reason.value-too-long": "文案超过 2000 字",
       "reason.cjk-in-en": "en 列含中文"
+    },
+    "auditLog": {
+      "title": "操作日志",
+      "field": {
+        "account": "操作人",
+        "action": "动作",
+        "object": "对象",
+        "detail": "详情",
+        "ip": "IP",
+        "traceId": "链路 ID"
+      },
+      "filter": {
+        "account": "操作人",
+        "action": "动作",
+        "dateRange": "时间范围"
+      },
+      "empty": "暂无日志"
+    },
+    "loginLog": {
+      "title": "登录日志"
     },
     "langImport": {
       "field": {
@@ -2142,6 +2163,7 @@
     }
   },
   "priv": {
+    "audit-log-view": "查看操作日志",
     "file-upload": "上传附件",
     "setting-manage": "管理系统设置",
     "lang-manage": "管理文案",

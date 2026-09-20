@@ -11,6 +11,7 @@ import {
   getNotificationUnreadCount,
   getSettings,
   listAccountActivities,
+  listAuditLogs,
   listComments,
   listLangImports,
   listNotifications,
@@ -19,15 +20,17 @@ import {
   putSettings,
 } from '@zentao/api-client/generated'
 import type { ActivityView } from '@zentao/api-client/generated/model/activityView'
+import type { AuditLogView } from '@zentao/api-client/generated/model/auditLogView'
 import type { CommentView } from '@zentao/api-client/generated/model/commentView'
 import type { LangImportView } from '@zentao/api-client/generated/model/langImportView'
+import type { ListAuditLogsParams } from '@zentao/api-client/generated/model/listAuditLogsParams'
 import type { ListLangImportsParams } from '@zentao/api-client/generated/model/listLangImportsParams'
 import type { NotificationView } from '@zentao/api-client/generated/model/notificationView'
 import { buildListParams, type ListDsl } from '../../../shared/list-dsl'
 
 /** platform 域数据入口（01 §3.2：域内唯一数据入口，类型 + orval 封装）。 */
 
-export type { ActivityView, CommentView, NotificationView }
+export type { ActivityView, AuditLogView, CommentView, NotificationView }
 
 // ── 评论 / 动态流 ──
 
@@ -188,6 +191,18 @@ async function fetchDictPairs(name: string): Promise<{ value: string; label: str
   return data.items
     .map((item) => ({ value: String(item.value ?? ''), label: String(item.label ?? item.value ?? '') }))
     .filter((item) => item.value !== '')
+}
+
+// ── 审计日志（platform 卡 §3.13：操作日志 / 登录日志共用，只读） ──
+
+/**
+ * 审计流水（只读；行由写请求的审计横切追加，无写端点 → 页面也没有任何行内动作）。
+ * filters 值域：account/action/objectType/objectId 等值或逗号 IN，createdAt 为 `a..b` 区间。
+ */
+export async function fetchAuditLogs(
+  dsl: ListDsl<ListAuditLogsParams> = {},
+): Promise<{ items: AuditLogView[]; total: number }> {
+  return ok(await listAuditLogs(buildListParams<ListAuditLogsParams>(dsl))).data
 }
 
 // ── query key 约定 ──

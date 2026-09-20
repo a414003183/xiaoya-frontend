@@ -1,6 +1,16 @@
 import { HttpResponse, http } from 'msw'
 import { BOARD_META_BY_DOMAIN } from './board-handlers'
-import { currentAccount, db, error, FORBIDDEN, mockId, NOT_FOUND, PRIVILEGE_CATALOG, UNAUTHENTICATED } from './db'
+import {
+  currentAccount,
+  db,
+  error,
+  FORBIDDEN,
+  mockId,
+  NOT_FOUND,
+  PRIVILEGE_CATALOG,
+  privilegesOf,
+  UNAUTHENTICATED,
+} from './db'
 import { DOC_META_BY_DOMAIN } from './doc-handlers'
 import {
   ACCOUNT_GENDER_OPTIONS,
@@ -36,7 +46,35 @@ function isPersonalSetting(key: string): boolean {
   return key.startsWith('notify.') || key === 'dashboard.layout'
 }
 
-/** 平台域 MSW handlers：通知/文件/搜索/meta/dicts/settings/lang-items/comments。 */
+/** 等值或逗号 IN（platform/filters/Filters：含逗号即 IN，与后端同口径）。 */
+function matchIn(value: unknown, filter: string | null): boolean {
+  if (!filter) {
+    return true
+  }
+  return filter.split(',').some((item) => item === String(value ?? ''))
+}
+
+/**
+ * 日期区间 `a..b`（含当日；开区间 `a..` / `..b`），裸值退化为等值。
+ * 行里存的是 ISO 时间戳、区间两半是 `YYYY-MM-DD`——比较前统一截到日，
+ * 否则 `2026-09-03T08:00:00Z > 2026-09-03`，区间上界当天会被整日漏掉。
+ */
+function matchDayRange(value: unknown, filter: string | null): boolean {
+  if (!filter) {
+    return true
+  }
+  const day = String(value ?? '').slice(0, 10)
+  if (!filter.includes('..')) {
+    return day === filter.slice(0, 10)
+  }
+  const [from, to] = filter.split('..')
+  if (from && day < from) {
+    return false
+  }
+  return !(to && day > to)
+}
+
+/** 平台域 MSW handlers：通知/文件/搜索/meta/dicts/settings/lang-items/comments/audit-logs。 */
 export const platformHandlers = [
   // ── 通知 ──
   http.get('*/api/v1/notifications', ({ request }) => {
@@ -551,5 +589,35 @@ export const platformHandlers = [
       .filter((comment) => comment.objectType === objectType && comment.objectId === objectId)
       .sort((a, b) => b.id - a.id)
     return ok({ items, total: items.length })
+  }),
+
+  // ── 审计日志（platform 卡 §3.13；只读：本文件不提供任何写 handler） ──
+  http.get('*/api/v1/audit-logs', ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('audit-log-view')) {
+      return HttpResponse.json(FORBIDDEN('audit-log-view'), { status: 403 })
+    }
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    const q = url.searchParams.get('q') ?? ''
+    const sort = url.searchParams.get('sort') ?? '-createdAt'
+    let items = db.auditLogs
+      .filter((row) => matchIn(row.account, url.searchParams.get('filters[account]')))
+      .filter((row) => matchIn(row.action, url.searchParams.get('filters[action]')))
+      .filter((row) => matchIn(row.objectType, url.searchParams.get('filters[objectType]')))
+      .filter((row) => matchIn(row.objectId, url.searchParams.get('filters[objectId]')))
+      .filter((row) => matchDayRange(row.createdAt, url.searchParams.get('filters[createdAt]')))
+    if (q !== '') {
+      items = items.filter((row) => (row.account ?? '').includes(q) || row.action.includes(q))
+    }
+    // 排序白名单 id/createdAt，缺省 -createdAt（'-' 前缀 = 倒序，与契约同口径）
+    const byId = sort.replace(/^-/, '') === 'id'
+    items = items.sort(
+      (a, b) => (byId ? a.id - b.id : a.createdAt.localeCompare(b.createdAt)) * (sort.startsWith('-') ? -1 : 1),
+    )
+    return ok({ items: items.slice((page - 1) * limit, page * limit), total: items.length })
   }),
 ]

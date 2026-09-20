@@ -33,6 +33,7 @@ const GROUP_META = {
 // 否则分区标题没有 i18n 键、也没有固定展示序（游离分区）。
 const SECTION_META = {
   'admin/lang': { order: 2, title: 'nav.section.adminLang' },
+  'admin/audit': { order: 5, title: 'nav.section.auditLog' },
 }
 
 /** 注解键白名单：出现白名单外的 @key 即报错（防拼写静默丢失）。 */

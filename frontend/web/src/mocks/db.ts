@@ -1,4 +1,5 @@
 import type { AccountView } from '@zentao/api-client/generated/model/accountView'
+import type { AuditLogView } from '@zentao/api-client/generated/model/auditLogView'
 import type { BoardSpaceView } from '@zentao/api-client/generated/model/boardSpaceView'
 import type { BoardView } from '@zentao/api-client/generated/model/boardView'
 import type { BranchView } from '@zentao/api-client/generated/model/branchView'
@@ -40,6 +41,8 @@ export const ALL_PRIVILEGE_CODES = [
   'file-upload',
   'setting-manage',
   'lang-manage',
+  // platform 域审计（platform 卡 §7.1：PrivilegeCatalog.register("audit", …)，只读流水查看码）
+  'audit-log-view',
   'account-view',
   'account-create',
   'account-edit',
@@ -333,6 +336,11 @@ export const db = {
     occurredAt: string
   }[],
   settings: new Map<string, unknown>(),
+  /**
+   * 审计流水（platform 卡 §3.13 / B1 §H3）：只读表——mock 里也没有任何 handler 会写它，
+   * 行只由种子给出（真库由写请求的审计横切追加），故行类型就是响应视图本身。
+   */
+  auditLogs: [] as AuditLogView[],
   /** 个人列设置（platform「列设置」）：键 `${accountId}:${resource}`，GET/PUT/DELETE 三端点共用。 */
   columnPrefs: new Map<string, ColumnPrefItem[]>(),
   langOverrides: new Map<string, string>(),
@@ -493,6 +501,41 @@ export function seed(): void {
       detail: null,
       remark: 'Welcome',
       occurredAt: '2026-03-01T00:00:00Z',
+    },
+  )
+  db.auditLogs.push(
+    {
+      id: 1,
+      account: 'admin',
+      action: 'login',
+      objectType: null,
+      objectId: null,
+      detail: null,
+      ip: '10.0.0.1',
+      traceId: 'trace-login-admin',
+      createdAt: '2026-09-03T08:00:00Z',
+    },
+    {
+      id: 2,
+      account: null,
+      action: 'login-failed',
+      objectType: null,
+      objectId: null,
+      detail: null,
+      ip: '10.0.0.9',
+      traceId: 'trace-login-failed',
+      createdAt: '2026-09-03T09:30:00Z',
+    },
+    {
+      id: 3,
+      account: 'admin',
+      action: 'account-create',
+      objectType: 'account',
+      objectId: 2,
+      detail: 'POST /api/v1/accounts',
+      ip: '10.0.0.1',
+      traceId: 'trace-account-create',
+      createdAt: '2026-09-04T10:00:00Z',
     },
   )
   seedProductDomain()
@@ -2546,6 +2589,7 @@ export function resetMockData(): void {
   db.todos.length = 0
   db.weeklyReports.length = 0
   db.burns.length = 0
+  db.auditLogs.length = 0
   db.comments.push({
     id: 1,
     objectType: 'account',
