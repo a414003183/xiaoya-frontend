@@ -1,0 +1,25 @@
+{
+  "name": "@zentao/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./http": "./src/http.ts",
+    "./query-client": "./src/query-client.ts",
+    "./generated": "./src/generated/index.ts",
+    "./generated/model/*": "./src/generated/model/*.ts",
+    "./generated/*": "./src/generated/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "codegen": "orval --config orval.config.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.103.1"
+  },
+  "devDependencies": {
+    "orval": "8.33.0",
+    "typescript": "7.0.2"
+  }
+}

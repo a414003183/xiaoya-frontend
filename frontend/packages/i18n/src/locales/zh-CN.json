@@ -1,0 +1,2328 @@
+{
+  "nav": {
+    "group": {
+      "dashboard": "工作台",
+      "product": "产品",
+      "project": "项目",
+      "quality": "测试",
+      "doc": "文档",
+      "org": "组织",
+      "admin": "系统"
+    },
+    "section": {
+      "adminLang": "多语言"
+    },
+    "theme": {
+      "light": "亮色",
+      "dark": "暗色",
+      "system": "跟随系统",
+      "label": "主题"
+    },
+    "language": {
+      "label": "语言"
+    },
+    "tabs": {
+      "label": "已打开页面",
+      "close": "关闭",
+      "closeOthers": "关闭其他",
+      "closeRight": "关闭右侧",
+      "untitled": "页面",
+      "closeAll": "关闭全部"
+    },
+    "sider": {
+      "expand": "展开侧栏",
+      "collapse": "收起侧栏"
+    },
+    "user": {
+      "label": "账号菜单"
+    }
+  },
+  "common": {
+    "action": {
+      "logout": "退出登录",
+      "submit": "提交",
+      "cancel": "取消",
+      "manage": "操作",
+      "delete": "删除",
+      "back": "返回",
+      "add": "新增",
+      "save": "保存",
+      "edit": "编辑",
+      "close": "关闭",
+      "create": "创建",
+      "search": "搜索",
+      "reset": "重置",
+      "link": "关联",
+      "unlink": "移除关联",
+      "detail": "详情",
+      "import": "导入",
+      "exportCsv": "导出 CSV",
+      "columnSetting": "列设置",
+      "selectAll": "全选"
+    },
+    "columnPref": {
+      "title": "列设置",
+      "visible": "显示该列",
+      "fix": "固定方向",
+      "fixLeft": "左固定",
+      "fixNone": "不固定",
+      "fixRight": "右固定",
+      "reset": "重置",
+      "save": "保存",
+      "dragHint": "拖拽排序",
+      "hint": "拖动行调整列顺序；固定列在表格横向滚动时始终可见。至少保留一列。"
+    },
+    "loading": "加载中…",
+    "forbidden": {
+      "title": "403",
+      "message": "您没有访问该页面的权限。"
+    },
+    "field": {
+      "id": "ID",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间",
+      "createdBy": "创建人",
+      "updatedBy": "更新人",
+      "status": "状态",
+      "name": "名称",
+      "description": "描述",
+      "comment": "备注",
+      "priority": "优先级",
+      "assignee": "指派给",
+      "type": "类型",
+      "sort": "排序",
+      "none": "无"
+    },
+    "priority": {
+      "1": "紧急",
+      "2": "高",
+      "3": "中",
+      "4": "低"
+    },
+    "message": {
+      "saved": "已保存",
+      "created": "创建成功",
+      "submitted": "提交成功",
+      "deleted": "已删除",
+      "failed": "操作失败",
+      "required": "此项必填",
+      "exported": "导出成功。",
+      "badRequest": "请求参数有误，请检查后重试。",
+      "unauthenticated": "登录状态已过期，请重新登录。",
+      "forbidden": "没有执行该操作的权限。",
+      "dataForbidden": "没有访问该数据的权限。",
+      "notFound": "请求的资源不存在或已被删除。",
+      "lockConflict": "数据已被他人修改，请刷新后重试。",
+      "validationFailed": "提交内容未通过校验，请检查表单。",
+      "stateActionNotAllowed": "当前状态不允许该操作，请刷新后重试。",
+      "guardNotSatisfied": "操作条件不满足，请确认对象状态后重试。",
+      "rateLimited": "请求过于频繁，请稍后重试。",
+      "internal": "服务异常，请稍后重试或联系管理员。",
+      "total": "共 {{total}} 条"
+    },
+    "confirm": {
+      "delete": "确认删除？"
+    },
+    "empty": "暂无数据",
+    "filter": {
+      "advanced": "高级筛选",
+      "all": "全部"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "登录 ZenTao",
+      "field": {
+        "account": "账号",
+        "password": "密码"
+      },
+      "action": {
+        "submit": "登录"
+      },
+      "message": {
+        "welcome": "欢迎回来，{{name}}",
+        "invalid": "账号或密码错误。",
+        "required": "请输入{{field}}",
+        "mustChangePassword": "首次登录须先修改初始口令，才能进入其他页面。"
+      }
+    }
+  },
+  "platform": {
+    "comment": {
+      "title": "评论",
+      "placeholder": "写下你的评论…",
+      "submit": "发表",
+      "empty": "暂无评论"
+    },
+    "activity": {
+      "title": "动态",
+      "loadMore": "加载更多",
+      "empty": "暂无动态",
+      "action": {
+        "created": "创建",
+        "submitted": "提交评审",
+        "passed": "评审通过",
+        "rejected": "评审拒绝",
+        "changed": "发起变更",
+        "changeDone": "变更完成",
+        "closed": "关闭",
+        "activated": "激活",
+        "assigned": "指派",
+        "linked": "关联",
+        "unlinked": "移除关联",
+        "linked2release": "发布关联",
+        "started": "开始",
+        "finished": "完成",
+        "terminated": "停止维护",
+        "closedbychild": "子计划全部关闭",
+        "finishedbychild": "子计划全部完成",
+        "activatedbychild": "子计划进行中",
+        "commented": "评论",
+        "disabled": "停用",
+        "enabled": "启用",
+        "unlocked": "解锁",
+        "deleted": "删除",
+        "passwordChanged": "修改密码"
+      }
+    },
+    "notification": {
+      "bell": "通知铃铛",
+      "field": {
+        "title": "标题",
+        "type": "类型"
+      },
+      "action": {
+        "markRead": "标记已读",
+        "settings": "通知设置"
+      },
+      "status": {
+        "read": "已读"
+      },
+      "tab": {
+        "unread": "未读",
+        "all": "全部"
+      },
+      "empty": "暂无通知",
+      "settings": {
+        "title": "通知设置",
+        "description": "选择你希望接收的站内通知类型。"
+      },
+      "type": {
+        "story-created": "需求创建",
+        "story-changed": "需求变更",
+        "task-assigned": "任务指派给我",
+        "task-finished": "任务完成",
+        "bug-created": "Bug 创建",
+        "bug-resolved": "Bug 解决",
+        "account-reset-password": "密码被重置"
+      }
+    },
+    "notifications": {
+      "title": "通知中心"
+    },
+    "file": {
+      "select": "选择文件",
+      "upload": "上传附件",
+      "title": "文件名",
+      "extension": "类型",
+      "size": "大小",
+      "downloads": "下载次数"
+    },
+    "search": {
+      "placeholder": "搜索菜单或页面",
+      "noResults": "没有匹配的结果"
+    },
+    "settings": {
+      "title": "系统设置",
+      "timezone": "默认时区",
+      "workhours": "每日可用工时",
+      "changeWeak": "弱口令检查",
+      "modifyPasswordFirstLogin": "首次登录强制改密"
+    },
+    "lang": {
+      "title": "文案覆盖",
+      "overridden": "该条目存在覆盖",
+      "newKey": "新键名",
+      "addKey": "添加键",
+      "restore": "恢复默认",
+      "language": "语言"
+    },
+    "langUpload": {
+      "title": "多语言上传",
+      "tab": {
+        "upload": "上传",
+        "logs": "上传记录"
+      },
+      "download": "下载语言包",
+      "selectFile": "选择 Excel 文件",
+      "hint": "仅支持 .xlsx/.xls；表头须为 key | zh-cn | en，一行一个键",
+      "success": "上传成功",
+      "failed": "上传失败，按行号修正后重新上传",
+      "result": {
+        "total": "共 {{total}} 行",
+        "applied": "成功 {{applied}} 行",
+        "failed": "失败 {{failed}} 行"
+      },
+      "row": "行",
+      "reason": "原因",
+      "reason.invalid-lang": "语言码不支持（仅 zh-cn/en）",
+      "reason.unreadable": "文件无法解析（请确认是 Excel 文件）",
+      "reason.missing-key-column": "表头缺少 key 列",
+      "reason.missing-lang-column": "表头缺少语言列（zh-cn/en 至少一列）",
+      "reason.empty-file": "文件没有数据行",
+      "reason.too-many-rows": "数据行超过 5000 行",
+      "reason.empty-key": "键为空",
+      "reason.invalid-key": "键含非法字符",
+      "reason.unknown-key": "键不在语言包目录内",
+      "reason.duplicate-key": "同一文件内键重复",
+      "reason.empty-row": "该行没有填任何语言",
+      "reason.value-too-long": "文案超过 2000 字",
+      "reason.cjk-in-en": "en 列含中文"
+    },
+    "langImport": {
+      "field": {
+        "lang": "语言",
+        "fileName": "文件名",
+        "totalRows": "总行数",
+        "appliedRows": "成功行数",
+        "failedRows": "失败行数",
+        "createdBy": "操作人",
+        "createdAt": "上传时间",
+        "message": "说明"
+      },
+      "status": {
+        "success": "成功",
+        "failed": "失败"
+      },
+      "empty": "暂无上传记录"
+    }
+  },
+  "org": {
+    "accounts": {
+      "title": "账号列表",
+      "search": "搜索账号",
+      "batchTitle": "批量创建账号",
+      "batchSubmit": "提交创建",
+      "batchResult": "结果",
+      "batchHint": "初始密码统一为 zentao123，创建后请通知成员修改。",
+      "batchPasswordRequired": "密码需为 6–64 位且每行必填，或点「随机生成」批量填充。",
+      "batchRandomPassword": "随机生成全部"
+    },
+    "account": {
+      "detailTitle": "账号详情",
+      "createTitle": "创建账号",
+      "field": {
+        "id": "ID",
+        "account": "登录名",
+        "realName": "姓名",
+        "role": "角色",
+        "status": "状态",
+        "email": "邮箱",
+        "groups": "权限组",
+        "birthday": "生日",
+        "department": "部门",
+        "gender": "性别",
+        "joinedAt": "入职日期",
+        "mobile": "手机",
+        "newPassword": "新密码",
+        "nickname": "昵称",
+        "oldPassword": "旧密码",
+        "password": "密码",
+        "phone": "电话"
+      },
+      "status": {
+        "active": "正常",
+        "disabled": "停用"
+      },
+      "action": {
+        "create": "创建账号",
+        "batch": "批量创建",
+        "disable": "停用",
+        "enable": "启用",
+        "unlock": "解锁",
+        "detail": "详情",
+        "password": "修改密码",
+        "randomPassword": "随机生成",
+        "resetPassword": "重置密码"
+      },
+      "tab": {
+        "activities": "动态",
+        "comments": "备注"
+      },
+      "deleteGuard": "不可删除本人或内置 admin 账号。",
+      "deleteHint": "删除为软删：历史数据保留，账号不再可登录。",
+      "deleteTitle": "删除账号",
+      "editTitle": "编辑账号",
+      "gender": {
+        "f": "女",
+        "m": "男"
+      },
+      "message": {
+        "passwordChanged": "密码已修改。",
+        "passwordReset": "密码已重置。"
+      },
+      "passwordTitle": "修改密码",
+      "resetHint": "重置后请将新密码告知本人。",
+      "resetTitle": "重置密码"
+    },
+    "department": {
+      "title": "部门",
+      "field": {
+        "name": "部门名称",
+        "parent": "上级部门",
+        "manager": "负责人",
+        "sort": "排序",
+        "grade": "层级"
+      },
+      "action": {
+        "addRoot": "新增根部门",
+        "addChild": "新增子部门",
+        "edit": "编辑部门"
+      },
+      "deleteTitle": "删除部门「{{name}}」？",
+      "guard": {
+        "children": "有子部门的部门不可删除。",
+        "members": "部门下存在成员时不可删除。"
+      },
+      "editHint": "编辑时清空上级部门或负责人视为不修改，请选择具体值以改动。",
+      "message": {
+        "created": "部门已创建。",
+        "updated": "部门已更新。",
+        "deleted": "部门已删除。"
+      }
+    },
+    "departments": {
+      "title": "部门列表"
+    },
+    "groups": {
+      "title": "角色管理"
+    },
+    "group": {
+      "field": {
+        "id": "ID",
+        "name": "角色名称",
+        "description": "描述",
+        "memberCount": "成员数",
+        "privilegeCount": "权限数"
+      },
+      "action": {
+        "create": "新建角色",
+        "privileges": "权限矩阵",
+        "members": "成员",
+        "removeMember": "移出",
+        "addMember": "添加成员",
+        "saveMatrix": "保存矩阵",
+        "acl": "数据权限",
+        "copy": "复制"
+      },
+      "deleteTitle": "删除角色",
+      "deleteHint": "确认删除角色 {{name}}？成员与权限码关联将一并清除。",
+      "detailTitle": "角色详情",
+      "members": "角色成员",
+      "matrixTitle": "权限码矩阵",
+      "addMemberById": "按账号 ID 添加",
+      "matrixDomain": {
+        "file": "附件",
+        "setting": "设置",
+        "lang": "文案",
+        "docSpace": "文档库",
+        "doc": "文档",
+        "department": "部门",
+        "account": "账号",
+        "group": "角色",
+        "personnel": "人员",
+        "product": "产品",
+        "branch": "分支",
+        "category": "模块",
+        "plan": "计划",
+        "release": "发布",
+        "build": "构建",
+        "program": "项目集",
+        "project": "项目",
+        "execution": "执行",
+        "stage": "阶段",
+        "stakeholder": "干系人",
+        "board": "看板",
+        "bug": "Bug",
+        "testcase": "用例",
+        "suite": "套件",
+        "library": "用例库",
+        "testrun": "测试单",
+        "report": "测试报告",
+        "story": "需求",
+        "task": "任务",
+        "workspace": "工作台"
+      },
+      "acl": {
+        "executions": "可见执行",
+        "hint": "追加可见：命中即在本角色既有权限之上追加可见对象（platform 卡 §7.2）。",
+        "products": "可见产品",
+        "programs": "可见项目集",
+        "projects": "可见项目",
+        "title": "数据权限"
+      },
+      "copy": {
+        "defaultName": "副本",
+        "members": "复制成员",
+        "privileges": "复制权限",
+        "title": "复制角色"
+      },
+      "editTitle": "编辑角色",
+      "matrixSelected": "已选 {{count}} / {{total}} 项"
+    },
+    "role": {
+      "title": "角色列表",
+      "subtitle": "账号资料上的岗位角色选项；此处维护的角色即账号表单与筛选中的可选项。",
+      "tab": {
+        "roles": "角色",
+        "dict": "岗位角色"
+      },
+      "field": {
+        "code": "角色码",
+        "name": "角色名称",
+        "sort": "排序",
+        "builtin": "内置",
+        "accountCount": "使用账号数"
+      },
+      "action": {
+        "create": "新建角色",
+        "edit": "编辑角色"
+      },
+      "deleteTitle": "删除角色 {{name}}",
+      "guard": {
+        "builtin": "内置角色不可删除（可改名或调整排序）。",
+        "inUse": "仍被账号使用的角色不可删除，请先调整这些账号的角色。"
+      },
+      "message": {
+        "created": "角色已创建。",
+        "updated": "角色已更新。",
+        "deleted": "角色已删除。"
+      },
+      "codeHint": "2–16 位，小写字母开头，仅含小写字母、数字与连字符；创建后不可修改。",
+      "labelsHint": "至少填写一种语言的名称；界面按当前语言显示，缺该语言时回退其它语言。"
+    }
+  },
+  "groups": {
+    "title": "权限组列表"
+  },
+  "group": {
+    "field": {
+      "id": "ID",
+      "name": "组名",
+      "description": "描述",
+      "memberCount": "成员数",
+      "privilegeCount": "权限数"
+    },
+    "action": {
+      "create": "新建权限组",
+      "privileges": "权限矩阵",
+      "members": "成员",
+      "removeMember": "移出",
+      "addMember": "添加成员",
+      "saveMatrix": "保存矩阵"
+    },
+    "deleteTitle": "删除权限组",
+    "deleteHint": "确认删除权限组 {{name}}？成员与权限码关联将一并清除。",
+    "detailTitle": "权限组详情",
+    "members": "组成员",
+    "matrixTitle": "权限码矩阵",
+    "addMemberById": "按账号 ID 添加",
+    "matrixDomain": {
+      "account": "账号",
+      "department": "部门",
+      "group": "权限组",
+      "personnel": "人事",
+      "file": "附件",
+      "setting": "设置",
+      "lang": "文案",
+      "test": "测试"
+    }
+  },
+  "product": {
+    "title": {
+      "list": "产品列表",
+      "kanban": "产品看板",
+      "detail": "产品详情",
+      "dynamic": "产品动态",
+      "track": "需求发布跟踪",
+      "batchEdit": "批量编辑产品"
+    },
+    "field": {
+      "id": "ID",
+      "program": "所属项目集",
+      "name": "产品名称",
+      "code": "产品代号",
+      "type": "产品类型",
+      "status": "状态",
+      "description": "产品简介",
+      "po": "产品负责人",
+      "qd": "测试负责人",
+      "rd": "发布负责人",
+      "acl": "访问控制",
+      "whitelist": "白名单",
+      "sort": "排序",
+      "closedAt": "结束时间"
+    },
+    "status": {
+      "normal": "正常",
+      "closed": "已结束"
+    },
+    "type": {
+      "normal": "正常",
+      "branch": "多分支",
+      "platform": "平台"
+    },
+    "acl": {
+      "public": "公开",
+      "private": "私有",
+      "custom": "自定义白名单"
+    },
+    "action": {
+      "create": "创建产品",
+      "createNew": "新建产品",
+      "edit": "编辑",
+      "close": "结束产品",
+      "activate": "激活产品",
+      "batch": "批量操作",
+      "detail": "详情",
+      "branches": "分支",
+      "categories": "分类",
+      "plans": "计划",
+      "releases": "发布",
+      "builds": "构建",
+      "track": "跟踪矩阵",
+      "dynamic": "动态"
+    },
+    "tab": {
+      "description": "简介",
+      "activities": "动态"
+    },
+    "track": {
+      "story": "需求",
+      "release": "发布",
+      "released": "已关联",
+      "empty": "暂无可跟踪的需求或发布"
+    },
+    "message": {
+      "whitelistRequired": "访问控制为自定义白名单时必须选择白名单成员。",
+      "batchHint": "批量编辑仅提交修改过的字段；名称必填。",
+      "noDescription": "暂无简介",
+      "deleteHint": "确认删除该产品？产品下存在未删除的需求/分支/计划/发布/构建时不可删除。"
+    }
+  },
+  "branch": {
+    "title": {
+      "list": "分支管理"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "name": "分支名称",
+      "isDefault": "默认分支",
+      "status": "状态",
+      "description": "描述",
+      "sort": "排序",
+      "closedAt": "关闭时间"
+    },
+    "status": {
+      "active": "激活",
+      "closed": "已关闭"
+    },
+    "action": {
+      "create": "新建分支",
+      "edit": "编辑",
+      "close": "关闭",
+      "activate": "激活",
+      "setDefault": "设为默认"
+    },
+    "message": {
+      "defaultSet": "已设为默认分支。",
+      "normalProductDisabled": "普通产品不支持分支，请先将产品类型改为多分支或平台。",
+      "deleteHint": "确认删除该分支？分支下存在未删除的需求时不可删除。"
+    }
+  },
+  "category": {
+    "title": {
+      "list": "分类管理"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "parent": "上级分类",
+      "root": "顶级分类",
+      "type": "分类类型",
+      "name": "分类名称",
+      "owner": "负责人",
+      "sort": "排序"
+    },
+    "type": {
+      "story": "需求",
+      "bug": "Bug",
+      "case": "用例"
+    },
+    "action": {
+      "create": "新建分类",
+      "edit": "编辑",
+      "delete": "删除",
+      "addChild": "新增子分类"
+    },
+    "message": {
+      "deleteCascade": "删除分类将同时删除其全部子分类，确认删除？",
+      "empty": "该类型下暂无分类"
+    }
+  },
+  "plan": {
+    "title": {
+      "list": "计划列表",
+      "detail": "计划详情"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "parent": "父计划",
+      "parentNone": "无父计划",
+      "title": "计划名称",
+      "status": "状态",
+      "description": "描述",
+      "beginDate": "开始日期",
+      "endDate": "结束日期",
+      "finishedAt": "完成时间",
+      "closedAt": "关闭时间",
+      "closedReason": "关闭原因"
+    },
+    "status": {
+      "wait": "未开始",
+      "doing": "进行中",
+      "done": "已完成",
+      "closed": "已关闭"
+    },
+    "closeReason": {
+      "done": "已完成",
+      "cancel": "已取消"
+    },
+    "action": {
+      "create": "新建计划",
+      "edit": "编辑",
+      "start": "开始",
+      "finish": "完成",
+      "close": "关闭",
+      "activate": "激活",
+      "link": "关联需求",
+      "unlink": "移除关联"
+    },
+    "tab": {
+      "stories": "需求",
+      "bugs": "Bug",
+      "activities": "动态"
+    },
+    "view": {
+      "list": "列表",
+      "board": "看板"
+    },
+    "message": {
+      "emptyColumn": "暂无计划",
+      "linkHint": "仅可关联同产品且未关闭的对象。",
+      "bugEmpty": "Bug 关联在 quality 域接通前暂不可用。",
+      "deleteHint": "确认删除该计划？计划下存在未删除的需求时不可删除。"
+    }
+  },
+  "release": {
+    "title": {
+      "list": "发布列表",
+      "detail": "发布详情"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "build": "关联构建",
+      "project": "关联项目",
+      "name": "发布名称",
+      "status": "状态",
+      "releaseDate": "计划发布日期",
+      "publishedAt": "实际发布时间",
+      "isMilestone": "里程碑",
+      "stories": "关联需求",
+      "bugs": "关联 Bug",
+      "notify": "通知对象",
+      "description": "描述"
+    },
+    "status": {
+      "normal": "已发布",
+      "terminated": "停止维护"
+    },
+    "action": {
+      "create": "创建发布",
+      "edit": "编辑",
+      "terminate": "停止维护",
+      "link": "关联需求",
+      "unlink": "移除关联"
+    },
+    "tab": {
+      "stories": "需求",
+      "bugs": "Bug",
+      "activities": "动态"
+    },
+    "message": {
+      "terminateHint": "停止维护后该发布不可再关联对象，确认操作？",
+      "milestone": "里程碑",
+      "deleteHint": "确认删除该发布？删除后关联数组随之失效。"
+    }
+  },
+  "build": {
+    "title": {
+      "list": "构建列表",
+      "detail": "构建详情"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "execution": "所属执行",
+      "project": "关联项目",
+      "name": "构建名称",
+      "scmPath": "SCM 路径",
+      "filePath": "安装包路径",
+      "buildDate": "构建日期",
+      "builder": "构建人",
+      "stories": "关联需求",
+      "bugs": "关联 Bug",
+      "description": "描述"
+    },
+    "action": {
+      "create": "创建构建",
+      "edit": "编辑",
+      "delete": "删除",
+      "link": "关联需求",
+      "unlink": "移除关联"
+    },
+    "tab": {
+      "stories": "需求",
+      "bugs": "Bug",
+      "activities": "动态"
+    },
+    "message": {
+      "deleteHint": "被发布引用的构建不可删除。",
+      "referencedByRelease": "该构建已被发布引用，不能删除。"
+    }
+  },
+  "story": {
+    "title": {
+      "list": "需求列表",
+      "detail": "需求详情",
+      "batchCreate": "批量创建需求",
+      "batchEdit": "批量编辑需求"
+    },
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "category": "所属分类",
+      "plan": "所属计划",
+      "parent": "父需求",
+      "title": "需求名称",
+      "keywords": "关键词",
+      "type": "需求类型",
+      "status": "状态",
+      "priority": "优先级",
+      "estimate": "预计工时",
+      "source": "需求来源",
+      "description": "需求描述",
+      "stage": "所处阶段",
+      "assignee": "指派给",
+      "assignedAt": "指派时间",
+      "reviewers": "评审人",
+      "needNotReview": "无需评审",
+      "notify": "通知对象",
+      "linked": "关联需求",
+      "duplicateOf": "重复需求",
+      "version": "版本",
+      "closedBy": "关闭人",
+      "closedAt": "关闭时间",
+      "closedReason": "关闭原因",
+      "files": "附件"
+    },
+    "status": {
+      "draft": "草稿",
+      "reviewing": "评审中",
+      "active": "激活",
+      "changing": "变更中",
+      "changed": "已变更",
+      "closed": "已关闭"
+    },
+    "type": {
+      "story": "研发需求",
+      "epic": "史诗",
+      "requirement": "业务需求"
+    },
+    "source": {
+      "manual": "手动录入",
+      "customer": "客户反馈",
+      "market": "市场",
+      "bug": "Bug 转化",
+      "other": "其他"
+    },
+    "stage": {
+      "wait": "未开始",
+      "developing": "研发中",
+      "testing": "测试中",
+      "released": "已发布"
+    },
+    "closeReason": {
+      "done": "已完成",
+      "duplicate": "重复",
+      "rejected": "不予采纳",
+      "willnotfix": "暂不修复",
+      "postponed": "延期处理"
+    },
+    "action": {
+      "create": "提需求",
+      "edit": "编辑",
+      "submitReview": "提交评审",
+      "pass": "评审通过",
+      "reject": "评审拒绝",
+      "change": "发起变更",
+      "changeDone": "变更完成",
+      "close": "关闭",
+      "activate": "激活",
+      "assign": "指派",
+      "batchCreate": "批量创建",
+      "batchEdit": "批量编辑",
+      "detail": "详情"
+    },
+    "tab": {
+      "description": "描述",
+      "activities": "动态",
+      "linked": "关联需求",
+      "files": "附件"
+    },
+    "message": {
+      "reviewersRequired": "提交评审时必须选择评审人。",
+      "rejectCommentRequired": "评审拒绝必须填写备注。",
+      "duplicateRequired": "关闭原因为重复时必须选择重复需求。",
+      "assigneeRequired": "请选择指派人。",
+      "batchHint": "整表可编辑，最多 50 条；仅填写名称的行会被创建。",
+      "noDescription": "暂无描述",
+      "deleteHint": "确认删除该需求？存在未删任务或子需求引用时不可删除。"
+    }
+  },
+  "project": {
+    "title": {
+      "programList": "项目集列表",
+      "programDetail": "项目集详情",
+      "list": "项目列表",
+      "detail": "项目详情",
+      "executionList": "执行列表",
+      "executions": "执行总列表",
+      "executionDetail": "执行详情",
+      "stories": "关联需求",
+      "members": "团队成员",
+      "stakeholders": "干系人",
+      "whitelist": "白名单"
+    },
+    "field": {
+      "id": "ID",
+      "type": "类型",
+      "parent": "上级",
+      "name": "名称",
+      "code": "代号",
+      "model": "项目流程",
+      "status": "状态",
+      "priority": "优先级",
+      "beginDate": "开始日期",
+      "endDate": "结束日期",
+      "firstEndDate": "首次计划完成",
+      "realBeganDate": "实际开始",
+      "realEndDate": "实际结束",
+      "days": "可用工作日",
+      "budget": "预算",
+      "budgetUnit": "预算币种",
+      "description": "描述",
+      "pm": "项目负责人",
+      "po": "产品负责人",
+      "qd": "测试负责人",
+      "rd": "开发负责人",
+      "progress": "进度",
+      "estimate": "预计工时",
+      "consumed": "已消耗工时",
+      "left": "剩余工时",
+      "milestone": "里程碑",
+      "acl": "访问控制",
+      "whitelist": "白名单",
+      "products": "关联产品"
+    },
+    "type": {
+      "program": "项目集",
+      "project": "项目",
+      "sprint": "迭代",
+      "stage": "阶段",
+      "kanban": "看板"
+    },
+    "model": {
+      "scrum": "敏捷",
+      "waterfall": "瀑布",
+      "kanban": "看板"
+    },
+    "status": {
+      "wait": "未开始",
+      "doing": "进行中",
+      "suspended": "已挂起",
+      "delay": "已延期",
+      "closed": "已关闭"
+    },
+    "acl": {
+      "open": "公开",
+      "private": "私有",
+      "program": "继承项目集"
+    },
+    "budgetUnit": {
+      "CNY": "人民币",
+      "USD": "美元"
+    },
+    "action": {
+      "createProgram": "新建项目集",
+      "createProject": "新建项目",
+      "createExecution": "新建执行",
+      "edit": "编辑",
+      "start": "开始",
+      "suspend": "挂起",
+      "resume": "恢复",
+      "delay": "延期",
+      "close": "关闭",
+      "activate": "激活",
+      "linkStory": "关联需求"
+    },
+    "tab": {
+      "subPrograms": "子项目集",
+      "projects": "子项目",
+      "products": "关联产品",
+      "executions": "执行",
+      "stories": "需求",
+      "members": "团队成员",
+      "stakeholders": "干系人",
+      "whitelist": "白名单",
+      "activities": "动态"
+    },
+    "message": {
+      "nameTooLong": "名称最多 90 个字符。",
+      "codeTooLong": "代号最多 45 个字符。",
+      "modelRequired": "项目流程必填。",
+      "typeRequired": "执行类型必选 sprint|stage|kanban。",
+      "dateOrder": "结束日期不能早于开始日期。",
+      "productsRequired": "项目必须关联至少一个产品。",
+      "whitelistRequired": "访问控制为私有时必须选择白名单成员。",
+      "whitelistActive": "当前项目为私有，白名单立即生效。",
+      "whitelistIdle": "访问控制非私有时白名单仅存档、不生效。",
+      "pickStory": "从关联产品选择需求",
+      "linked": "已关联 {count} 条需求。",
+      "linkedPartial": "部分需求关联成功（成功 {count} 条）。",
+      "linkFailed": "以下需求关联失败：{items}",
+      "unlinked": "已解除需求 #{{title}} 的关联。",
+      "deleteProgramHint": "确认删除该子项目集？存在未删的子项目集或子项目时不可删除。",
+      "deleteProjectHint": "确认删除该项目？存在未删的执行或未删的关联需求时不可删除。",
+      "deleteExecutionHint": "确认删除该执行？执行下存在未删任务时不可删除。"
+    }
+  },
+  "team": {
+    "field": {
+      "id": "ID",
+      "objectType": "对象类型",
+      "objectId": "对象",
+      "account": "账号",
+      "role": "团队角色",
+      "joinDate": "加入日期",
+      "days": "可用工作日",
+      "hours": "每日工时",
+      "sort": "排序"
+    },
+    "action": {
+      "addRow": "添加成员"
+    },
+    "message": {
+      "diffHint": "新增 {added} 人、修改 {updated} 人、移除 {removed} 人；保存为整表全量提交。",
+      "duplicateAccount": "成员账号不能重复。",
+      "partialFailed": "部分成员保存失败：{failed}"
+    }
+  },
+  "stakeholder": {
+    "field": {
+      "id": "ID",
+      "objectType": "对象类型",
+      "objectId": "对象",
+      "account": "账号",
+      "type": "类型",
+      "isKey": "关键干系人",
+      "source": "来源"
+    },
+    "type": {
+      "inside": "内部",
+      "outside": "外部"
+    },
+    "action": {
+      "add": "添加干系人",
+      "remove": "移除干系人"
+    },
+    "message": {
+      "duplicate": "该干系人已存在。"
+    }
+  },
+  "board": {
+    "title": {
+      "spaceList": "看板空间列表",
+      "spaceDetail": "看板空间详情",
+      "spaceBoards": "空间下的看板",
+      "board": "看板",
+      "card": "卡片详情",
+      "executionKanban": "需求看板"
+    },
+    "field": {
+      "id": "ID",
+      "name": "名称",
+      "type": "空间类型",
+      "owner": "负责人",
+      "team": "团队成员",
+      "acl": "访问控制",
+      "whitelist": "白名单",
+      "lane": "所属列",
+      "laneName": "列名称",
+      "laneColor": "列颜色",
+      "wipLimit": "WIP 上限",
+      "archived": "已归档",
+      "cardName": "卡片名称",
+      "cardColor": "卡片颜色",
+      "beginDate": "开始日期",
+      "endDate": "结束日期",
+      "estimate": "预计工时",
+      "progress": "进度"
+    },
+    "spaceType": {
+      "cooperation": "协作空间",
+      "public": "公共空间",
+      "private": "私人空间"
+    },
+    "acl": {
+      "open": "公开",
+      "private": "私有",
+      "extend": "继承空间"
+    },
+    "status": {
+      "active": "激活",
+      "closed": "已关闭"
+    },
+    "cardStatus": {
+      "doing": "进行中",
+      "done": "已完成"
+    },
+    "action": {
+      "createSpace": "新建看板空间",
+      "editSpace": "编辑看板空间",
+      "closeSpace": "关闭空间",
+      "activateSpace": "激活空间",
+      "createBoard": "新建看板",
+      "editBoard": "编辑看板",
+      "closeBoard": "关闭看板",
+      "activateBoard": "激活看板",
+      "createLane": "新建列",
+      "editLane": "列配置",
+      "createCard": "新建卡片",
+      "editCard": "编辑卡片",
+      "archiveCard": "归档卡片",
+      "finishCard": "标记完成",
+      "reopenCard": "重新打开",
+      "unarchiveCard": "取消归档"
+    },
+    "message": {
+      "nameTooLong": "名称最多 90 个字符。",
+      "cardNameTooLong": "卡片名称最多 255 个字符。",
+      "whitelistRequired": "访问控制为私有时必须选择白名单成员。",
+      "colorFormat": "颜色需为 #RRGGBB 格式。",
+      "dateOrder": "结束日期不能早于开始日期。",
+      "wipUnlimited": "-1 表示不限；超限拖拽将被服务端拒绝（42203）。",
+      "wipExceeded": "WIP 超限",
+      "deleteLaneHint": "确认删除该列？列内有卡片时不可删除。",
+      "archiveHint": "归档后卡片不再显示在看板上，且不改变卡片状态，确认归档？",
+      "emptyBoard": "看板暂无列，先新建一列。",
+      "sortHint": "拖拽列头可调整列顺序，拖拽卡片可跨列或列内排序。",
+      "moveFailed": "拖拽未生效，已恢复原位置。",
+      "kanbanMoveFailed": "需求状态不允许该迁移，卡片已回到原列。",
+      "kanbanHint": "拖拽卡片到目标列 = 委托需求状态动作，非法迁移会被拒绝并回滚。",
+      "noDescription": "暂无描述",
+      "deleteSpaceHint": "确认删除该看板空间？空间内仍有看板时不可删除。",
+      "deleteBoardHint": "确认删除该看板？看板内仍有卡片时不可删除。",
+      "deleteCardHint": "确认删除该卡片？删除后不可恢复。"
+    }
+  },
+  "stage": {
+    "title": {
+      "list": "阶段类型"
+    },
+    "field": {
+      "id": "ID",
+      "name": "阶段名称",
+      "percent": "占比（%）",
+      "type": "阶段类型",
+      "projectModel": "项目流程"
+    },
+    "type": {
+      "mix": "混合",
+      "request": "需求",
+      "design": "设计",
+      "dev": "开发",
+      "qa": "测试",
+      "release": "发布",
+      "review": "评审",
+      "other": "其他"
+    },
+    "projectModel": {
+      "waterfall": "瀑布"
+    },
+    "action": {
+      "create": "新建阶段"
+    },
+    "message": {
+      "percentExceeded": "同项目流程下阶段占比累计不能超过 100%。",
+      "deleteHint": "确认删除该阶段类型？"
+    }
+  },
+  "task": {
+    "title": {
+      "list": "任务列表",
+      "detail": "任务详情",
+      "batchCreate": "批量创建任务",
+      "batchEdit": "批量操作"
+    },
+    "field": {
+      "id": "ID",
+      "execution": "所属执行",
+      "project": "所属项目",
+      "story": "关联需求",
+      "parent": "父任务",
+      "category": "所属分类",
+      "title": "任务名称",
+      "type": "任务类型",
+      "priority": "优先级",
+      "status": "状态",
+      "estimate": "预计工时",
+      "consumed": "已消耗",
+      "left": "剩余工时",
+      "estStarted": "预计开始",
+      "deadline": "截止日期",
+      "assignee": "指派给",
+      "assignedAt": "指派时间",
+      "startedAt": "实际开始",
+      "activatedAt": "激活时间",
+      "finishedBy": "完成人",
+      "finishedAt": "完成时间",
+      "canceledBy": "取消人",
+      "canceledAt": "取消时间",
+      "closedBy": "关闭人",
+      "closedAt": "关闭时间",
+      "closedReason": "关闭原因",
+      "keywords": "关键词",
+      "description": "描述",
+      "isParent": "父任务",
+      "notify": "通知对象",
+      "children": "子任务",
+      "progress": "进度",
+      "work": "工作内容",
+      "consume": "本次消耗",
+      "files": "附件"
+    },
+    "type": {
+      "design": "设计",
+      "devel": "开发",
+      "request": "需求",
+      "test": "测试",
+      "study": "研究",
+      "discuss": "讨论",
+      "ui": "界面",
+      "affair": "事务",
+      "misc": "其他"
+    },
+    "status": {
+      "wait": "未开始",
+      "doing": "进行中",
+      "done": "已完成",
+      "pause": "已暂停",
+      "cancel": "已取消",
+      "closed": "已关闭"
+    },
+    "closeReason": {
+      "done": "已完成",
+      "cancel": "已取消"
+    },
+    "action": {
+      "create": "新建任务",
+      "createChild": "创建子任务",
+      "edit": "编辑",
+      "start": "开始",
+      "finish": "完成",
+      "pause": "暂停",
+      "resume": "继续",
+      "cancel": "取消任务",
+      "close": "关闭",
+      "activate": "激活",
+      "assign": "指派",
+      "batchCreate": "批量创建",
+      "batchEdit": "批量操作",
+      "tree": "树状",
+      "flat": "平铺"
+    },
+    "tab": {
+      "description": "描述",
+      "children": "子任务",
+      "efforts": "工时",
+      "activities": "动态",
+      "files": "附件"
+    },
+    "message": {
+      "batchHint": "整表可编辑，最多 50 条；仅填写名称的行会被创建；勾选「子任务」表示上一行为其父任务。",
+      "batchFailed": "该行创建失败。",
+      "parentFailed": "父任务创建失败，本行未提交。",
+      "noDescription": "暂无描述",
+      "noChildren": "暂无子任务",
+      "assigneeRequired": "请选择指派人。",
+      "leftHoursRequired": "激活必须填写大于 0 的剩余工时。",
+      "closeReasonRequired": "非完成/取消来源关闭必须填写关闭原因。",
+      "finishConsumedRequired": "累计消耗为 0 时必须填写本次消耗。",
+      "dateOrder": "开始时间不能晚于完成时间。",
+      "overdue": "已逾期",
+      "selectFirst": "请先在列表勾选任务。",
+      "batchHintEdit": "批量编辑为同一组字段逐条应用；逐项结果显示在行末。",
+      "titleTooLong": "任务名称最多 255 个字符。",
+      "deleteHint": "确认删除该任务？存在未删子任务时不可删除。"
+    }
+  },
+  "effort": {
+    "title": {
+      "list": "工时流水",
+      "record": "登记工时",
+      "edit": "编辑工时"
+    },
+    "field": {
+      "id": "ID",
+      "task": "所属任务",
+      "account": "登记人",
+      "workDate": "日期",
+      "consumed": "本次消耗",
+      "left": "剩余工时",
+      "work": "工作内容"
+    },
+    "action": {
+      "record": "登记工时",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "message": {
+      "deleteHint": "确认删除该条工时？任务工时将按剩余流水重算。",
+      "dateFuture": "工时日期不能晚于今天。",
+      "consumedRequired": "本次消耗必须大于 0。",
+      "leftHint": "填写剩余工时将覆写任务剩余；填 0 将自动完成任务。",
+      "empty": "暂无工时记录"
+    }
+  },
+  "quality": {
+    "title": {
+      "bugs": "Bug 列表",
+      "bugDetail": "Bug 详情",
+      "bugBatchCreate": "批量创建 Bug",
+      "bugBatchEdit": "批量操作 Bug",
+      "testCases": "用例列表",
+      "testCaseDetail": "用例详情",
+      "caseBatchCreate": "批量创建用例",
+      "caseBatchEdit": "批量操作用例",
+      "suites": "套件列表",
+      "suiteDetail": "套件详情",
+      "libraries": "用例库列表",
+      "libraryDetail": "用例库详情",
+      "libraryCaseBatchCreate": "批量创建库用例",
+      "testRuns": "测试单列表",
+      "testRunDetail": "测试单详情",
+      "testRunCases": "执行用例",
+      "reports": "测试报告列表",
+      "reportDetail": "测试报告详情"
+    }
+  },
+  "bug": {
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "category": "所属分类",
+      "project": "所属项目",
+      "execution": "所属执行",
+      "plan": "所属计划",
+      "story": "相关需求",
+      "task": "相关任务",
+      "testCase": "来源用例",
+      "testRun": "来源测试单",
+      "title": "Bug 标题",
+      "keywords": "关键词",
+      "severity": "严重程度",
+      "priority": "优先级",
+      "type": "Bug 类型",
+      "os": "操作系统",
+      "browser": "浏览器",
+      "steps": "重现步骤",
+      "openedBuilds": "影响版本",
+      "status": "状态",
+      "confirmed": "是否确认",
+      "activatedCount": "激活次数",
+      "deadline": "截止日期",
+      "assignee": "指派给",
+      "assignedAt": "指派时间",
+      "resolution": "解决方案",
+      "resolvedBy": "解决人",
+      "resolvedAt": "解决时间",
+      "resolvedBuild": "解决版本",
+      "duplicateOf": "重复 Bug",
+      "relatedBugs": "关联 Bug",
+      "notify": "通知对象",
+      "closedBy": "关闭人",
+      "closedAt": "关闭时间",
+      "files": "附件"
+    },
+    "severity": {
+      "1": "致命",
+      "2": "严重",
+      "3": "一般",
+      "4": "轻微"
+    },
+    "type": {
+      "codeerror": "代码错误",
+      "config": "配置相关",
+      "install": "安装部署",
+      "security": "安全相关",
+      "performance": "性能问题",
+      "standard": "标准规范",
+      "automation": "测试脚本",
+      "designdefect": "设计缺陷",
+      "others": "其他"
+    },
+    "status": {
+      "active": "激活",
+      "resolved": "已解决",
+      "closed": "已关闭"
+    },
+    "resolution": {
+      "bydesign": "设计如此",
+      "duplicate": "重复 Bug",
+      "external": "外部原因",
+      "fixed": "已解决",
+      "notrepro": "无法重现",
+      "postponed": "延期处理",
+      "willnotfix": "不予解决",
+      "tostory": "转为需求"
+    },
+    "os": {
+      "windows": "Windows",
+      "osx": "macOS",
+      "linux": "Linux",
+      "android": "Android",
+      "ios": "iOS",
+      "others": "其他"
+    },
+    "browser": {
+      "ie": "IE",
+      "chrome": "Chrome",
+      "firefox": "Firefox",
+      "edge": "Edge",
+      "safari": "Safari",
+      "others": "其他"
+    },
+    "confirmed": {
+      "yes": "已确认",
+      "no": "未确认"
+    },
+    "action": {
+      "create": "提 Bug",
+      "edit": "编辑",
+      "confirm": "确认",
+      "resolve": "解决",
+      "activate": "重开",
+      "close": "关闭",
+      "assign": "指派",
+      "link": "关联",
+      "batchCreate": "批量创建",
+      "batchEdit": "批量操作"
+    },
+    "tab": {
+      "steps": "重现步骤",
+      "activities": "动态",
+      "related": "关联",
+      "files": "附件"
+    },
+    "message": {
+      "batchHint": "整表可编辑，最多 50 条；仅填写标题的行会被创建。",
+      "batchHintEdit": "批量编辑为同一组字段逐条应用；逐项结果显示在行末。",
+      "selectFirst": "请先在列表勾选 Bug。",
+      "duplicateRequired": "解决方式为重复时必须选择重复 Bug。",
+      "resolvedBuildRequired": "解决方式为已解决时必须填写解决版本。",
+      "openedBuildsRequired": "重开必须填写影响版本。",
+      "activateAssigneeFallback": "留空将回派原解决人：{{account}}",
+      "assigneeRequired": "请选择指派人。",
+      "noSteps": "暂无重现步骤",
+      "deleteHint": "确认删除该 Bug？"
+    }
+  },
+  "testCase": {
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "branch": "所属分支",
+      "library": "所属用例库",
+      "category": "所属分类",
+      "story": "相关需求",
+      "title": "用例标题",
+      "precondition": "前置条件",
+      "keywords": "关键词",
+      "priority": "优先级",
+      "type": "用例类型",
+      "stage": "适用阶段",
+      "status": "状态",
+      "steps": "用例步骤",
+      "stepSort": "步骤",
+      "stepDescription": "步骤描述",
+      "stepExpects": "预期结果",
+      "fromBug": "来源 Bug",
+      "lastRunResult": "最近结果",
+      "lastRunner": "最近执行人",
+      "lastRunAt": "最近执行时间",
+      "reviewers": "评审人",
+      "reviewedAt": "评审时间",
+      "reviewResult": "评审结论",
+      "version": "版本",
+      "needReview": "需要评审"
+    },
+    "type": {
+      "unit": "单元测试",
+      "interface": "接口测试",
+      "feature": "功能测试",
+      "install": "安装部署",
+      "config": "配置相关",
+      "performance": "性能测试",
+      "security": "安全测试",
+      "other": "其他"
+    },
+    "stage": {
+      "unittest": "单元测试阶段",
+      "feature": "功能测试阶段",
+      "intergrate": "集成测试阶段",
+      "system": "系统测试阶段",
+      "smoke": "冒烟测试",
+      "bvt": "BVT"
+    },
+    "status": {
+      "wait": "待评审",
+      "normal": "正常",
+      "blocked": "被阻塞",
+      "investigate": "研究中"
+    },
+    "result": {
+      "pass": "通过",
+      "fail": "失败",
+      "blocked": "阻塞",
+      "n/a": "忽略"
+    },
+    "needReview": {
+      "yes": "是",
+      "no": "否"
+    },
+    "action": {
+      "create": "建用例",
+      "edit": "编辑",
+      "review": "评审",
+      "batchCreate": "批量创建",
+      "batchEdit": "批量操作",
+      "addStep": "添加步骤",
+      "stepUp": "上移",
+      "stepDown": "下移"
+    },
+    "review": {
+      "pass": "评审通过",
+      "clarify": "继续澄清"
+    },
+    "tab": {
+      "steps": "步骤",
+      "activities": "动态",
+      "files": "附件"
+    },
+    "message": {
+      "batchHint": "整表可编辑，最多 50 条；仅填写标题的行会被创建。",
+      "batchHintEdit": "批量编辑为同一组字段逐条应用；逐项结果显示在行末。",
+      "selectFirst": "请先在列表勾选用例。",
+      "statusPatchHint": "标记态可在 正常/被阻塞/研究中 间直改；待评审进出只经评审。",
+      "deleteHint": "确认删除该用例？"
+    }
+  },
+  "suite": {
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "name": "套件名称",
+      "description": "描述",
+      "type": "类型",
+      "sort": "排序",
+      "caseCount": "用例数",
+      "createdBy": "创建人",
+      "createdAt": "创建时间"
+    },
+    "type": {
+      "public": "公开",
+      "private": "私有",
+      "library": "用例库"
+    },
+    "action": {
+      "create": "建套件",
+      "edit": "编辑",
+      "linkCase": "关联用例",
+      "unlinkCase": "解除关联"
+    },
+    "tab": {
+      "cases": "用例",
+      "activities": "动态"
+    },
+    "message": {
+      "unlinkConfirm": "确认解除该用例的关联？",
+      "deleteHint": "确认删除该套件？套件内的用例关联将一并失效。"
+    }
+  },
+  "library": {
+    "field": {
+      "id": "ID",
+      "name": "用例库名称",
+      "description": "描述",
+      "caseCount": "用例数",
+      "createdBy": "创建人",
+      "createdAt": "创建时间"
+    },
+    "action": {
+      "create": "建用例库",
+      "edit": "编辑",
+      "addCase": "建用例",
+      "batchCreate": "批量创建"
+    },
+    "tab": {
+      "cases": "用例",
+      "activities": "动态"
+    },
+    "message": {
+      "imported": "导入成功。",
+      "deleteHint": "确认删除该用例库？库内存在未删用例时不可删除。"
+    }
+  },
+  "testRun": {
+    "field": {
+      "id": "ID",
+      "product": "所属产品",
+      "project": "所属项目",
+      "execution": "所属执行",
+      "build": "关联构建",
+      "name": "测试单名称",
+      "owner": "负责人",
+      "priority": "优先级",
+      "type": "测试类型",
+      "beginDate": "开始日期",
+      "endDate": "结束日期",
+      "realBeganAt": "实际开始",
+      "realFinishedAt": "实际结束",
+      "description": "描述",
+      "members": "参与人",
+      "notify": "抄送",
+      "status": "状态",
+      "report": "测试报告",
+      "assignee": "执行人",
+      "lastRunner": "最近执行人",
+      "lastRunAt": "最近执行时间",
+      "caseTitle": "用例标题",
+      "result": "执行结果"
+    },
+    "status": {
+      "wait": "未开始",
+      "doing": "进行中",
+      "done": "已关闭",
+      "blocked": "被阻塞"
+    },
+    "type": {
+      "integrate": "集成测试",
+      "system": "系统测试",
+      "acceptance": "验收测试",
+      "performance": "性能测试",
+      "safety": "安全测试"
+    },
+    "action": {
+      "create": "建测试单",
+      "edit": "编辑",
+      "start": "开始",
+      "block": "阻塞",
+      "activate": "激活",
+      "close": "关闭",
+      "linkCase": "关联用例",
+      "unlinkCase": "解除关联",
+      "recordResult": "登记结果",
+      "assignCase": "指派执行人"
+    },
+    "tab": {
+      "cases": "执行用例",
+      "description": "描述",
+      "activities": "动态"
+    },
+    "summary": {
+      "none": "未执行"
+    },
+    "message": {
+      "closeDateRequired": "请填写实际结束时间。",
+      "closeDateBeforeBegin": "实际结束时间不得早于开始日期。",
+      "closeDateAfterNextDay": "实际结束时间不得晚于结束日期的次日。",
+      "linkCasesEmpty": "请先勾选用例。",
+      "statTotal": "共 {{total}} 条",
+      "deleteHint": "确认删除该测试单？"
+    }
+  },
+  "report": {
+    "field": {
+      "id": "ID",
+      "execution": "所属执行",
+      "project": "所属项目",
+      "product": "所属产品",
+      "title": "报告标题",
+      "testRuns": "关联测试单",
+      "beginDate": "开始日期",
+      "endDate": "结束日期",
+      "owner": "负责人",
+      "content": "报告正文",
+      "createdBy": "创建人",
+      "createdAt": "创建时间"
+    },
+    "action": {
+      "create": "建报告",
+      "edit": "编辑"
+    },
+    "tab": {
+      "content": "报告正文",
+      "runs": "关联测试单"
+    },
+    "message": {
+      "executionFixed": "所属执行创建后不可修改。",
+      "loadFailed": "报表加载失败。",
+      "deleteHint": "确认删除该测试报告？关联测试单的报告引用将被清空。"
+    },
+    "title": {
+      "burn": "燃尽图",
+      "storySummary": "需求统计",
+      "bugDistribution": "Bug 分布",
+      "casePassRate": "用例通过率"
+    },
+    "group": {
+      "status": "状态",
+      "priority": "优先级",
+      "stage": "阶段",
+      "type": "类型",
+      "severity": "严重度",
+      "resolution": "解决方案"
+    },
+    "series": {
+      "ideal": "理想剩余",
+      "remaining": "实际剩余",
+      "count": "数量"
+    },
+    "result": {
+      "passed": "通过",
+      "failed": "失败",
+      "blocked": "阻塞",
+      "na": "不适用"
+    },
+    "passRate": {
+      "label": "通过率",
+      "total": "用例总数",
+      "none": "无有效执行"
+    },
+    "resolution": {
+      "unresolved": "未解决"
+    },
+    "burn": {
+      "beginDate": "开始日期",
+      "endDate": "结束日期"
+    },
+    "summary": {
+      "total": "合计"
+    },
+    "empty": "暂无数据"
+  },
+  "workspace": {
+    "title": {
+      "todos": "待办列表",
+      "todoDetail": "待办详情",
+      "todoBatchCreate": "批量创建待办",
+      "todoBatchEdit": "批量操作待办",
+      "dashboard": "我的地盘",
+      "myTasks": "我的任务",
+      "myBugs": "我的 Bug",
+      "myStories": "我的需求",
+      "activities": "我的动态"
+    }
+  },
+  "todo": {
+    "field": {
+      "id": "ID",
+      "title": "待办名称",
+      "type": "类型",
+      "object": "关联对象",
+      "date": "日期",
+      "begin": "开始时间",
+      "end": "结束时间",
+      "time": "时间段",
+      "description": "描述",
+      "isPrivate": "私有",
+      "assignee": "指派给",
+      "assignedBy": "指派者",
+      "assignedAt": "指派时间",
+      "finishedBy": "完成者",
+      "finishedAt": "完成时间",
+      "closedBy": "关闭者",
+      "closedAt": "关闭时间",
+      "keywords": "关键词"
+    },
+    "type": {
+      "custom": "自定义",
+      "bug": "Bug",
+      "task": "任务",
+      "story": "需求",
+      "epic": "史诗",
+      "requirement": "业务需求",
+      "testRun": "测试单"
+    },
+    "status": {
+      "wait": "未开始",
+      "doing": "进行中",
+      "done": "已完成",
+      "closed": "已关闭"
+    },
+    "tab": {
+      "today": "今天",
+      "week": "本周",
+      "undated": "待定",
+      "all": "全部",
+      "activities": "动态"
+    },
+    "action": {
+      "create": "新建待办",
+      "edit": "编辑",
+      "start": "开始",
+      "finish": "完成",
+      "activate": "激活",
+      "close": "关闭",
+      "assign": "指派",
+      "batchCreate": "批量创建",
+      "batchEdit": "批量操作"
+    },
+    "message": {
+      "titleTooLong": "待办名称最多 150 个字符。",
+      "objectRequired": "请选择关联对象。",
+      "objectIdPlaceholder": "对象 ID",
+      "objectPlaceholder": "搜索并选择关联对象",
+      "objectSearchHint": "输入关键词搜索对象",
+      "dateRequired": "日期不可为空。",
+      "timeFormat": "时间格式为 HH:mm。",
+      "timeOrder": "结束时间必须晚于开始时间。",
+      "assigneeRequired": "请选择指派给。",
+      "privateHint": "仅创建者与指派对象可见",
+      "undated": "待定",
+      "noDescription": "暂无描述",
+      "batchHint": "整表可编辑，最多 50 条；仅填写名称的行会被创建；日期留空 = 待定。",
+      "batchHintEdit": "批量操作对勾选的待办逐条套用状态机守卫，逐项结果显示在行末。",
+      "batchFailed": "该行创建失败。",
+      "selectFirst": "请先在列表勾选待办。",
+      "deleteHint": "确认删除该待办？"
+    }
+  },
+  "my": {
+    "card": {
+      "todos": "我的待办",
+      "tasks": "我的任务",
+      "bugs": "我的 Bug",
+      "stories": "我的需求"
+    },
+    "role": {
+      "tasks": {
+        "assignee": "指派给我",
+        "creator": "由我创建",
+        "finisher": "由我完成",
+        "closer": "由我关闭"
+      },
+      "bugs": {
+        "assignee": "指派给我",
+        "creator": "由我创建",
+        "resolver": "由我解决",
+        "closer": "由我关闭"
+      },
+      "stories": {
+        "assignee": "指派给我",
+        "creator": "由我创建",
+        "reviewer": "由我评审",
+        "closer": "由我关闭"
+      }
+    },
+    "profile": {
+      "avatar": "头像",
+      "readonlyHint": "没有权限编辑资料（需 account-edit 码），仅可查看。",
+      "title": "个人资料"
+    }
+  },
+  "weeklyReport": {
+    "title": "项目周报",
+    "nav": {
+      "prev": "上一周",
+      "next": "下一周",
+      "current": "本周"
+    },
+    "field": {
+      "weekSN": "周次",
+      "pv": "计划工时 PV",
+      "ev": "挣值工时 EV",
+      "ac": "实际工时 AC",
+      "sv": "进度偏差 SV",
+      "cv": "成本偏差 CV",
+      "staff": "投入人数"
+    },
+    "analysis": "周报结论",
+    "table": {
+      "finished": "本周完成任务",
+      "postponed": "本周未完成任务",
+      "nextWeek": "下周计划任务",
+      "empty": "无任务"
+    },
+    "message": {
+      "loadFailed": "周报加载失败。"
+    }
+  },
+  "dashboard": {
+    "layout": {
+      "title": "布局配置",
+      "reset": "恢复默认",
+      "hint": "拖动卡片换序，可显隐与切换半栏/通栏。"
+    },
+    "widget": {
+      "summary": "概览",
+      "myTodos": "待办",
+      "myTasks": "任务",
+      "myBugs": "Bug",
+      "myStories": "需求",
+      "myActivities": "动态"
+    },
+    "size": {
+      "half": "半栏",
+      "full": "通栏"
+    },
+    "action": {
+      "hide": "隐藏"
+    },
+    "empty": "暂无数据"
+  },
+  "personnel": {
+    "title": "人员管理",
+    "search": "搜索成员",
+    "field": {
+      "account": "登录名",
+      "realName": "姓名",
+      "department": "部门",
+      "role": "角色",
+      "openTaskCount": "在办任务",
+      "unresolvedBugCount": "未解决 Bug"
+    },
+    "action": {
+      "workload": "工作量统计"
+    },
+    "message": {
+      "loadFailed": "成员列表加载失败。"
+    },
+    "workload": {
+      "title": "工作量统计",
+      "date": "日期区间",
+      "allDepartments": "全部部门",
+      "chart": "投入分布",
+      "detail": "明细",
+      "consumedHours": "消耗工时",
+      "finishedTaskCount": "完成任务数",
+      "empty": "该区间无工时数据",
+      "loadFailed": "工作量加载失败。"
+    }
+  },
+  "docSpace": {
+    "title": {
+      "list": "文档库",
+      "detail": "库内文档"
+    },
+    "field": {
+      "id": "ID",
+      "name": "库名称",
+      "type": "库类型",
+      "product": "所属产品",
+      "project": "所属项目",
+      "execution": "所属执行",
+      "acl": "权限",
+      "whitelist": "白名单",
+      "description": "描述",
+      "docSort": "文档排序",
+      "isDefault": "主库",
+      "docCount": "文档数",
+      "sort": "排序",
+      "createdBy": "创建人",
+      "createdAt": "创建时间",
+      "whitelistGroup": "白名单组"
+    },
+    "type": {
+      "product": "产品库",
+      "project": "项目库",
+      "execution": "执行库",
+      "custom": "自定义库",
+      "mine": "我的库"
+    },
+    "acl": {
+      "open": "公开",
+      "default": "默认",
+      "private": "私有"
+    },
+    "docSort": {
+      "id_asc": "按创建顺序",
+      "id_desc": "按创建倒序"
+    },
+    "action": {
+      "create": "新建文档库",
+      "edit": "编辑文档库"
+    },
+    "message": {
+      "nameTooLong": "库名称最多 60 个字符。",
+      "productRequired": "产品库必须选择所属产品。",
+      "projectRequired": "项目库必须选择所属项目。",
+      "executionRequired": "执行库必须选择所属执行。",
+      "whitelistRequired": "私有库必须配置白名单（至少一个账号）。",
+      "defaultHint": "设为主库（同一对象至多一个）",
+      "deleteHint": "库内文档不可见，确认删除该文档库？",
+      "noDescription": "暂无描述"
+    }
+  },
+  "doc": {
+    "title": {
+      "my": "我的空间",
+      "detail": "文档详情",
+      "edit": "编辑文档",
+      "files": "文档附件库"
+    },
+    "field": {
+      "id": "ID",
+      "doc": "文档",
+      "docSpace": "所属库",
+      "category": "目录",
+      "parent": "父章节",
+      "title": "标题",
+      "keywords": "关键词",
+      "type": "类型",
+      "status": "状态",
+      "acl": "权限",
+      "editors": "可编辑",
+      "readers": "只读",
+      "notify": "通知对象",
+      "content": "正文",
+      "files": "附件",
+      "version": "最新版本",
+      "hasDraft": "有未发布修改",
+      "views": "阅读",
+      "sort": "排序",
+      "updatedBy": "更新人",
+      "updatedAt": "更新时间",
+      "editorsGroup": "可编辑组",
+      "readersGroup": "只读组"
+    },
+    "status": {
+      "draft": "草稿",
+      "published": "已发布"
+    },
+    "type": {
+      "markdown": "Markdown",
+      "html": "HTML（存量）"
+    },
+    "acl": {
+      "open": "公开",
+      "private": "私有"
+    },
+    "action": {
+      "create": "新建文档",
+      "edit": "编辑",
+      "move": "移动",
+      "delete": "删除",
+      "publish": "发布",
+      "save-draft": "存草稿",
+      "editInfo": "编辑信息"
+    },
+    "tab": {
+      "activities": "动态",
+      "comments": "评论",
+      "created": "我创建的",
+      "edited": "我编辑的",
+      "draft": "我的草稿"
+    },
+    "message": {
+      "allDocs": "全部文档",
+      "uncategorized": "未分类",
+      "noParent": "无（顶层）",
+      "empty": "暂无文档",
+      "titleTooLong": "标题最多 255 个字符。",
+      "openClearsAcl": "公开文档不保留编辑/只读白名单，请先切换为私有。",
+      "batchPartial": "部分条目处理失败（{{failed}} 条）。",
+      "batchDeleteHint": "确认删除选中的 {{count}} 篇文档（含子章节）？",
+      "deleteHint": "删除后连同子章节一并回收，确认删除？",
+      "targetSpaceRequired": "请选择目标文档库。",
+      "pickDoc": "请选择文档查看其附件",
+      "noContent": "暂无正文",
+      "noChanges": "内容与当前版本一致，无改动可发布。",
+      "draftSaved": "草稿已保存。",
+      "published": "已发布 v{{version}}。",
+      "editForbidden": "无权编辑该文档。",
+      "unavailable": "文档不可访问",
+      "unsaved": "有未保存的修改",
+      "leave": "放弃修改并离开",
+      "leaveHint": "离开后未保存的正文将丢失，确认离开？",
+      "markdownHint": "支持 Markdown 语法",
+      "snapshotFiles": "附件随版本快照保存，当前展示最新版附件。"
+    },
+    "filter": {
+      "scope": "文档范围"
+    }
+  },
+  "docVersion": {
+    "title": {
+      "list": "版本历史",
+      "diff": "版本比对"
+    },
+    "field": {
+      "id": "ID",
+      "doc": "文档",
+      "version": "版本",
+      "title": "标题",
+      "digest": "摘要",
+      "workingCopy": "草稿工作副本"
+    },
+    "action": {
+      "compare": "比对"
+    },
+    "message": {
+      "noContent": "无正文内容",
+      "selectTwo": "请勾选两个版本再比对。",
+      "pickVersions": "请在下拉框选择两个版本"
+    }
+  },
+  "docCategory": {
+    "action": {
+      "addChild": "加子目录",
+      "create": "新建目录",
+      "newInstead": "新建"
+    },
+    "field": {
+      "name": "目录名称",
+      "parent": "上级目录"
+    },
+    "message": {
+      "deleteHint": "删除目录须先移除其子目录与文档引用。",
+      "editing": "目录名编辑中，保存后生效。",
+      "empty": "暂无目录，先新建一个。"
+    },
+    "title": {
+      "manage": "管理目录"
+    }
+  },
+  "file": {
+    "field": {
+      "downloads": "下载次数",
+      "extension": "类型",
+      "size": "大小",
+      "title": "文件名"
+    }
+  },
+  "priv": {
+    "file-upload": "上传附件",
+    "setting-manage": "管理系统设置",
+    "lang-manage": "管理文案",
+    "doc-space-view": "查看文档库",
+    "doc-space-create": "创建文档库",
+    "doc-space-edit": "编辑文档库",
+    "doc-space-delete": "删除文档库",
+    "doc-view": "查看文档",
+    "doc-create": "创建文档",
+    "doc-edit": "编辑文档",
+    "doc-delete": "删除文档",
+    "department-view": "查看部门",
+    "department-create": "创建部门",
+    "department-edit": "编辑部门",
+    "department-delete": "删除部门",
+    "account-view": "查看账号",
+    "account-create": "创建账号",
+    "account-edit": "编辑账号",
+    "account-password": "修改本人密码",
+    "account-reset-password": "重置他人密码",
+    "account-disable": "停用账号",
+    "account-enable": "启用账号",
+    "account-unlock": "解锁账号",
+    "account-delete": "删除账号",
+    "group-view": "查看角色",
+    "group-create": "创建角色",
+    "group-edit": "编辑角色",
+    "group-copy": "复制角色",
+    "group-delete": "删除角色",
+    "group-priv-edit": "分配角色权限",
+    "group-member-edit": "维护角色成员",
+    "personnel-view": "查看人员管理",
+    "product-view": "查看产品",
+    "product-create": "创建产品",
+    "product-edit": "编辑产品",
+    "product-close": "关闭产品",
+    "product-activate": "激活产品",
+    "product-delete": "删除产品",
+    "branch-manage": "维护分支",
+    "branch-delete": "删除分支",
+    "category-manage": "维护模块",
+    "plan-view": "查看计划",
+    "plan-create": "创建计划",
+    "plan-edit": "编辑计划",
+    "plan-start": "开始计划",
+    "plan-finish": "完成计划",
+    "plan-close": "关闭计划",
+    "plan-activate": "激活计划",
+    "plan-link": "关联计划",
+    "plan-delete": "删除计划",
+    "release-view": "查看发布",
+    "release-create": "创建发布",
+    "release-edit": "编辑发布",
+    "release-terminate": "终止发布",
+    "release-link": "关联发布",
+    "release-delete": "删除发布",
+    "build-view": "查看构建",
+    "build-create": "创建构建",
+    "build-edit": "编辑构建",
+    "build-delete": "删除构建",
+    "build-link": "关联构建",
+    "program-view": "查看项目集",
+    "program-create": "创建项目集",
+    "program-edit": "编辑项目集",
+    "program-delete": "删除项目集",
+    "program-start": "开始项目集",
+    "program-suspend": "挂起项目集",
+    "program-resume": "继续项目集",
+    "program-delay": "延期项目集",
+    "program-close": "关闭项目集",
+    "program-activate": "激活项目集",
+    "project-view": "查看项目",
+    "project-create": "创建项目",
+    "project-edit": "编辑项目",
+    "project-delete": "删除项目",
+    "project-start": "开始项目",
+    "project-suspend": "挂起项目",
+    "project-resume": "继续项目",
+    "project-delay": "延期项目",
+    "project-close": "关闭项目",
+    "project-activate": "激活项目",
+    "project-manage-members": "维护项目团队",
+    "project-link-story": "关联需求",
+    "project-whitelist": "维护白名单",
+    "execution-view": "查看执行",
+    "execution-create": "创建执行",
+    "execution-edit": "编辑执行",
+    "execution-delete": "删除执行",
+    "execution-start": "开始执行",
+    "execution-suspend": "挂起执行",
+    "execution-resume": "继续执行",
+    "execution-delay": "延期执行",
+    "execution-close": "关闭执行",
+    "execution-activate": "激活执行",
+    "execution-manage-members": "维护执行团队",
+    "stage-view": "查看阶段",
+    "stage-manage": "维护阶段",
+    "stakeholder-view": "查看干系人",
+    "stakeholder-manage": "维护干系人",
+    "board-view": "查看看板",
+    "board-space-create": "创建看板空间",
+    "board-space-edit": "编辑看板空间",
+    "board-space-close": "关闭看板空间",
+    "board-create": "创建看板",
+    "board-edit": "编辑看板",
+    "board-close": "关闭看板",
+    "board-card-create": "创建看板卡片",
+    "board-card-edit": "编辑看板卡片",
+    "bug-view": "查看Bug",
+    "bug-create": "创建Bug",
+    "bug-edit": "编辑Bug",
+    "bug-confirm": "确认 Bug",
+    "bug-resolve": "解决 Bug",
+    "bug-activate": "激活 Bug",
+    "bug-close": "关闭 Bug",
+    "bug-assign": "指派 Bug",
+    "bug-delete": "删除Bug",
+    "testcase-view": "查看用例",
+    "testcase-create": "创建用例",
+    "testcase-edit": "编辑用例",
+    "testcase-review": "评审用例",
+    "testcase-delete": "删除用例",
+    "suite-view": "查看套件",
+    "suite-create": "创建套件",
+    "suite-edit": "编辑套件",
+    "suite-link-case": "关联用例",
+    "suite-delete": "删除套件",
+    "library-view": "查看用例库",
+    "library-create": "创建用例库",
+    "library-edit": "编辑用例库",
+    "library-delete": "删除用例库",
+    "testrun-view": "查看测试单",
+    "testrun-create": "创建测试单",
+    "testrun-edit": "编辑测试单",
+    "testrun-start": "开始测试单",
+    "testrun-block": "阻塞测试单",
+    "testrun-activate": "激活测试单",
+    "testrun-close": "关闭测试单",
+    "testrun-link-case": "为测试单关联用例",
+    "testrun-record-result": "记录执行结果",
+    "testrun-assign-case": "指派用例",
+    "testrun-delete": "删除测试单",
+    "report-view": "查看测试报告",
+    "report-create": "创建测试报告",
+    "report-edit": "编辑测试报告",
+    "report-delete": "删除测试报告",
+    "story-view": "查看需求",
+    "story-create": "创建需求",
+    "story-edit": "编辑需求",
+    "story-submit-review": "提交评审",
+    "story-pass": "评审通过",
+    "story-change": "变更需求",
+    "story-close": "关闭需求",
+    "story-activate": "激活需求",
+    "story-assign": "指派需求",
+    "story-delete": "删除需求",
+    "task-view": "查看任务",
+    "task-create": "创建任务",
+    "task-edit": "编辑任务",
+    "task-start": "开始任务",
+    "task-finish": "完成任务",
+    "task-pause": "暂停任务",
+    "task-resume": "继续任务",
+    "task-cancel": "取消任务",
+    "task-close": "关闭任务",
+    "task-activate": "激活任务",
+    "task-assign": "指派任务",
+    "task-effort": "登记工时",
+    "task-effort-edit": "编辑工时",
+    "task-effort-delete": "删除工时",
+    "task-delete": "删除任务",
+    "todo-view": "查看待办",
+    "todo-create": "创建待办",
+    "todo-edit": "编辑待办",
+    "todo-delete": "删除待办",
+    "todo-start": "开始待办",
+    "todo-finish": "完成待办",
+    "todo-activate": "激活待办",
+    "todo-close": "关闭待办",
+    "todo-assign": "指派待办",
+    "my-view": "查看我的地盘",
+    "weekly-report-view": "查看周报"
+  }
+}

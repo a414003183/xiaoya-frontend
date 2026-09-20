@@ -1,0 +1,2328 @@
+{
+  "nav": {
+    "group": {
+      "dashboard": "Workspace",
+      "product": "Products",
+      "project": "Projects",
+      "quality": "Testing",
+      "doc": "Documents",
+      "org": "Organization",
+      "admin": "System"
+    },
+    "section": {
+      "adminLang": "Translations"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "label": "Theme"
+    },
+    "language": {
+      "label": "Language"
+    },
+    "tabs": {
+      "label": "Open pages",
+      "close": "Close",
+      "closeOthers": "Close others",
+      "closeRight": "Close to the right",
+      "untitled": "Page",
+      "closeAll": "Close all"
+    },
+    "sider": {
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar"
+    },
+    "user": {
+      "label": "Account menu"
+    }
+  },
+  "common": {
+    "action": {
+      "logout": "Log out",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "manage": "Actions",
+      "delete": "Delete",
+      "back": "Back",
+      "add": "Add",
+      "save": "Save",
+      "edit": "Edit",
+      "close": "Close",
+      "create": "Create",
+      "search": "Search",
+      "reset": "Reset",
+      "link": "Link",
+      "unlink": "Unlink",
+      "detail": "Detail",
+      "import": "Import",
+      "exportCsv": "Export CSV",
+      "columnSetting": "Columns",
+      "selectAll": "Select all"
+    },
+    "columnPref": {
+      "title": "Columns",
+      "visible": "Show this column",
+      "fix": "Pin direction",
+      "fixLeft": "Pin left",
+      "fixNone": "No pin",
+      "fixRight": "Pin right",
+      "reset": "Reset",
+      "save": "Save",
+      "dragHint": "Drag to reorder",
+      "hint": "Drag rows to reorder columns; fixed columns stay visible while scrolling horizontally. At least one column stays visible."
+    },
+    "loading": "Loading…",
+    "forbidden": {
+      "title": "403",
+      "message": "You do not have permission to access this page."
+    },
+    "field": {
+      "id": "ID",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at",
+      "createdBy": "Created by",
+      "updatedBy": "Updated by",
+      "status": "Status",
+      "name": "Name",
+      "description": "Description",
+      "comment": "Comment",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "type": "Type",
+      "sort": "Sort",
+      "none": "None"
+    },
+    "priority": {
+      "1": "Urgent",
+      "2": "High",
+      "3": "Medium",
+      "4": "Low"
+    },
+    "message": {
+      "saved": "Saved",
+      "created": "Created",
+      "submitted": "Submitted",
+      "deleted": "Deleted",
+      "failed": "Operation failed",
+      "required": "Required",
+      "exported": "Exported.",
+      "badRequest": "Invalid request parameters. Please check and retry.",
+      "unauthenticated": "Your session has expired. Please sign in again.",
+      "forbidden": "You do not have permission to perform this action.",
+      "dataForbidden": "You do not have access to this data.",
+      "notFound": "The requested resource does not exist or was deleted.",
+      "lockConflict": "This record was changed by someone else. Please refresh and retry.",
+      "validationFailed": "The submitted content failed validation. Please check the form.",
+      "stateActionNotAllowed": "This action is not allowed in the current status. Please refresh and retry.",
+      "guardNotSatisfied": "The action conditions are not met. Please check the object status and retry.",
+      "rateLimited": "Too many requests. Please retry later.",
+      "internal": "Server error. Please retry later or contact the administrator.",
+      "total": "Total {{total}}"
+    },
+    "confirm": {
+      "delete": "Delete this item?"
+    },
+    "empty": "No data",
+    "filter": {
+      "advanced": "Advanced filters",
+      "all": "All"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to ZenTao",
+      "field": {
+        "account": "Account",
+        "password": "Password"
+      },
+      "action": {
+        "submit": "Sign in"
+      },
+      "message": {
+        "welcome": "Welcome back, {{name}}",
+        "invalid": "Incorrect account or password.",
+        "required": "Please enter {{field}}",
+        "mustChangePassword": "Change your initial password before opening other pages."
+      }
+    }
+  },
+  "platform": {
+    "comment": {
+      "title": "Comments",
+      "placeholder": "Write a comment…",
+      "submit": "Post",
+      "empty": "No comments yet"
+    },
+    "activity": {
+      "title": "Activities",
+      "loadMore": "Load more",
+      "empty": "No activities yet",
+      "action": {
+        "created": "created",
+        "submitted": "submitted for review",
+        "passed": "review passed",
+        "rejected": "review rejected",
+        "changed": "change requested",
+        "changeDone": "change completed",
+        "closed": "closed",
+        "activated": "activated",
+        "assigned": "assigned",
+        "linked": "linked",
+        "unlinked": "unlinked",
+        "linked2release": "linked to release",
+        "started": "started",
+        "finished": "finished",
+        "terminated": "terminated",
+        "closedbychild": "closed by child plans",
+        "finishedbychild": "finished by child plans",
+        "activatedbychild": "activated by child plans",
+        "commented": "commented",
+        "disabled": "disabled",
+        "enabled": "enabled",
+        "unlocked": "unlocked",
+        "deleted": "deleted",
+        "passwordChanged": "password changed"
+      }
+    },
+    "notification": {
+      "bell": "Notification bell",
+      "field": {
+        "title": "Title",
+        "type": "Type"
+      },
+      "action": {
+        "markRead": "Mark read",
+        "settings": "Notification settings"
+      },
+      "status": {
+        "read": "Read"
+      },
+      "tab": {
+        "unread": "Unread",
+        "all": "All"
+      },
+      "empty": "No notifications",
+      "settings": {
+        "title": "Notification Settings",
+        "description": "Choose which in-app notifications to receive."
+      },
+      "type": {
+        "story-created": "Story created",
+        "story-changed": "Story changed",
+        "task-assigned": "Task assigned to me",
+        "task-finished": "Task finished",
+        "bug-created": "Bug created",
+        "bug-resolved": "Bug resolved",
+        "account-reset-password": "Password reset"
+      }
+    },
+    "notifications": {
+      "title": "Notifications"
+    },
+    "file": {
+      "select": "Select file",
+      "upload": "Upload",
+      "title": "File name",
+      "extension": "Type",
+      "size": "Size",
+      "downloads": "Downloads"
+    },
+    "search": {
+      "placeholder": "Search pages & menus",
+      "noResults": "No results"
+    },
+    "settings": {
+      "title": "System Settings",
+      "timezone": "Default timezone",
+      "workhours": "Daily workhours",
+      "changeWeak": "Weak password check",
+      "modifyPasswordFirstLogin": "Force password change on first login"
+    },
+    "lang": {
+      "title": "Language Overrides",
+      "overridden": "This entry has overrides",
+      "newKey": "New key",
+      "addKey": "Add key",
+      "restore": "Restore defaults",
+      "language": "Language"
+    },
+    "langUpload": {
+      "title": "Translation upload",
+      "tab": {
+        "upload": "Upload",
+        "logs": "Upload history"
+      },
+      "download": "Download language pack",
+      "selectFile": "Choose Excel file",
+      "hint": ".xlsx/.xls only; header must be key | zh-cn | en, one key per row",
+      "success": "Upload succeeded",
+      "failed": "Upload failed. Fix the rows below and upload again.",
+      "result": {
+        "total": "{{total}} rows",
+        "applied": "{{applied}} applied",
+        "failed": "{{failed}} failed"
+      },
+      "row": "Row",
+      "reason": "Reason",
+      "reason.invalid-lang": "Unsupported language code (zh-cn/en only)",
+      "reason.unreadable": "File cannot be parsed (make sure it is an Excel file)",
+      "reason.missing-key-column": "Header is missing the key column",
+      "reason.missing-lang-column": "Header is missing a language column (zh-cn/en)",
+      "reason.empty-file": "The file has no data rows",
+      "reason.too-many-rows": "More than 5000 data rows",
+      "reason.empty-key": "Empty key",
+      "reason.invalid-key": "Key contains invalid characters",
+      "reason.unknown-key": "Key is not in the language catalog",
+      "reason.duplicate-key": "Duplicate key in the same file",
+      "reason.empty-row": "No language value on this row",
+      "reason.value-too-long": "Text exceeds 2000 characters",
+      "reason.cjk-in-en": "The en column contains Chinese characters"
+    },
+    "langImport": {
+      "field": {
+        "lang": "Language",
+        "fileName": "File name",
+        "totalRows": "Total rows",
+        "appliedRows": "Applied rows",
+        "failedRows": "Failed rows",
+        "createdBy": "Uploaded by",
+        "createdAt": "Uploaded at",
+        "message": "Note"
+      },
+      "status": {
+        "success": "Success",
+        "failed": "Failed"
+      },
+      "empty": "No upload history yet"
+    }
+  },
+  "org": {
+    "accounts": {
+      "title": "Accounts",
+      "search": "Search accounts",
+      "batchTitle": "Batch Create Accounts",
+      "batchSubmit": "Submit",
+      "batchResult": "Result",
+      "batchHint": "Initial password is zentao123. Notify members to change it.",
+      "batchPasswordRequired": "Password required per row (6-64), or click Generate.",
+      "batchRandomPassword": "Generate all"
+    },
+    "account": {
+      "detailTitle": "Account Detail",
+      "createTitle": "Create Account",
+      "field": {
+        "id": "ID",
+        "account": "Account",
+        "realName": "Name",
+        "role": "Role",
+        "status": "Status",
+        "email": "Email",
+        "groups": "Groups",
+        "birthday": "Birthday",
+        "department": "Department",
+        "gender": "Gender",
+        "joinedAt": "Joined at",
+        "mobile": "Mobile",
+        "newPassword": "New password",
+        "nickname": "Nickname",
+        "oldPassword": "Old password",
+        "password": "Password",
+        "phone": "Phone"
+      },
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled"
+      },
+      "action": {
+        "create": "Create",
+        "batch": "Batch create",
+        "disable": "Disable",
+        "enable": "Enable",
+        "unlock": "Unlock",
+        "detail": "Detail",
+        "password": "Change password",
+        "randomPassword": "Generate",
+        "resetPassword": "Reset password"
+      },
+      "tab": {
+        "activities": "Activities",
+        "comments": "Comments"
+      },
+      "deleteGuard": "Cannot delete yourself or the built-in admin.",
+      "deleteHint": "Soft delete: history kept, login disabled.",
+      "deleteTitle": "Delete account",
+      "editTitle": "Edit account",
+      "gender": {
+        "f": "Female",
+        "m": "Male"
+      },
+      "message": {
+        "passwordChanged": "Password changed.",
+        "passwordReset": "Password reset."
+      },
+      "passwordTitle": "Change password",
+      "resetHint": "Deliver the new password to the owner.",
+      "resetTitle": "Reset password"
+    },
+    "department": {
+      "title": "Department",
+      "field": {
+        "name": "Name",
+        "parent": "Parent department",
+        "manager": "Manager",
+        "sort": "Sort",
+        "grade": "Level"
+      },
+      "action": {
+        "addRoot": "Add root",
+        "addChild": "Add child",
+        "edit": "Edit department"
+      },
+      "deleteTitle": "Delete department \"{{name}}\"?",
+      "guard": {
+        "children": "Departments with child departments cannot be deleted.",
+        "members": "Departments with members cannot be deleted."
+      },
+      "editHint": "Clearing Parent department or Manager on edit leaves them unchanged; pick a value to change it.",
+      "message": {
+        "created": "Department created.",
+        "updated": "Department updated.",
+        "deleted": "Department deleted."
+      }
+    },
+    "departments": {
+      "title": "Departments"
+    },
+    "groups": {
+      "title": "Roles"
+    },
+    "group": {
+      "field": {
+        "id": "ID",
+        "name": "Role name",
+        "description": "Description",
+        "memberCount": "Members",
+        "privilegeCount": "Privileges"
+      },
+      "action": {
+        "create": "New role",
+        "privileges": "Privilege matrix",
+        "members": "Members",
+        "removeMember": "Remove",
+        "addMember": "Add member",
+        "saveMatrix": "Save matrix",
+        "acl": "Data access",
+        "copy": "Copy"
+      },
+      "deleteTitle": "Delete role",
+      "deleteHint": "Delete role {{name}}? Its members and privilege bindings will be removed.",
+      "detailTitle": "Role detail",
+      "members": "Role members",
+      "matrixTitle": "Privilege Matrix",
+      "addMemberById": "Add by account ID",
+      "matrixDomain": {
+        "file": "attachment",
+        "setting": "settings",
+        "lang": "texts",
+        "docSpace": "doc space",
+        "doc": "doc",
+        "department": "department",
+        "account": "account",
+        "group": "role",
+        "personnel": "personnel",
+        "product": "product",
+        "branch": "branch",
+        "category": "module",
+        "plan": "plan",
+        "release": "release",
+        "build": "build",
+        "program": "program",
+        "project": "project",
+        "execution": "execution",
+        "stage": "stage",
+        "stakeholder": "stakeholder",
+        "board": "board",
+        "bug": "bug",
+        "testcase": "test case",
+        "suite": "suite",
+        "library": "case library",
+        "testrun": "test run",
+        "report": "test report",
+        "story": "story",
+        "task": "task",
+        "workspace": "workspace"
+      },
+      "acl": {
+        "executions": "Visible executions",
+        "hint": "Additive visibility: matched objects are added on top of the role privileges (platform §7.2).",
+        "products": "Visible products",
+        "programs": "Visible programs",
+        "projects": "Visible projects",
+        "title": "Data access"
+      },
+      "copy": {
+        "defaultName": " Copy",
+        "members": "Copy members",
+        "privileges": "Copy privileges",
+        "title": "Copy role"
+      },
+      "editTitle": "Edit role",
+      "matrixSelected": "Selected {{count}} / {{total}}"
+    },
+    "role": {
+      "title": "Role list",
+      "subtitle": "Job role options carried on accounts; the roles maintained here are the choices offered in account forms and filters.",
+      "tab": {
+        "roles": "Roles",
+        "dict": "Job roles"
+      },
+      "field": {
+        "code": "Role code",
+        "name": "Role name",
+        "sort": "Sort",
+        "builtin": "Built-in",
+        "accountCount": "Accounts"
+      },
+      "action": {
+        "create": "New role",
+        "edit": "Edit role"
+      },
+      "deleteTitle": "Delete role {{name}}",
+      "guard": {
+        "builtin": "Built-in roles cannot be deleted (renaming and sorting still work).",
+        "inUse": "A role still assigned to accounts cannot be deleted; reassign those accounts first."
+      },
+      "message": {
+        "created": "Role created.",
+        "updated": "Role updated.",
+        "deleted": "Role deleted."
+      },
+      "codeHint": "2-16 characters, starts with a lowercase letter, lowercase letters/digits/hyphens only; immutable after creation.",
+      "labelsHint": "Fill in at least one language. The UI shows the current language and falls back to another one."
+    }
+  },
+  "groups": {
+    "title": "Groups"
+  },
+  "group": {
+    "field": {
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "memberCount": "Members",
+      "privilegeCount": "Privileges"
+    },
+    "action": {
+      "create": "New group",
+      "privileges": "Privilege matrix",
+      "members": "Members",
+      "removeMember": "Remove",
+      "addMember": "Add member",
+      "saveMatrix": "Save matrix"
+    },
+    "deleteTitle": "Delete group",
+    "deleteHint": "Delete group {{name}}? Members and privilege codes will be cleared.",
+    "detailTitle": "Group Detail",
+    "members": "Group members",
+    "matrixTitle": "Privilege Matrix",
+    "addMemberById": "Add by account ID",
+    "matrixDomain": {
+      "account": "Account",
+      "department": "Department",
+      "group": "Group",
+      "personnel": "Personnel",
+      "file": "File",
+      "setting": "Setting",
+      "lang": "Language",
+      "test": "Test"
+    }
+  },
+  "product": {
+    "title": {
+      "list": "Products",
+      "kanban": "Product Board",
+      "detail": "Product Detail",
+      "dynamic": "Product Activities",
+      "track": "Story Release Tracking",
+      "batchEdit": "Batch Edit Products"
+    },
+    "field": {
+      "id": "ID",
+      "program": "Program",
+      "name": "Product name",
+      "code": "Product code",
+      "type": "Product type",
+      "status": "Status",
+      "description": "Description",
+      "po": "Product owner",
+      "qd": "QA owner",
+      "rd": "Release owner",
+      "acl": "Access control",
+      "whitelist": "Whitelist",
+      "sort": "Sort",
+      "closedAt": "Closed at"
+    },
+    "status": {
+      "normal": "Normal",
+      "closed": "Closed"
+    },
+    "type": {
+      "normal": "Normal",
+      "branch": "Multi-branch",
+      "platform": "Platform"
+    },
+    "acl": {
+      "public": "Public",
+      "private": "Private",
+      "custom": "Custom whitelist"
+    },
+    "action": {
+      "create": "Create product",
+      "createNew": "New product",
+      "edit": "Edit",
+      "close": "Close product",
+      "activate": "Activate product",
+      "batch": "Batch actions",
+      "detail": "Detail",
+      "branches": "Branches",
+      "categories": "Categories",
+      "plans": "Plans",
+      "releases": "Releases",
+      "builds": "Builds",
+      "track": "Tracking matrix",
+      "dynamic": "Activities"
+    },
+    "tab": {
+      "description": "Overview",
+      "activities": "Activities"
+    },
+    "track": {
+      "story": "Story",
+      "release": "Release",
+      "released": "Linked",
+      "empty": "No stories or releases to track"
+    },
+    "message": {
+      "whitelistRequired": "Whitelist members are required when access control is custom whitelist.",
+      "batchHint": "Only changed fields are submitted; name is required.",
+      "noDescription": "No description",
+      "deleteHint": "Delete this product? Products with stories, branches, plans, releases, or builds cannot be deleted."
+    }
+  },
+  "branch": {
+    "title": {
+      "list": "Branches"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "name": "Branch name",
+      "isDefault": "Default branch",
+      "status": "Status",
+      "description": "Description",
+      "sort": "Sort",
+      "closedAt": "Closed at"
+    },
+    "status": {
+      "active": "Active",
+      "closed": "Closed"
+    },
+    "action": {
+      "create": "New branch",
+      "edit": "Edit",
+      "close": "Close",
+      "activate": "Activate",
+      "setDefault": "Set default"
+    },
+    "message": {
+      "defaultSet": "Default branch updated.",
+      "normalProductDisabled": "Normal products do not support branches; switch to multi-branch or platform first.",
+      "deleteHint": "Delete this branch? Branches with stories cannot be deleted."
+    }
+  },
+  "category": {
+    "title": {
+      "list": "Categories"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "parent": "Parent category",
+      "root": "Top level",
+      "type": "Category type",
+      "name": "Category name",
+      "owner": "Owner",
+      "sort": "Sort"
+    },
+    "type": {
+      "story": "Story",
+      "bug": "Bug",
+      "case": "Case"
+    },
+    "action": {
+      "create": "New category",
+      "edit": "Edit",
+      "delete": "Delete",
+      "addChild": "Add child"
+    },
+    "message": {
+      "deleteCascade": "Deleting this category also deletes all its children. Delete anyway?",
+      "empty": "No categories of this type"
+    }
+  },
+  "plan": {
+    "title": {
+      "list": "Plans",
+      "detail": "Plan Detail"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "parent": "Parent plan",
+      "parentNone": "No parent plan",
+      "title": "Plan name",
+      "status": "Status",
+      "description": "Description",
+      "beginDate": "Begin date",
+      "endDate": "End date",
+      "finishedAt": "Finished at",
+      "closedAt": "Closed at",
+      "closedReason": "Close reason"
+    },
+    "status": {
+      "wait": "Waiting",
+      "doing": "Doing",
+      "done": "Done",
+      "closed": "Closed"
+    },
+    "closeReason": {
+      "done": "Done",
+      "cancel": "Cancelled"
+    },
+    "action": {
+      "create": "New plan",
+      "edit": "Edit",
+      "start": "Start",
+      "finish": "Finish",
+      "close": "Close",
+      "activate": "Activate",
+      "link": "Link stories",
+      "unlink": "Unlink"
+    },
+    "tab": {
+      "stories": "Stories",
+      "bugs": "Bugs",
+      "activities": "Activities"
+    },
+    "view": {
+      "list": "List",
+      "board": "Board"
+    },
+    "message": {
+      "emptyColumn": "No plans",
+      "linkHint": "Only objects in the same product that are not closed can be linked.",
+      "bugEmpty": "Bug linking is unavailable until the quality domain lands.",
+      "deleteHint": "Delete this plan? Plans with linked stories cannot be deleted."
+    }
+  },
+  "release": {
+    "title": {
+      "list": "Releases",
+      "detail": "Release Detail"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "build": "Build",
+      "project": "Project",
+      "name": "Release name",
+      "status": "Status",
+      "releaseDate": "Release date",
+      "publishedAt": "Published at",
+      "isMilestone": "Milestone",
+      "stories": "Stories",
+      "bugs": "Bugs",
+      "notify": "Notify",
+      "description": "Description"
+    },
+    "status": {
+      "normal": "Released",
+      "terminated": "Terminated"
+    },
+    "action": {
+      "create": "Create release",
+      "edit": "Edit",
+      "terminate": "Terminate",
+      "link": "Link stories",
+      "unlink": "Unlink"
+    },
+    "tab": {
+      "stories": "Stories",
+      "bugs": "Bugs",
+      "activities": "Activities"
+    },
+    "message": {
+      "terminateHint": "A terminated release cannot link objects anymore. Continue?",
+      "milestone": "Milestone",
+      "deleteHint": "Delete this release? Its links are removed with it."
+    }
+  },
+  "build": {
+    "title": {
+      "list": "Builds",
+      "detail": "Build Detail"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "execution": "Execution",
+      "project": "Project",
+      "name": "Build name",
+      "scmPath": "SCM path",
+      "filePath": "Package path",
+      "buildDate": "Build date",
+      "builder": "Builder",
+      "stories": "Stories",
+      "bugs": "Bugs",
+      "description": "Description"
+    },
+    "action": {
+      "create": "Create build",
+      "edit": "Edit",
+      "delete": "Delete",
+      "link": "Link stories",
+      "unlink": "Unlink"
+    },
+    "tab": {
+      "stories": "Stories",
+      "bugs": "Bugs",
+      "activities": "Activities"
+    },
+    "message": {
+      "deleteHint": "A build referenced by a release cannot be deleted.",
+      "referencedByRelease": "This build is referenced by a release and cannot be deleted."
+    }
+  },
+  "story": {
+    "title": {
+      "list": "Stories",
+      "detail": "Story Detail",
+      "batchCreate": "Batch Create Stories",
+      "batchEdit": "Batch Edit Stories"
+    },
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "category": "Category",
+      "plan": "Plan",
+      "parent": "Parent story",
+      "title": "Story title",
+      "keywords": "Keywords",
+      "type": "Story type",
+      "status": "Status",
+      "priority": "Priority",
+      "estimate": "Estimate hours",
+      "source": "Source",
+      "description": "Description",
+      "stage": "Stage",
+      "assignee": "Assignee",
+      "assignedAt": "Assigned at",
+      "reviewers": "Reviewers",
+      "needNotReview": "No review needed",
+      "notify": "Notify",
+      "linked": "Linked stories",
+      "duplicateOf": "Duplicate of",
+      "version": "Version",
+      "closedBy": "Closed by",
+      "closedAt": "Closed at",
+      "closedReason": "Close reason",
+      "files": "Attachments"
+    },
+    "status": {
+      "draft": "Draft",
+      "reviewing": "Reviewing",
+      "active": "Active",
+      "changing": "Changing",
+      "changed": "Changed",
+      "closed": "Closed"
+    },
+    "type": {
+      "story": "Story",
+      "epic": "Epic",
+      "requirement": "Requirement"
+    },
+    "source": {
+      "manual": "Manual",
+      "customer": "Customer",
+      "market": "Market",
+      "bug": "From bug",
+      "other": "Other"
+    },
+    "stage": {
+      "wait": "Waiting",
+      "developing": "Developing",
+      "testing": "Testing",
+      "released": "Released"
+    },
+    "closeReason": {
+      "done": "Done",
+      "duplicate": "Duplicate",
+      "rejected": "Rejected",
+      "willnotfix": "Will not fix",
+      "postponed": "Postponed"
+    },
+    "action": {
+      "create": "New story",
+      "edit": "Edit",
+      "submitReview": "Submit review",
+      "pass": "Pass",
+      "reject": "Reject",
+      "change": "Request change",
+      "changeDone": "Change done",
+      "close": "Close",
+      "activate": "Activate",
+      "assign": "Assign",
+      "batchCreate": "Batch create",
+      "batchEdit": "Batch edit",
+      "detail": "Detail"
+    },
+    "tab": {
+      "description": "Description",
+      "activities": "Activities",
+      "linked": "Linked stories",
+      "files": "Attachments"
+    },
+    "message": {
+      "reviewersRequired": "Reviewers are required when submitting for review.",
+      "rejectCommentRequired": "A comment is required when rejecting.",
+      "duplicateRequired": "A duplicate story is required when closing as duplicate.",
+      "assigneeRequired": "Please choose an assignee.",
+      "batchHint": "The whole table is editable, up to 50 rows. Only rows with a title are created.",
+      "noDescription": "No description",
+      "deleteHint": "Delete this story? A story referenced by undeleted tasks or child stories cannot be deleted."
+    }
+  },
+  "project": {
+    "title": {
+      "programList": "Programs",
+      "programDetail": "Program Detail",
+      "list": "Projects",
+      "detail": "Project Detail",
+      "executionList": "Executions",
+      "executions": "All Executions",
+      "executionDetail": "Execution Detail",
+      "stories": "Linked Stories",
+      "members": "Team Members",
+      "stakeholders": "Stakeholders",
+      "whitelist": "Whitelist"
+    },
+    "field": {
+      "id": "ID",
+      "type": "Type",
+      "parent": "Parent",
+      "name": "Name",
+      "code": "Code",
+      "model": "Model",
+      "status": "Status",
+      "priority": "Priority",
+      "beginDate": "Begin Date",
+      "endDate": "End Date",
+      "firstEndDate": "First Planned End",
+      "realBeganDate": "Actual Begin",
+      "realEndDate": "Actual End",
+      "days": "Working Days",
+      "budget": "Budget",
+      "budgetUnit": "Budget Unit",
+      "description": "Description",
+      "pm": "Project Manager",
+      "po": "Product Owner",
+      "qd": "QA Owner",
+      "rd": "Dev Owner",
+      "progress": "Progress",
+      "estimate": "Estimated Hours",
+      "consumed": "Consumed Hours",
+      "left": "Left Hours",
+      "milestone": "Milestone",
+      "acl": "Access Control",
+      "whitelist": "Whitelist",
+      "products": "Linked Products"
+    },
+    "type": {
+      "program": "Program",
+      "project": "Project",
+      "sprint": "Sprint",
+      "stage": "Stage",
+      "kanban": "Kanban"
+    },
+    "model": {
+      "scrum": "Scrum",
+      "waterfall": "Waterfall",
+      "kanban": "Kanban"
+    },
+    "status": {
+      "wait": "Not Started",
+      "doing": "In Progress",
+      "suspended": "Suspended",
+      "delay": "Delayed",
+      "closed": "Closed"
+    },
+    "acl": {
+      "open": "Open",
+      "private": "Private",
+      "program": "Inherit Program"
+    },
+    "budgetUnit": {
+      "CNY": "CNY",
+      "USD": "USD"
+    },
+    "action": {
+      "createProgram": "New Program",
+      "createProject": "New Project",
+      "createExecution": "New Execution",
+      "edit": "Edit",
+      "start": "Start",
+      "suspend": "Suspend",
+      "resume": "Resume",
+      "delay": "Delay",
+      "close": "Close",
+      "activate": "Activate",
+      "linkStory": "Link Stories"
+    },
+    "tab": {
+      "subPrograms": "Sub-programs",
+      "projects": "Projects",
+      "products": "Products",
+      "executions": "Executions",
+      "stories": "Stories",
+      "members": "Team Members",
+      "stakeholders": "Stakeholders",
+      "whitelist": "Whitelist",
+      "activities": "Activities"
+    },
+    "message": {
+      "nameTooLong": "Name must be at most 90 characters.",
+      "codeTooLong": "Code must be at most 45 characters.",
+      "modelRequired": "Model is required.",
+      "typeRequired": "Execution type must be sprint, stage or kanban.",
+      "dateOrder": "End date cannot be earlier than begin date.",
+      "productsRequired": "A project must link at least one product.",
+      "whitelistRequired": "Whitelist members are required for private access control.",
+      "whitelistActive": "This project is private; the whitelist takes effect immediately.",
+      "whitelistIdle": "The whitelist is archived but inactive while access control is not private.",
+      "pickStory": "Pick stories from linked products",
+      "linked": "Linked {count} stories.",
+      "linkedPartial": "Partially linked ({count} succeeded).",
+      "linkFailed": "Failed to link: {items}",
+      "unlinked": "Story #{{title}} unlinked.",
+      "deleteProgramHint": "Delete this program? Programs with sub-programs or projects cannot be deleted.",
+      "deleteProjectHint": "Delete this project? Projects with executions or linked stories cannot be deleted.",
+      "deleteExecutionHint": "Delete this execution? Executions with tasks cannot be deleted."
+    }
+  },
+  "team": {
+    "field": {
+      "id": "ID",
+      "objectType": "Object Type",
+      "objectId": "Object",
+      "account": "Account",
+      "role": "Team Role",
+      "joinDate": "Join Date",
+      "days": "Working Days",
+      "hours": "Hours per Day",
+      "sort": "Sort"
+    },
+    "action": {
+      "addRow": "Add Member"
+    },
+    "message": {
+      "diffHint": "{added} added, {updated} updated, {removed} removed; saving submits the whole table.",
+      "duplicateAccount": "Member accounts must be unique.",
+      "partialFailed": "Some members failed to save: {failed}"
+    }
+  },
+  "stakeholder": {
+    "field": {
+      "id": "ID",
+      "objectType": "Object Type",
+      "objectId": "Object",
+      "account": "Account",
+      "type": "Type",
+      "isKey": "Key Stakeholder",
+      "source": "Source"
+    },
+    "type": {
+      "inside": "Inside",
+      "outside": "Outside"
+    },
+    "action": {
+      "add": "Add Stakeholder",
+      "remove": "Remove Stakeholder"
+    },
+    "message": {
+      "duplicate": "The stakeholder already exists."
+    }
+  },
+  "board": {
+    "title": {
+      "spaceList": "Board Spaces",
+      "spaceDetail": "Board Space Detail",
+      "spaceBoards": "Boards in Space",
+      "board": "Board",
+      "card": "Card Detail",
+      "executionKanban": "Story Kanban"
+    },
+    "field": {
+      "id": "ID",
+      "name": "Name",
+      "type": "Space Type",
+      "owner": "Owner",
+      "team": "Team",
+      "acl": "Access Control",
+      "whitelist": "Whitelist",
+      "lane": "Lane",
+      "laneName": "Lane Name",
+      "laneColor": "Lane Color",
+      "wipLimit": "WIP Limit",
+      "archived": "Archived",
+      "cardName": "Card Name",
+      "cardColor": "Card Color",
+      "beginDate": "Start Date",
+      "endDate": "End Date",
+      "estimate": "Estimate Hours",
+      "progress": "Progress"
+    },
+    "spaceType": {
+      "cooperation": "Cooperation",
+      "public": "Public",
+      "private": "Private"
+    },
+    "acl": {
+      "open": "Open",
+      "private": "Private",
+      "extend": "Inherit Space"
+    },
+    "status": {
+      "active": "Active",
+      "closed": "Closed"
+    },
+    "cardStatus": {
+      "doing": "Doing",
+      "done": "Done"
+    },
+    "action": {
+      "createSpace": "New Board Space",
+      "editSpace": "Edit Board Space",
+      "closeSpace": "Close Space",
+      "activateSpace": "Activate Space",
+      "createBoard": "New Board",
+      "editBoard": "Edit Board",
+      "closeBoard": "Close Board",
+      "activateBoard": "Activate Board",
+      "createLane": "New Lane",
+      "editLane": "Lane Settings",
+      "createCard": "New Card",
+      "editCard": "Edit Card",
+      "archiveCard": "Archive Card",
+      "finishCard": "Mark Done",
+      "reopenCard": "Reopen",
+      "unarchiveCard": "Unarchive"
+    },
+    "message": {
+      "nameTooLong": "Name must be at most 90 characters.",
+      "cardNameTooLong": "Card name must be at most 255 characters.",
+      "whitelistRequired": "A private space requires at least one whitelist member.",
+      "colorFormat": "Color must be in #RRGGBB format.",
+      "dateOrder": "End date cannot be earlier than start date.",
+      "wipUnlimited": "-1 means unlimited; moves over the limit are rejected by the server (42203).",
+      "wipExceeded": "WIP exceeded",
+      "deleteLaneHint": "Delete this lane? A lane containing cards cannot be deleted.",
+      "archiveHint": "Archived cards are hidden from the board and keep their status. Archive now?",
+      "emptyBoard": "This board has no lanes yet, create one first.",
+      "sortHint": "Drag a lane header to reorder lanes; drag cards across or within lanes.",
+      "moveFailed": "The move did not take effect and was rolled back.",
+      "kanbanMoveFailed": "The story status does not allow this transition; the card returned to its lane.",
+      "kanbanHint": "Dropping a card delegates to the story status action; illegal transitions are rejected and rolled back.",
+      "noDescription": "No description",
+      "deleteSpaceHint": "Delete this board space? Spaces containing boards cannot be deleted.",
+      "deleteBoardHint": "Delete this board? Boards containing cards cannot be deleted.",
+      "deleteCardHint": "Delete this card? This cannot be undone."
+    }
+  },
+  "stage": {
+    "title": {
+      "list": "Stage Types"
+    },
+    "field": {
+      "id": "ID",
+      "name": "Stage Name",
+      "percent": "Percent (%)",
+      "type": "Stage Type",
+      "projectModel": "Project Model"
+    },
+    "type": {
+      "mix": "Mixed",
+      "request": "Requirement",
+      "design": "Design",
+      "dev": "Development",
+      "qa": "QA",
+      "release": "Release",
+      "review": "Review",
+      "other": "Other"
+    },
+    "projectModel": {
+      "waterfall": "Waterfall"
+    },
+    "action": {
+      "create": "New Stage"
+    },
+    "message": {
+      "percentExceeded": "The percent total of stages in one project model cannot exceed 100%.",
+      "deleteHint": "Delete this stage type?"
+    }
+  },
+  "task": {
+    "title": {
+      "list": "Tasks",
+      "detail": "Task detail",
+      "batchCreate": "Batch create tasks",
+      "batchEdit": "Batch actions"
+    },
+    "field": {
+      "id": "ID",
+      "execution": "Execution",
+      "project": "Project",
+      "story": "Story",
+      "parent": "Parent task",
+      "category": "Category",
+      "title": "Task name",
+      "type": "Type",
+      "priority": "Priority",
+      "status": "Status",
+      "estimate": "Estimate",
+      "consumed": "Consumed",
+      "left": "Left",
+      "estStarted": "Est. start",
+      "deadline": "Deadline",
+      "assignee": "Assigned to",
+      "assignedAt": "Assigned at",
+      "startedAt": "Started at",
+      "activatedAt": "Activated at",
+      "finishedBy": "Finished by",
+      "finishedAt": "Finished at",
+      "canceledBy": "Canceled by",
+      "canceledAt": "Canceled at",
+      "closedBy": "Closed by",
+      "closedAt": "Closed at",
+      "closedReason": "Close reason",
+      "keywords": "Keywords",
+      "description": "Description",
+      "isParent": "Parent task",
+      "notify": "Notify",
+      "children": "Child tasks",
+      "progress": "Progress",
+      "work": "Work",
+      "consume": "Consumed this time",
+      "files": "Attachments"
+    },
+    "type": {
+      "design": "Design",
+      "devel": "Development",
+      "request": "Requirement",
+      "test": "Test",
+      "study": "Study",
+      "discuss": "Discuss",
+      "ui": "UI",
+      "affair": "Affair",
+      "misc": "Misc"
+    },
+    "status": {
+      "wait": "Not started",
+      "doing": "In progress",
+      "done": "Done",
+      "pause": "Paused",
+      "cancel": "Canceled",
+      "closed": "Closed"
+    },
+    "closeReason": {
+      "done": "Done",
+      "cancel": "Canceled"
+    },
+    "action": {
+      "create": "New task",
+      "createChild": "New child task",
+      "edit": "Edit",
+      "start": "Start",
+      "finish": "Finish",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel task",
+      "close": "Close",
+      "activate": "Activate",
+      "assign": "Assign",
+      "batchCreate": "Batch create",
+      "batchEdit": "Batch actions",
+      "tree": "Tree",
+      "flat": "Flat"
+    },
+    "tab": {
+      "description": "Description",
+      "children": "Child tasks",
+      "efforts": "Efforts",
+      "activities": "Activities",
+      "files": "Attachments"
+    },
+    "message": {
+      "batchHint": "The whole table is editable, up to 50 rows; only rows with a name are created; check \"Child\" to make the previous row the parent.",
+      "batchFailed": "This row failed.",
+      "parentFailed": "The parent task failed, so this row was not submitted.",
+      "noDescription": "No description",
+      "noChildren": "No child tasks",
+      "assigneeRequired": "Please choose an assignee.",
+      "leftHoursRequired": "Activating requires left hours greater than 0.",
+      "closeReasonRequired": "Closing a task not done or canceled requires a close reason.",
+      "finishConsumedRequired": "Consumed this time is required while the total consumed is 0.",
+      "dateOrder": "The start time cannot be later than the finish time.",
+      "overdue": "Overdue",
+      "selectFirst": "Select tasks in the list first.",
+      "batchHintEdit": "Batch edit applies the same fields to every selected task; per-item results are shown in the last column.",
+      "titleTooLong": "The task name is limited to 255 characters.",
+      "deleteHint": "Delete this task? A task with undeleted child tasks cannot be deleted."
+    }
+  },
+  "effort": {
+    "title": {
+      "list": "Effort records",
+      "record": "Record effort",
+      "edit": "Edit effort"
+    },
+    "field": {
+      "id": "ID",
+      "task": "Task",
+      "account": "Account",
+      "workDate": "Date",
+      "consumed": "Consumed",
+      "left": "Left",
+      "work": "Work"
+    },
+    "action": {
+      "record": "Record effort",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "message": {
+      "deleteHint": "Delete this effort record? Task hours will be recalculated from the remaining records.",
+      "dateFuture": "The work date cannot be later than today.",
+      "consumedRequired": "Consumed hours must be greater than 0.",
+      "leftHint": "Filling left hours overwrites the task remainder; 0 finishes the task automatically.",
+      "empty": "No effort records"
+    }
+  },
+  "quality": {
+    "title": {
+      "bugs": "Bug List",
+      "bugDetail": "Bug Detail",
+      "bugBatchCreate": "Batch Create Bugs",
+      "bugBatchEdit": "Batch Operate Bugs",
+      "testCases": "Test Case List",
+      "testCaseDetail": "Test Case Detail",
+      "caseBatchCreate": "Batch Create Cases",
+      "caseBatchEdit": "Batch Operate Cases",
+      "suites": "Suite List",
+      "suiteDetail": "Suite Detail",
+      "libraries": "Case Libraries",
+      "libraryDetail": "Library Detail",
+      "libraryCaseBatchCreate": "Batch Create Library Cases",
+      "testRuns": "Test Run List",
+      "testRunDetail": "Test Run Detail",
+      "testRunCases": "Run Cases",
+      "reports": "Report List",
+      "reportDetail": "Report Detail"
+    }
+  },
+  "bug": {
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "category": "Category",
+      "project": "Project",
+      "execution": "Execution",
+      "plan": "Plan",
+      "story": "Story",
+      "task": "Task",
+      "testCase": "Source Case",
+      "testRun": "Source Test Run",
+      "title": "Bug Title",
+      "keywords": "Keywords",
+      "severity": "Severity",
+      "priority": "Priority",
+      "type": "Bug Type",
+      "os": "OS",
+      "browser": "Browser",
+      "steps": "Reproduction Steps",
+      "openedBuilds": "Affected Builds",
+      "status": "Status",
+      "confirmed": "Confirmed",
+      "activatedCount": "Activated Count",
+      "deadline": "Deadline",
+      "assignee": "Assignee",
+      "assignedAt": "Assigned At",
+      "resolution": "Resolution",
+      "resolvedBy": "Resolved By",
+      "resolvedAt": "Resolved At",
+      "resolvedBuild": "Resolved Build",
+      "duplicateOf": "Duplicate Of",
+      "relatedBugs": "Related Bugs",
+      "notify": "Notify",
+      "closedBy": "Closed By",
+      "closedAt": "Closed At",
+      "files": "Attachments"
+    },
+    "severity": {
+      "1": "Fatal",
+      "2": "Serious",
+      "3": "Normal",
+      "4": "Minor"
+    },
+    "type": {
+      "codeerror": "Code Error",
+      "config": "Configuration",
+      "install": "Install/Deploy",
+      "security": "Security",
+      "performance": "Performance",
+      "standard": "Standard",
+      "automation": "Automation Script",
+      "designdefect": "Design Defect",
+      "others": "Others"
+    },
+    "status": {
+      "active": "Active",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "resolution": {
+      "bydesign": "By Design",
+      "duplicate": "Duplicate",
+      "external": "External",
+      "fixed": "Fixed",
+      "notrepro": "Not Reproducible",
+      "postponed": "Postponed",
+      "willnotfix": "Will Not Fix",
+      "tostory": "To Story"
+    },
+    "os": {
+      "windows": "Windows",
+      "osx": "macOS",
+      "linux": "Linux",
+      "android": "Android",
+      "ios": "iOS",
+      "others": "Others"
+    },
+    "browser": {
+      "ie": "IE",
+      "chrome": "Chrome",
+      "firefox": "Firefox",
+      "edge": "Edge",
+      "safari": "Safari",
+      "others": "Others"
+    },
+    "confirmed": {
+      "yes": "Confirmed",
+      "no": "Unconfirmed"
+    },
+    "action": {
+      "create": "Report Bug",
+      "edit": "Edit",
+      "confirm": "Confirm",
+      "resolve": "Resolve",
+      "activate": "Reopen",
+      "close": "Close",
+      "assign": "Assign",
+      "link": "Link",
+      "batchCreate": "Batch Create",
+      "batchEdit": "Batch Operate"
+    },
+    "tab": {
+      "steps": "Steps",
+      "activities": "Activities",
+      "related": "Related",
+      "files": "Attachments"
+    },
+    "message": {
+      "batchHint": "Editable table, up to 50 rows; only rows with a title are created.",
+      "batchHintEdit": "Batch edit applies the same fields per row; results are shown at row end.",
+      "selectFirst": "Select bugs in the list first.",
+      "duplicateRequired": "Duplicate resolution requires selecting the duplicate bug.",
+      "resolvedBuildRequired": "Fixed resolution requires the resolved build.",
+      "openedBuildsRequired": "Reopen requires affected builds.",
+      "activateAssigneeFallback": "Leave empty to reassign the original resolver: {{account}}",
+      "assigneeRequired": "Select an assignee.",
+      "noSteps": "No reproduction steps",
+      "deleteHint": "Delete this bug?"
+    }
+  },
+  "testCase": {
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "branch": "Branch",
+      "library": "Library",
+      "category": "Category",
+      "story": "Story",
+      "title": "Case Title",
+      "precondition": "Precondition",
+      "keywords": "Keywords",
+      "priority": "Priority",
+      "type": "Case Type",
+      "stage": "Stage",
+      "status": "Status",
+      "steps": "Steps",
+      "stepSort": "#",
+      "stepDescription": "Step Description",
+      "stepExpects": "Expects",
+      "fromBug": "From Bug",
+      "lastRunResult": "Last Result",
+      "lastRunner": "Last Runner",
+      "lastRunAt": "Last Run At",
+      "reviewers": "Reviewers",
+      "reviewedAt": "Reviewed At",
+      "reviewResult": "Review Result",
+      "version": "Version",
+      "needReview": "Need Review"
+    },
+    "type": {
+      "unit": "Unit",
+      "interface": "Interface",
+      "feature": "Feature",
+      "install": "Install/Deploy",
+      "config": "Configuration",
+      "performance": "Performance",
+      "security": "Security",
+      "other": "Other"
+    },
+    "stage": {
+      "unittest": "Unit Test",
+      "feature": "Feature Test",
+      "intergrate": "Integration Test",
+      "system": "System Test",
+      "smoke": "Smoke Test",
+      "bvt": "BVT"
+    },
+    "status": {
+      "wait": "Waiting Review",
+      "normal": "Normal",
+      "blocked": "Blocked",
+      "investigate": "Investigating"
+    },
+    "result": {
+      "pass": "Pass",
+      "fail": "Fail",
+      "blocked": "Blocked",
+      "n/a": "N/A"
+    },
+    "needReview": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "action": {
+      "create": "Create Case",
+      "edit": "Edit",
+      "review": "Review",
+      "batchCreate": "Batch Create",
+      "batchEdit": "Batch Operate",
+      "addStep": "Add Step",
+      "stepUp": "Move Up",
+      "stepDown": "Move Down"
+    },
+    "review": {
+      "pass": "Review Pass",
+      "clarify": "Clarify"
+    },
+    "tab": {
+      "steps": "Steps",
+      "activities": "Activities",
+      "files": "Attachments"
+    },
+    "message": {
+      "batchHint": "Editable table, up to 50 rows; only rows with a title are created.",
+      "batchHintEdit": "Batch edit applies the same fields per row; results are shown at row end.",
+      "selectFirst": "Select cases in the list first.",
+      "statusPatchHint": "Marker statuses can switch between normal/blocked/investigate directly; wait only via review.",
+      "deleteHint": "Delete this case?"
+    }
+  },
+  "suite": {
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "name": "Suite Name",
+      "description": "Description",
+      "type": "Type",
+      "sort": "Sort",
+      "caseCount": "Cases",
+      "createdBy": "Created by",
+      "createdAt": "Created at"
+    },
+    "type": {
+      "public": "Public",
+      "private": "Private",
+      "library": "Library"
+    },
+    "action": {
+      "create": "Create Suite",
+      "edit": "Edit",
+      "linkCase": "Link Cases",
+      "unlinkCase": "Unlink Cases"
+    },
+    "tab": {
+      "cases": "Cases",
+      "activities": "Activities"
+    },
+    "message": {
+      "unlinkConfirm": "Unlink this case?",
+      "deleteHint": "Delete this suite? Linked cases will be unlinked."
+    }
+  },
+  "library": {
+    "field": {
+      "id": "ID",
+      "name": "Library Name",
+      "description": "Description",
+      "caseCount": "Cases",
+      "createdBy": "Created by",
+      "createdAt": "Created at"
+    },
+    "action": {
+      "create": "Create Library",
+      "edit": "Edit",
+      "addCase": "Create Case",
+      "batchCreate": "Batch Create"
+    },
+    "tab": {
+      "cases": "Cases",
+      "activities": "Activities"
+    },
+    "message": {
+      "imported": "Imported.",
+      "deleteHint": "Delete this library? A library containing undeleted cases cannot be deleted."
+    }
+  },
+  "testRun": {
+    "field": {
+      "id": "ID",
+      "product": "Product",
+      "project": "Project",
+      "execution": "Execution",
+      "build": "Build",
+      "name": "Test Run Name",
+      "owner": "Owner",
+      "priority": "Priority",
+      "type": "Test Type",
+      "beginDate": "Begin Date",
+      "endDate": "End Date",
+      "realBeganAt": "Started at",
+      "realFinishedAt": "Finished at",
+      "description": "Description",
+      "members": "Members",
+      "notify": "Notify",
+      "status": "Status",
+      "report": "Report",
+      "assignee": "Assignee",
+      "lastRunner": "Last runner",
+      "lastRunAt": "Last run at",
+      "caseTitle": "Case Title",
+      "result": "Result"
+    },
+    "status": {
+      "wait": "Not started",
+      "doing": "In progress",
+      "done": "Closed",
+      "blocked": "Blocked"
+    },
+    "type": {
+      "integrate": "Integrate",
+      "system": "System",
+      "acceptance": "Acceptance",
+      "performance": "Performance",
+      "safety": "Safety"
+    },
+    "action": {
+      "create": "Create Test Run",
+      "edit": "Edit",
+      "start": "Start",
+      "block": "Block",
+      "activate": "Activate",
+      "close": "Close",
+      "linkCase": "Link Cases",
+      "unlinkCase": "Unlink Cases",
+      "recordResult": "Record Result",
+      "assignCase": "Assign Runner"
+    },
+    "tab": {
+      "cases": "Run Cases",
+      "description": "Description",
+      "activities": "Activities"
+    },
+    "summary": {
+      "none": "Not run"
+    },
+    "message": {
+      "closeDateRequired": "Enter the actual finish date.",
+      "closeDateBeforeBegin": "The finish date cannot be earlier than the begin date.",
+      "closeDateAfterNextDay": "The finish date cannot be later than the day after the end date.",
+      "linkCasesEmpty": "Select cases first.",
+      "statTotal": "{{total}} in total",
+      "deleteHint": "Delete this test run?"
+    }
+  },
+  "report": {
+    "field": {
+      "id": "ID",
+      "execution": "Execution",
+      "project": "Project",
+      "product": "Product",
+      "title": "Report Title",
+      "testRuns": "Test Runs",
+      "beginDate": "Begin Date",
+      "endDate": "End Date",
+      "owner": "Owner",
+      "content": "Content",
+      "createdBy": "Created by",
+      "createdAt": "Created at"
+    },
+    "action": {
+      "create": "Create Report",
+      "edit": "Edit"
+    },
+    "tab": {
+      "content": "Content",
+      "runs": "Test Runs"
+    },
+    "message": {
+      "executionFixed": "The execution cannot be changed after creation.",
+      "loadFailed": "Failed to load the report.",
+      "deleteHint": "Delete this report? Report references on linked test runs will be cleared."
+    },
+    "title": {
+      "burn": "Burndown",
+      "storySummary": "Story Summary",
+      "bugDistribution": "Bug Distribution",
+      "casePassRate": "Case Pass Rate"
+    },
+    "group": {
+      "status": "Status",
+      "priority": "Priority",
+      "stage": "Stage",
+      "type": "Type",
+      "severity": "Severity",
+      "resolution": "Resolution"
+    },
+    "series": {
+      "ideal": "Ideal remaining",
+      "remaining": "Actual remaining",
+      "count": "Count"
+    },
+    "result": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "blocked": "Blocked",
+      "na": "N/A"
+    },
+    "passRate": {
+      "label": "Pass rate",
+      "total": "Total cases",
+      "none": "No effective executions"
+    },
+    "resolution": {
+      "unresolved": "Unresolved"
+    },
+    "burn": {
+      "beginDate": "Begin date",
+      "endDate": "End date"
+    },
+    "summary": {
+      "total": "Total"
+    },
+    "empty": "No data"
+  },
+  "workspace": {
+    "title": {
+      "todos": "Todo List",
+      "todoDetail": "Todo Detail",
+      "todoBatchCreate": "Batch Create Todos",
+      "todoBatchEdit": "Batch Operate Todos",
+      "dashboard": "My Space",
+      "myTasks": "My Tasks",
+      "myBugs": "My Bugs",
+      "myStories": "My Stories",
+      "activities": "My Activities"
+    }
+  },
+  "todo": {
+    "field": {
+      "id": "ID",
+      "title": "Todo Title",
+      "type": "Type",
+      "object": "Linked Object",
+      "date": "Date",
+      "begin": "Begin Time",
+      "end": "End Time",
+      "time": "Time Range",
+      "description": "Description",
+      "isPrivate": "Private",
+      "assignee": "Assigned to",
+      "assignedBy": "Assigned by",
+      "assignedAt": "Assigned at",
+      "finishedBy": "Finished by",
+      "finishedAt": "Finished at",
+      "closedBy": "Closed by",
+      "closedAt": "Closed at",
+      "keywords": "Keywords"
+    },
+    "type": {
+      "custom": "Custom",
+      "bug": "Bug",
+      "task": "Task",
+      "story": "Story",
+      "epic": "Epic",
+      "requirement": "Requirement",
+      "testRun": "Test Run"
+    },
+    "status": {
+      "wait": "Waiting",
+      "doing": "Doing",
+      "done": "Done",
+      "closed": "Closed"
+    },
+    "tab": {
+      "today": "Today",
+      "week": "This Week",
+      "undated": "Undated",
+      "all": "All",
+      "activities": "Activities"
+    },
+    "action": {
+      "create": "New Todo",
+      "edit": "Edit",
+      "start": "Start",
+      "finish": "Finish",
+      "activate": "Activate",
+      "close": "Close",
+      "assign": "Assign",
+      "batchCreate": "Batch Create",
+      "batchEdit": "Batch Operate"
+    },
+    "message": {
+      "titleTooLong": "The title must be at most 150 characters.",
+      "objectRequired": "Select the linked object.",
+      "objectIdPlaceholder": "Object ID",
+      "objectPlaceholder": "Search and select the linked object",
+      "objectSearchHint": "Type a keyword to search objects",
+      "dateRequired": "The date is required.",
+      "timeFormat": "Time must be in HH:mm format.",
+      "timeOrder": "The end time must be later than the begin time.",
+      "assigneeRequired": "Select an assignee.",
+      "privateHint": "Visible only to the creator and the assignee",
+      "undated": "Undated",
+      "noDescription": "No description",
+      "batchHint": "The whole table is editable, at most 50 rows; only rows with a title are created; an empty date means undated.",
+      "batchHintEdit": "Batch actions apply the state machine guards to each selected todo; per-item results are shown in the last column.",
+      "batchFailed": "This row failed.",
+      "selectFirst": "Select todos in the list first.",
+      "deleteHint": "Delete this todo?"
+    }
+  },
+  "my": {
+    "card": {
+      "todos": "My Todos",
+      "tasks": "My Tasks",
+      "bugs": "My Bugs",
+      "stories": "My Stories"
+    },
+    "role": {
+      "tasks": {
+        "assignee": "Assigned to me",
+        "creator": "Created by me",
+        "finisher": "Finished by me",
+        "closer": "Closed by me"
+      },
+      "bugs": {
+        "assignee": "Assigned to me",
+        "creator": "Created by me",
+        "resolver": "Resolved by me",
+        "closer": "Closed by me"
+      },
+      "stories": {
+        "assignee": "Assigned to me",
+        "creator": "Created by me",
+        "reviewer": "Reviewed by me",
+        "closer": "Closed by me"
+      }
+    },
+    "profile": {
+      "avatar": "Avatar",
+      "readonlyHint": "No account-edit privilege; read-only.",
+      "title": "My profile"
+    }
+  },
+  "weeklyReport": {
+    "title": "Weekly Report",
+    "nav": {
+      "prev": "Previous week",
+      "next": "Next week",
+      "current": "This week"
+    },
+    "field": {
+      "weekSN": "Week",
+      "pv": "Planned value (PV)",
+      "ev": "Earned value (EV)",
+      "ac": "Actual cost (AC)",
+      "sv": "Schedule variance (SV)",
+      "cv": "Cost variance (CV)",
+      "staff": "Contributors"
+    },
+    "analysis": "Analysis",
+    "table": {
+      "finished": "Finished this week",
+      "postponed": "Unfinished this week",
+      "nextWeek": "Planned for next week",
+      "empty": "No tasks"
+    },
+    "message": {
+      "loadFailed": "Failed to load the weekly report."
+    }
+  },
+  "dashboard": {
+    "layout": {
+      "title": "Layout",
+      "reset": "Reset to default",
+      "hint": "Drag cards to reorder; toggle visibility and half/full width."
+    },
+    "widget": {
+      "summary": "Overview",
+      "myTodos": "Todos",
+      "myTasks": "Tasks",
+      "myBugs": "Bugs",
+      "myStories": "Stories",
+      "myActivities": "Activities"
+    },
+    "size": {
+      "half": "Half",
+      "full": "Full"
+    },
+    "action": {
+      "hide": "Hide"
+    },
+    "empty": "No data"
+  },
+  "personnel": {
+    "title": "Personnel",
+    "search": "Search members",
+    "field": {
+      "account": "Account",
+      "realName": "Name",
+      "department": "Department",
+      "role": "Role",
+      "openTaskCount": "Open tasks",
+      "unresolvedBugCount": "Unresolved bugs"
+    },
+    "action": {
+      "workload": "Workload"
+    },
+    "message": {
+      "loadFailed": "Failed to load members."
+    },
+    "workload": {
+      "title": "Workload",
+      "date": "Date range",
+      "allDepartments": "All departments",
+      "chart": "Effort distribution",
+      "detail": "Details",
+      "consumedHours": "Consumed hours",
+      "finishedTaskCount": "Finished tasks",
+      "empty": "No effort in this range",
+      "loadFailed": "Failed to load the workload."
+    }
+  },
+  "docSpace": {
+    "title": {
+      "list": "Doc spaces",
+      "detail": "Docs in space"
+    },
+    "field": {
+      "id": "ID",
+      "name": "Name",
+      "type": "Type",
+      "product": "Product",
+      "project": "Project",
+      "execution": "Execution",
+      "acl": "Access",
+      "whitelist": "Whitelist",
+      "description": "Description",
+      "docSort": "Doc order",
+      "isDefault": "Default space",
+      "docCount": "Docs",
+      "sort": "Sort",
+      "createdBy": "Created by",
+      "createdAt": "Created at",
+      "whitelistGroup": "Whitelist groups"
+    },
+    "type": {
+      "product": "Product space",
+      "project": "Project space",
+      "execution": "Execution space",
+      "custom": "Custom space",
+      "mine": "My space"
+    },
+    "acl": {
+      "open": "Open",
+      "default": "Inherited",
+      "private": "Private"
+    },
+    "docSort": {
+      "id_asc": "Creation order",
+      "id_desc": "Newest first"
+    },
+    "action": {
+      "create": "New doc space",
+      "edit": "Edit doc space"
+    },
+    "message": {
+      "nameTooLong": "Name must be at most 60 characters.",
+      "productRequired": "A product space requires a product.",
+      "projectRequired": "A project space requires a project.",
+      "executionRequired": "An execution space requires an execution.",
+      "whitelistRequired": "A private space requires at least one whitelisted account.",
+      "defaultHint": "Make it the default space (at most one per object)",
+      "deleteHint": "Docs in this space become invisible. Delete this doc space?",
+      "noDescription": "No description"
+    }
+  },
+  "doc": {
+    "title": {
+      "my": "My docs",
+      "detail": "Doc detail",
+      "edit": "Edit doc",
+      "files": "Doc attachments"
+    },
+    "field": {
+      "id": "ID",
+      "doc": "Doc",
+      "docSpace": "Doc space",
+      "category": "Category",
+      "parent": "Parent chapter",
+      "title": "Title",
+      "keywords": "Keywords",
+      "type": "Type",
+      "status": "Status",
+      "acl": "Access",
+      "editors": "Editors",
+      "readers": "Readers",
+      "notify": "Notify",
+      "content": "Content",
+      "files": "Attachments",
+      "version": "Latest version",
+      "hasDraft": "Unpublished changes",
+      "views": "Views",
+      "sort": "Sort",
+      "updatedBy": "Updated by",
+      "updatedAt": "Updated at",
+      "editorsGroup": "Editor groups",
+      "readersGroup": "Reader groups"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "type": {
+      "markdown": "Markdown",
+      "html": "HTML (legacy)"
+    },
+    "acl": {
+      "open": "Open",
+      "private": "Private"
+    },
+    "action": {
+      "create": "New doc",
+      "edit": "Edit",
+      "move": "Move",
+      "delete": "Delete",
+      "publish": "Publish",
+      "save-draft": "Save draft",
+      "editInfo": "Edit info"
+    },
+    "tab": {
+      "activities": "Activities",
+      "comments": "Comments",
+      "created": "Created by me",
+      "edited": "Edited by me",
+      "draft": "My drafts"
+    },
+    "message": {
+      "allDocs": "All docs",
+      "uncategorized": "Uncategorized",
+      "noParent": "None (top level)",
+      "empty": "No docs",
+      "titleTooLong": "Title must be at most 255 characters.",
+      "openClearsAcl": "Open docs keep no editor/reader whitelist; switch to private first.",
+      "batchPartial": "Some items failed ({{failed}}).",
+      "batchDeleteHint": "Delete the selected {{count}} docs (including sub-chapters)?",
+      "deleteHint": "Sub-chapters are deleted as well. Delete this doc?",
+      "targetSpaceRequired": "Pick a target doc space.",
+      "pickDoc": "Pick a doc to list its attachments",
+      "noContent": "No content",
+      "noChanges": "Content equals the current version; nothing to publish.",
+      "draftSaved": "Draft saved.",
+      "published": "Published v{{version}}.",
+      "editForbidden": "You cannot edit this doc.",
+      "unavailable": "Doc unavailable",
+      "unsaved": "Unsaved changes",
+      "leave": "Discard and leave",
+      "leaveHint": "Unsaved content will be lost. Leave anyway?",
+      "markdownHint": "Markdown supported",
+      "snapshotFiles": "Attachments belong to version snapshots; showing latest."
+    },
+    "filter": {
+      "scope": "Doc Scope"
+    }
+  },
+  "docVersion": {
+    "title": {
+      "list": "Version history",
+      "diff": "Version diff"
+    },
+    "field": {
+      "id": "ID",
+      "doc": "Doc",
+      "version": "Version",
+      "title": "Title",
+      "digest": "Digest",
+      "workingCopy": "Draft working copy"
+    },
+    "action": {
+      "compare": "Compare"
+    },
+    "message": {
+      "noContent": "No content",
+      "selectTwo": "Select exactly two versions to compare.",
+      "pickVersions": "Pick two versions above"
+    }
+  },
+  "docCategory": {
+    "action": {
+      "addChild": "Add child",
+      "create": "New category",
+      "newInstead": "Create"
+    },
+    "field": {
+      "name": "Name",
+      "parent": "Parent"
+    },
+    "message": {
+      "deleteHint": "Remove children and doc references before deleting.",
+      "editing": "Renaming; save to apply.",
+      "empty": "No categories yet."
+    },
+    "title": {
+      "manage": "Manage categories"
+    }
+  },
+  "file": {
+    "field": {
+      "downloads": "Downloads",
+      "extension": "Type",
+      "size": "Size",
+      "title": "File"
+    }
+  },
+  "priv": {
+    "file-upload": "Upload attachment",
+    "setting-manage": "Manage settings",
+    "lang-manage": "Manage texts",
+    "doc-space-view": "View doc space",
+    "doc-space-create": "Create doc space",
+    "doc-space-edit": "Edit doc space",
+    "doc-space-delete": "Delete doc space",
+    "doc-view": "View doc",
+    "doc-create": "Create doc",
+    "doc-edit": "Edit doc",
+    "doc-delete": "Delete doc",
+    "department-view": "View department",
+    "department-create": "Create department",
+    "department-edit": "Edit department",
+    "department-delete": "Delete department",
+    "account-view": "View account",
+    "account-create": "Create account",
+    "account-edit": "Edit account",
+    "account-password": "Change own password",
+    "account-reset-password": "Reset other's password",
+    "account-disable": "Disable account",
+    "account-enable": "Enable account",
+    "account-unlock": "Unlock account",
+    "account-delete": "Delete account",
+    "group-view": "View role",
+    "group-create": "Create role",
+    "group-edit": "Edit role",
+    "group-copy": "Copy role",
+    "group-delete": "Delete role",
+    "group-priv-edit": "Assign role privileges",
+    "group-member-edit": "Manage role members",
+    "personnel-view": "View personnel",
+    "product-view": "View product",
+    "product-create": "Create product",
+    "product-edit": "Edit product",
+    "product-close": "Close product",
+    "product-activate": "Activate product",
+    "product-delete": "Delete product",
+    "branch-manage": "Manage branch",
+    "branch-delete": "Delete branch",
+    "category-manage": "Manage module",
+    "plan-view": "View plan",
+    "plan-create": "Create plan",
+    "plan-edit": "Edit plan",
+    "plan-start": "Start plan",
+    "plan-finish": "Finish plan",
+    "plan-close": "Close plan",
+    "plan-activate": "Activate plan",
+    "plan-link": "Link plan",
+    "plan-delete": "Delete plan",
+    "release-view": "View release",
+    "release-create": "Create release",
+    "release-edit": "Edit release",
+    "release-terminate": "Terminate release",
+    "release-link": "Link release",
+    "release-delete": "Delete release",
+    "build-view": "View build",
+    "build-create": "Create build",
+    "build-edit": "Edit build",
+    "build-delete": "Delete build",
+    "build-link": "Link build",
+    "program-view": "View program",
+    "program-create": "Create program",
+    "program-edit": "Edit program",
+    "program-delete": "Delete program",
+    "program-start": "Start program",
+    "program-suspend": "Suspend program",
+    "program-resume": "Resume program",
+    "program-delay": "Delay program",
+    "program-close": "Close program",
+    "program-activate": "Activate program",
+    "project-view": "View project",
+    "project-create": "Create project",
+    "project-edit": "Edit project",
+    "project-delete": "Delete project",
+    "project-start": "Start project",
+    "project-suspend": "Suspend project",
+    "project-resume": "Resume project",
+    "project-delay": "Delay project",
+    "project-close": "Close project",
+    "project-activate": "Activate project",
+    "project-manage-members": "Manage project team",
+    "project-link-story": "Link story",
+    "project-whitelist": "Manage whitelist",
+    "execution-view": "View execution",
+    "execution-create": "Create execution",
+    "execution-edit": "Edit execution",
+    "execution-delete": "Delete execution",
+    "execution-start": "Start execution",
+    "execution-suspend": "Suspend execution",
+    "execution-resume": "Resume execution",
+    "execution-delay": "Delay execution",
+    "execution-close": "Close execution",
+    "execution-activate": "Activate execution",
+    "execution-manage-members": "Manage execution team",
+    "stage-view": "View stage",
+    "stage-manage": "Manage stage",
+    "stakeholder-view": "View stakeholder",
+    "stakeholder-manage": "Manage stakeholder",
+    "board-view": "View board",
+    "board-space-create": "Create board space",
+    "board-space-edit": "Edit board space",
+    "board-space-close": "Close board space",
+    "board-create": "Create board",
+    "board-edit": "Edit board",
+    "board-close": "Close board",
+    "board-card-create": "Create board card",
+    "board-card-edit": "Edit board card",
+    "bug-view": "View bug",
+    "bug-create": "Create bug",
+    "bug-edit": "Edit bug",
+    "bug-confirm": "Confirm bug",
+    "bug-resolve": "Resolve bug",
+    "bug-activate": "Activate bug",
+    "bug-close": "Close bug",
+    "bug-assign": "Assign bug",
+    "bug-delete": "Delete bug",
+    "testcase-view": "View test case",
+    "testcase-create": "Create test case",
+    "testcase-edit": "Edit test case",
+    "testcase-review": "Review case",
+    "testcase-delete": "Delete test case",
+    "suite-view": "View suite",
+    "suite-create": "Create suite",
+    "suite-edit": "Edit suite",
+    "suite-link-case": "Link case",
+    "suite-delete": "Delete suite",
+    "library-view": "View case library",
+    "library-create": "Create case library",
+    "library-edit": "Edit case library",
+    "library-delete": "Delete case library",
+    "testrun-view": "View test run",
+    "testrun-create": "Create test run",
+    "testrun-edit": "Edit test run",
+    "testrun-start": "Start test run",
+    "testrun-block": "Block test run",
+    "testrun-activate": "Activate test run",
+    "testrun-close": "Close test run",
+    "testrun-link-case": "Link case to test run",
+    "testrun-record-result": "Record result",
+    "testrun-assign-case": "Assign case",
+    "testrun-delete": "Delete test run",
+    "report-view": "View test report",
+    "report-create": "Create test report",
+    "report-edit": "Edit test report",
+    "report-delete": "Delete test report",
+    "story-view": "View story",
+    "story-create": "Create story",
+    "story-edit": "Edit story",
+    "story-submit-review": "Submit for review",
+    "story-pass": "Pass review",
+    "story-change": "Change story",
+    "story-close": "Close story",
+    "story-activate": "Activate story",
+    "story-assign": "Assign story",
+    "story-delete": "Delete story",
+    "task-view": "View task",
+    "task-create": "Create task",
+    "task-edit": "Edit task",
+    "task-start": "Start task",
+    "task-finish": "Finish task",
+    "task-pause": "Pause task",
+    "task-resume": "Resume task",
+    "task-cancel": "Cancel task",
+    "task-close": "Close task",
+    "task-activate": "Activate task",
+    "task-assign": "Assign task",
+    "task-effort": "Log effort",
+    "task-effort-edit": "Edit effort",
+    "task-effort-delete": "Delete effort",
+    "task-delete": "Delete task",
+    "todo-view": "View todo",
+    "todo-create": "Create todo",
+    "todo-edit": "Edit todo",
+    "todo-delete": "Delete todo",
+    "todo-start": "Start todo",
+    "todo-finish": "Finish todo",
+    "todo-activate": "Activate todo",
+    "todo-close": "Close todo",
+    "todo-assign": "Assign todo",
+    "my-view": "View my workspace",
+    "weekly-report-view": "View weekly report"
+  }
+}

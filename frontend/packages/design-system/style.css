@@ -1,0 +1,123 @@
+@import 'tailwindcss' prefix(tw);
+
+/*
+ * 语义色令牌（06 A2-1 / D-A3）：antd cssVar 的 Tailwind 映射。
+ * 业务类用 border-border / border-border-strong / bg-layout（整页底，不透明）/ bg-fill（容器内叠层，半透明）/ text-tertiary，
+ * 值随 ConfigProvider 亮暗算法翻转；裸色（hex / neutral-* / bg-white…）由 check-raw-styles 门禁拦截。
+ */
+@theme inline {
+  --color-border: var(--zt-color-border-secondary);
+  --color-border-strong: var(--zt-color-border);
+  --color-fill: var(--zt-color-fill-quaternary);
+  --color-layout: var(--zt-color-bg-layout);
+  --color-fill-strong: var(--zt-color-fill-tertiary);
+  --color-text-tertiary: var(--zt-color-text-tertiary);
+  --color-primary: var(--zt-color-primary);
+  /* 正文差异底色（doc 版本对比）：淡色底必须随亮暗算法翻转，故取 antd 语义底色而非调色板 -50 */
+  --color-diff-add: var(--zt-color-success-bg);
+  --color-diff-remove: var(--zt-color-error-bg);
+}
+
+/*
+ * 页面铺满（用户裁决 2026-09-19）：无论有无数据，页面都占满内容区，不留半屏灰底。
+ * 做法：.zt-page（PageContainer）吃满内容区高度；页尾列表卡与表体逐层 flex 生长；
+ * 空表用 :has 单独接力（有数据时保持 antd 行高，不被拉伸）。
+ * 只在「卡片是页面末子」的常规列表页生效；侧树等自定义布局由页面自己加 flex 类。
+ */
+.zt-page {
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+/*
+ * 详情页页头贴顶通栏（用户要求「返回键那一块和顶栏连在一起」，2026-09-20）：传 backTo 的 PageHeader
+ * （page-header.tsx 挂 .zt-page-header-attached，并按 pagePadding 令牌给负外边距）是 .zt-page 的第一条，
+ * 负外边距已经把它顶到内容区上沿、左右吃满 padding；此处只收外观——去掉卡片四周的边框与圆角，
+ * 只留一条底边，成为页签条下沿的一条附件条。
+ * 选择器带 .ant-card 且限定 .zt-page 直接子级：antd Card 的边框/圆角规则是 :where() 包的低特异度，
+ * 同层覆盖要靠特异度取胜（不能只写一个类，否则与 antd 的注入顺序赌运气）。
+ */
+.zt-page > .zt-page-header-attached.ant-card {
+  border: none;
+  border-bottom: 1px solid var(--zt-color-border-secondary);
+  border-radius: 0;
+}
+
+.zt-page > .ant-card:last-child {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-page > .ant-card:last-child > .ant-card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 表体接力：空态占位行吃满卡片剩余高度并垂直居中。
+   antd v6 表格 loader 容器是 .ant-spin（v5 为 .ant-spin-nested-loading），两代类名都接上。 */
+.zt-page .ant-card-body > .ant-table-wrapper {
+  flex: 1 1 auto;
+}
+
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder),
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-spin,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-spin-nested-loading,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-spin-container,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-table {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-table-container,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-table-content,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) table,
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-table-placeholder {
+  height: 100%;
+}
+
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-table-placeholder > td {
+  height: 100%;
+}
+
+.zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/*
+ * 两栏列表页（左部门树/目录 + 右列表）同样铺满：行容器 → 右列 → 卡片逐层接力。
+ * 页面用 .zt-split（行）/ .zt-split-main（右列）替代裸 flex 类，间距仍由页面的 gap 类给。
+ */
+.zt-split {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.zt-split-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zt-split .ant-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-split .ant-card > .ant-card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-split-main > .ant-card:last-child {
+  flex: 1 1 auto;
+}

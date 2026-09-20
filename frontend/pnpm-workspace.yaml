@@ -1,0 +1,8 @@
+packages:
+  - web
+  - packages/*
+allowBuilds:
+  esbuild: true
+  msw: true
+minimumReleaseAgeExclude:
+  - jsdom@30.1.0

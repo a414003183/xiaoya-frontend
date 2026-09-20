@@ -1,0 +1,11 @@
+{
+  "name": "zentao-tools",
+  "private": true,
+  "description": "根级工具脚本的运行依赖（tools/contract-check 等）；前端工程依赖在 frontend/，后端在 backend/",
+  "devDependencies": {
+    "yaml": "2.9.1"
+  },
+  "dependencies": {
+    "mysql2": "^3.15.0"
+  }
+}

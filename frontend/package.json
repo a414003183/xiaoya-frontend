@@ -1,0 +1,26 @@
+{
+  "name": "zentao",
+  "private": true,
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check web packages && node ../tools/contract-check/check-domain-boundary.mjs",
+    "test": "turbo run test",
+    "codegen": "pnpm --filter @zentao/api-client codegen",
+    "routes": "node ../tools/route-codegen.mjs",
+    "routes:check": "node ../tools/route-codegen.mjs && git diff --exit-code -- web/src/app/routes.tsx",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "test:visual": "pnpm --filter web test:visual"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "turbo": "2.10.13",
+    "typescript": "7.0.2",
+    "yaml": "2.9.1"
+  }
+}
