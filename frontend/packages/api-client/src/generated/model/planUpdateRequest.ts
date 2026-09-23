@@ -11,21 +11,41 @@ import type { PlanUpdateRequestCustomFields } from './planUpdateRequestCustomFie
 
 export interface PlanUpdateRequest {
   /**
+     * 计划名称
      * @maxLength 90
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: PlanUpdateRequestCustomFields;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

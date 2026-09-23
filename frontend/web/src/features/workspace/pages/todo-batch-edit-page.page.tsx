@@ -1,4 +1,5 @@
 /** @route /todos/batch-edit @title workspace.title.todoBatchEdit @perm todo-edit @hide @activeMenu /my/todos */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {

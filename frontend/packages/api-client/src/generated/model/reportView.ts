@@ -9,27 +9,49 @@
  */
 
 export interface ReportView {
+  /** 主键 id */
   id: number;
+  /** 执行 id */
   executionId: number;
+  /** 项目 id */
   projectId?: number;
+  /** 产品 id */
   productId?: number;
-  /** @maxLength 255 */
+  /**
+     * 标题
+     * @maxLength 255
+     */
   title: string;
+  /** 测试单 id 集合 */
   testRunIds: number[];
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
   /**
      * 报告正文（不透明，后端不解析）
      * @nullable
      */
   content?: string | null;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

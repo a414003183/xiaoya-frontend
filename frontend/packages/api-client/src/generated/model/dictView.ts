@@ -13,6 +13,7 @@ import type { DictViewItemsItem } from './dictViewItemsItem';
  * 计算字典（platform 卡 §3.9）
  */
 export interface DictView {
+  /** 字典类型名称 */
   name: string;
   /** 条目结构随 name 变化（accounts/departments/timezones/locales/privileges） */
   items: DictViewItemsItem[];

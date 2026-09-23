@@ -10,5 +10,6 @@
 import type { ErrorEnvelopeError } from './errorEnvelopeError';
 
 export interface ErrorEnvelope {
+  /** 错误体（code/message/fields/traceId） */
   error: ErrorEnvelopeError;
 }

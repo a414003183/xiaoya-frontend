@@ -15,26 +15,46 @@ import type { DocUpdateRequestAcl } from './docUpdateRequestAcl';
  */
 export interface DocUpdateRequest {
   /**
+     * 文档标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
   acl?: DocUpdateRequestAcl;
+  /** 可编辑白名单（账号与用户组） */
   editors?: DocAclPayload;
+  /** 只读白名单（账号与用户组） */
   readers?: DocAclPayload;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

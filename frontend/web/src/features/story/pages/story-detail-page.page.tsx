@@ -234,7 +234,11 @@ export default function StoryDetailPage() {
             {
               key: 'files',
               label: t('story.tab.files'),
-              children: <FileUploadField objectType="story" objectId={storyId} />,
+              children: (
+                <HasPerm perm="file-upload">
+                  <FileUploadField objectType="story" objectId={storyId} />
+                </HasPerm>
+              ),
             },
           ]}
         />

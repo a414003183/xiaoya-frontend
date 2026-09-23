@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 状态
+ */
 export type AccountViewStatus = typeof AccountViewStatus[keyof typeof AccountViewStatus];
 
 

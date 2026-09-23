@@ -26,7 +26,7 @@ import {
   submitReviewAction,
   submitStory,
 } from '../../features/story/api/story.api'
-import { db, resetMockData } from '../db'
+import { db, grantRolePrivileges, resetMockData } from '../db'
 import { handlers } from '../handlers'
 
 /**
@@ -164,8 +164,7 @@ describe('产品 ACL（product §7）', () => {
       product.acl = 'custom'
       product.whitelist = []
     }
-    const group = db.groups.find((item) => item.id === 2)
-    group?.privCodes.push('product-view')
+    grantRolePrivileges(2, ['product-view'])
 
     db.currentAccountId = 2 // dev1：有 product-view 但不在白名单
     const visible = await fetchProducts({ limit: 200 })

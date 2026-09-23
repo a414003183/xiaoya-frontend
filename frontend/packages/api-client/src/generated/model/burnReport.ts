@@ -12,9 +12,14 @@
  * 燃尽报表（ideal 直线 + remaining 执行级日行，缺失日沿用上值）
  */
 export interface BurnReport {
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
+  /** 日期序列（横轴） */
   dates: string[];
+  /** 理想剩余曲线 */
   ideal: number[];
+  /** 剩余工作量序列 */
   remaining: number[];
 }

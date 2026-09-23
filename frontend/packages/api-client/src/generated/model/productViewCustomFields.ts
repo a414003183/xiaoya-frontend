@@ -8,4 +8,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 自定义字段（动态字段表）
+ */
 export type ProductViewCustomFields = { [key: string]: unknown };

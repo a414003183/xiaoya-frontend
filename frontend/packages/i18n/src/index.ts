@@ -16,6 +16,18 @@ export function persistedLanguage(): SupportedLanguage {
   }
 }
 
+/** 当前界面语言（与 i18next 同源，非 React 场景取语言的唯一出口，如 shared/format.ts）。 */
+export function currentLanguage(): SupportedLanguage {
+  return i18next.language === 'en' ? 'en' : 'zh-CN'
+}
+
+/** `<html lang>` 随语言联动（FE-06）：所有切换路径（loadLanguage / 覆盖层重设语言）都汇合到 languageChanged。 */
+function syncDocumentLang(language: string): void {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = language
+  }
+}
+
 // en 语言包走动态导入（P6 T-8 首屏预算）：默认 zh-CN 急切可用，en 在 loadLanguage('en')
 // 时才随懒 chunk 加载，不进首屏。切换同时落 localStorage（06 A4-1 持久化）。
 export async function loadLanguage(language: SupportedLanguage): Promise<I18n> {
@@ -36,6 +48,9 @@ export function initI18n(): I18n {
   if (i18next.isInitialized) {
     return i18next
   }
+  // FE-06：`<html lang>` 初始即按当前语言（持久化值），此后随 languageChanged 联动（唯一出口）
+  syncDocumentLang(persistedLanguage())
+  i18next.on('languageChanged', syncDocumentLang)
   void i18next.use(initReactI18next).init({
     resources: { 'zh-CN': { translation: zhCN } },
     // en 经 loadLanguage 异步装载；init 阶段只有 zh-CN 资源，直接以 en 初始化会渲染裸键

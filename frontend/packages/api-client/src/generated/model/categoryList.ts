@@ -10,6 +10,8 @@
 import type { CategoryView } from './categoryView';
 
 export interface CategoryList {
+  /** 列表项（当前页） */
   items: CategoryView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

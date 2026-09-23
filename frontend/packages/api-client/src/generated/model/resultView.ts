@@ -13,23 +13,42 @@ import type { ResultViewResult } from './resultViewResult';
  * 执行结果（test_run_case 行 + 用例摘要；清单与单条登记共用）
  */
 export interface ResultView {
+  /** 主键 id */
   id: number;
+  /** 测试单 id */
   testRunId: number;
+  /** 用例 id */
   testCaseId: number;
+  /** 版本 */
   version: number;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 执行结果
+     * @nullable
+     */
   result?: ResultViewResult;
-  /** @nullable */
+  /**
+     * 执行人（登录账号）
+     * @nullable
+     */
   runner?: string | null;
-  /** @nullable */
+  /**
+     * 执行时间
+     * @nullable
+     */
   runAt?: string | null;
   /**
      * 用例摘要（批量 IN 联结）
      * @nullable
      */
   caseTitle?: string | null;
-  /** @nullable */
+  /**
+     * 用例优先级（执行结果行上的快照）
+     * @nullable
+     */
   casePriority?: number | null;
 }

@@ -1,4 +1,5 @@
 /** @route /test-cases/batch-edit @title quality.title.caseBatchEdit @perm testcase-edit @hide @activeMenu /products */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import type { TestCaseView } from '@zentao/api-client/generated/model/testCaseView'

@@ -1,10 +1,15 @@
 // 契约双向全量 diff（01 §4 / phase-6 T-10 C1 收紧）：springdoc 运行时导出 ↔ contract/openapi.yaml。
 // 比对 paths+方法、operationId、请求体 schema、200 载荷 schema 名，以及全部共享 schema 的
 // 字段集合 / 字段类型 / 必填集 / 枚举值 + ErrorEnvelope 锚点。
-// 有差异 → 非零退出。用法：node tools/contract-check/contract-diff.mjs [--skip-export]
+// 有差异 → 非零退出。
+// 用法：node tools/contract-check/contract-diff.mjs [--skip-export | --url <api 基址>]
+//   （缺省：mvn 跑 OpenApiExportTest 导出后比对；--url：从**已在跑的**实例拉 /v3/api-docs 后比对
+//    ——T73/OPS-09：CI 里 export 与 schemathesis 共用同一次 boot，不再为导出单独起一次 Spring。
+//     两种形态可独立本地跑：schemathesis 自带起服命令见 ci.yml。拉取需 admin 会话（T14 起
+//    /v3/api-docs 要 api-doc-view），口令走 ZT_ADMIN_PASSWORD，默认 admin123（开发态/e2e 固定口令）。）
 
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'yaml'
 
@@ -12,7 +17,31 @@ const root = join(import.meta.dirname, '..', '..')
 const contractPath = join(root, 'contract', 'openapi.yaml')
 const exportPath = join(root, 'backend', 'target', 'openapi.json')
 
-if (!process.argv.includes('--skip-export')) {
+const urlArg = process.argv.indexOf('--url')
+if (urlArg >= 0) {
+  // 与 OpenApiExportTest 同口径：admin 会话取 /v3/api-docs，原样落 exportPath（供 --skip-export 复跑比对）
+  const base = (process.argv[urlArg + 1] ?? '').replace(/\/$/, '')
+  const password = process.env.ZT_ADMIN_PASSWORD ?? 'admin123'
+  const login = await fetch(`${base}/api/v1/session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+    body: JSON.stringify({ account: 'admin', password }),
+  })
+  if (login.status !== 200) {
+    console.error(`契约 diff：登录失败（${login.status}）——${base} 的 admin 口令与 ZT_ADMIN_PASSWORD 不符？`)
+    process.exit(1)
+  }
+  const cookie = (login.headers.get('set-cookie') ?? '').split(';')[0]
+  const response = await fetch(`${base}/v3/api-docs`, { headers: { Cookie: cookie } })
+  if (response.status !== 200) {
+    console.error(`契约 diff：拉取 /v3/api-docs 失败（${response.status}）`)
+    process.exit(1)
+  }
+  const body = await response.text()
+  mkdirSync(join(exportPath, '..'), { recursive: true })
+  writeFileSync(exportPath, body)
+  console.log(`契约 diff：已从运行中实例导出 ${exportPath}`)
+} else if (!process.argv.includes('--skip-export')) {
   execSync('mvn -B -q -f backend test -Dtest=OpenApiExportTest -Dsurefire.failIfNoSpecifiedTests=false', {
     cwd: root,
     stdio: 'inherit',
@@ -93,7 +122,18 @@ for (const [key, c] of contractOps) {
   if (norm(c.payload) !== norm(e.payload))
     problems.push(`${key} 200 载荷：契约=${c.payload ?? '—'} 后端=${e.payload ?? '—'}`)
 
-  const propsOf = (schemas, name) => Object.keys(schemas?.[name]?.properties ?? {}).sort()
+  // 归一（T66/DB-11）：契约用 oneOf 表达双形态请求体时，成员字段并集 ≡ 后端扁平 record 的字段集
+  const propsOf = (schemas, name) => {
+    const keys = new Set()
+    const collect = (schema) => {
+      if (!schema) return
+      if (schema.$ref) return collect(schemas[schema.$ref.split('/').pop()])
+      for (const member of [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]) collect(member)
+      for (const key of Object.keys(schema.properties ?? {})) keys.add(key)
+    }
+    collect(schemas?.[name])
+    return [...keys].sort()
+  }
   for (const name of c.schemaNames) {
     const cp = propsOf(contract.components?.schemas, name)
     const ep = propsOf(exported.components?.schemas, name)
@@ -108,6 +148,7 @@ for (const [key, c] of contractOps) {
 //  · 契约枚举对可空字段含 null 值 → 枚举比较剥 null
 //  · required 仅当 record 组件带 @Schema(requiredMode) 时 springdoc 才导出 → 只比 *Request（T-10 注解清扫后全量）
 //  · 一侧 $ref 一侧内联 object → 解引用后按字段名集合等价判定
+//  · 契约 oneOf 双形态请求体 vs 后端扁平 record → 成员字段并集等价判定（T66/DB-11）
 const normalizeType = (property) => {
   if (!property) return null
   if (property.$ref) return 'ref:' + property.$ref.split('/').pop()

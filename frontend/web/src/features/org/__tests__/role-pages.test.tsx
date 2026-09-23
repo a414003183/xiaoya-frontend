@@ -20,14 +20,22 @@ import AccountListPage from '../pages/account-list-page.page'
 import RoleListPage from '../pages/role-list-page.page'
 
 /**
- * 角色列表（/admin/roles，org 卡 §6）：页签装配（权限角色 / 岗位角色）与岗位字典四条链路。
- * 2026-09-20 起本页是两类角色的唯一入口：字典用例走 `?tab=dict` 深链（等价于点第二个页签）。
+ * 角色页（T23 统一实体）：**一张表、一套动作**——旧的两类角色（权限角色/岗位角色）已合成 role 表。
+ * 本文件锁四件事：① 列表不再有类型列/类型筛选；② 每一行的行内动作相同（权限/成员/数据权限/编辑/复制/删除）
+ * 且按权限码显隐、内置角色不给删除；③ 建/改/删/复制/数据权限五条写路径；④ 账号侧的角色列走角色表。
  */
 initI18n()
 
-const ROLE_PRIVS = ['role-view', 'role-manage']
-const GROUP_PRIVS = ['role-view', 'role-manage', 'group-view']
-const ACCOUNT_PRIVS = ['account-view', 'account-edit', 'account-create', 'department-view', 'group-view']
+const FULL_PRIVS = [
+  'role-view',
+  'role-create',
+  'role-edit',
+  'role-delete',
+  'role-copy',
+  'role-priv-edit',
+  'role-member-edit',
+]
+const ACCOUNT_PRIVS = ['account-view', 'account-edit', 'account-create', 'department-view', 'role-view']
 
 const server = setupServer(...handlers)
 
@@ -60,7 +68,25 @@ afterEach(() => {
 })
 afterAll(() => server.close())
 
-function renderPage(page: React.ReactElement, privileges: string[] = ROLE_PRIVS, entry = '/admin/roles?tab=dict') {
+/** 造一个非内置角色（删除链路用）。 */
+function pushRole(id: number, name: string): void {
+  db.roles.push({
+    id,
+    code: null,
+    name,
+    description: '',
+    acl: {},
+    builtin: false,
+    sort: id,
+    createdBy: 'admin',
+    createdAt: '2026-09-20T00:00:00Z',
+    updatedBy: null,
+    updatedAt: null,
+    lockVersion: 0,
+  })
+}
+
+function renderPage(page: React.ReactElement, privileges: string[] = FULL_PRIVS, entry = '/admin/roles') {
   return render(
     // antd locale 随语言联动（AppProviders 同款）：确认框按钮等 antd 内建文案才与真机一致
     <ConfigProvider theme={createTheme()} locale={antdLocaleZhCN}>
@@ -85,178 +111,155 @@ function rowOf(text: string): HTMLElement {
   return row
 }
 
-describe('RoleListPage「岗位角色」页签（角色字典）', () => {
-  test('渲染内置九角色：本地化名称、角色码、其他语言副行与使用账号数', async () => {
+describe('RoleListPage（统一实体：一张表装全部角色）', () => {
+  test('所有角色在一张表里：内置标记、成员数/权限数、无类型列与类型筛选', async () => {
     renderPage(<RoleListPage />)
-    expect(await screen.findByText('研发')).toBeInTheDocument()
-    expect(screen.getByText('测试')).toBeInTheDocument()
-    expect(screen.getByText('其他')).toBeInTheDocument()
-    // 角色码列 + 另一语言的副行
+    // 内置超管角色 + 迁移来的岗位角色（研发/测试/…）同表
+    expect(await screen.findByText('管理员')).toBeInTheDocument()
+    expect(screen.getByText('研发')).toBeInTheDocument()
+    expect(screen.getByText('测试主管')).toBeInTheDocument()
+    // 没有页签、没有类型筛选（用户裁决：不需要区分权限角色/岗位角色）
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('类型')).not.toBeInTheDocument()
+    // 内置标记：管理员与研发都是内置角色
+    expect(within(rowOf('管理员')).getByText('内置')).toBeInTheDocument()
+    expect(within(rowOf('研发')).getByText('内置')).toBeInTheDocument()
+    // 超管角色有 1 个成员；研发角色没有成员也没有权限码
+    expect(within(rowOf('管理员')).getAllByText('1').length).toBeGreaterThan(0)
+    expect(within(rowOf('研发')).getAllByText('0').length).toBeGreaterThan(0)
+    // 角色码列（迁移来的岗位角色带码，超管角色没有码）
     expect(within(rowOf('研发')).getByText('dev')).toBeInTheDocument()
-    expect(within(rowOf('研发')).getByText('en: Developer')).toBeInTheDocument()
-    // 使用账号数现算：admin 角色 top、dev1 角色 dev、guest 角色 others
-    expect(within(rowOf('研发')).getByText('1')).toBeInTheDocument()
-    expect(within(rowOf('高层管理')).getByText('1')).toBeInTheDocument()
-    // 计数已随分页（用户裁决 2026-09-20 二次修订）；字典页关分页 → 断言行数（9 行数据 + 1 行表头）
-    expect(screen.getAllByRole('row')).toHaveLength(10)
   })
 
-  test('关键词筛选按角色码/名称在客户端过滤', async () => {
-    const user = userEvent.setup()
+  test('每一行的动作都一样：权限/成员/数据权限/编辑/复制（内置角色不给删除）', async () => {
     renderPage(<RoleListPage />)
     await screen.findByText('研发')
-    await user.type(screen.getByPlaceholderText('搜索'), 'dev')
-    await user.click(screen.getByRole('button', { name: /搜\s*索/ }))
-    await waitFor(() => {
-      expect(screen.getAllByRole('row')).toHaveLength(2)
-    })
-    expect(screen.getByText('研发')).toBeInTheDocument()
-    expect(screen.queryByText('测试主管')).not.toBeInTheDocument()
+    for (const name of ['管理员', '研发']) {
+      const actions = within(rowOf(name))
+      for (const button of [/^权\s*限$/, /^成\s*员$/, /^数据权限$/, /^编\s*辑$/, /^复\s*制$/]) {
+        expect(actions.getByRole('button', { name: button })).toBeInTheDocument()
+      }
+      // 内置角色不可删除（服务端 42203），入口也不渲染
+      expect(actions.queryByRole('button', { name: /删\s*除/ })).not.toBeInTheDocument()
+    }
   })
 
-  test('新建角色：POST 体含 roleCreateRequest 三字段，成功后出现在列表', async () => {
+  test('权限码显隐：没有 role-copy / role-delete / role-create 时对应入口不渲染', async () => {
+    renderPage(<RoleListPage />, ['role-view', 'role-edit'])
+    await screen.findByText('研发')
+    const actions = within(rowOf('研发'))
+    expect(actions.queryByRole('button', { name: /复\s*制/ })).not.toBeInTheDocument()
+    expect(actions.queryByRole('button', { name: /删\s*除/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '新建角色' })).not.toBeInTheDocument()
+    // 编辑与数据权限要 role-edit：在
+    expect(actions.getByRole('button', { name: /编\s*辑/ })).toBeInTheDocument()
+  })
+
+  test('新建角色：POST /roles 带 name/code/description，成功后出现在列表', async () => {
     const user = userEvent.setup()
     renderPage(<RoleListPage />)
     await screen.findByText('研发')
     await user.click(screen.getByRole('button', { name: '新建角色' }))
+    await user.type(screen.getByLabelText('role-form-name'), '运维')
     await user.type(screen.getByLabelText('role-form-code'), 'ops')
-    await user.type(screen.getByLabelText('role-form-label-zh-CN'), '运维')
-    await user.type(screen.getByLabelText('role-form-label-en'), 'Ops Engineer')
+    await user.type(screen.getByLabelText('role-form-description'), '值班与发布')
     await user.click(screen.getByRole('button', { name: /提\s*交/ }))
-    await waitFor(() => {
-      expect(db.roles.some((role) => role.code === 'ops')).toBe(true)
-    })
+    await waitFor(() => expect(db.roles.some((role) => role.name === '运维')).toBe(true))
     expect(sent.at(-1)).toMatchObject({
       method: 'POST',
-      body: { code: 'ops', labels: { 'zh-CN': '运维', en: 'Ops Engineer' } },
+      body: { name: '运维', code: 'ops', description: '值班与发布' },
     })
     expect(await screen.findByText('运维')).toBeInTheDocument()
-    expect(screen.getAllByRole('row')).toHaveLength(11)
   })
 
-  test('名称全空拦截提交（labels 至少一项非空）', async () => {
+  test('新建角色：名称必填（空 → 不出请求）', async () => {
     const user = userEvent.setup()
     renderPage(<RoleListPage />)
     await screen.findByText('研发')
     await user.click(screen.getByRole('button', { name: '新建角色' }))
-    await user.type(screen.getByLabelText('role-form-code'), 'blank-name')
     await user.click(screen.getByRole('button', { name: /提\s*交/ }))
     expect(await screen.findByText('此项必填')).toBeInTheDocument()
-    expect(db.roles.some((role) => role.code === 'blank-name')).toBe(false)
+    expect(sent).toHaveLength(0)
   })
 
-  test('编辑角色：code 只读、PATCH 体带 labels/sort/lockVersion', async () => {
+  test('编辑角色：角色码只读，PATCH 带 name/description/lockVersion', async () => {
     const user = userEvent.setup()
     renderPage(<RoleListPage />)
     await screen.findByText('研发')
     await user.click(within(rowOf('研发')).getByRole('button', { name: '编辑' }))
-    expect(await screen.findByLabelText('role-form-code')).toBeDisabled()
-    expect(screen.getByLabelText('role-form-code')).toHaveValue('dev')
-    await user.clear(screen.getByLabelText('role-form-label-zh-CN'))
-    await user.type(screen.getByLabelText('role-form-label-zh-CN'), '开发')
-    await user.clear(screen.getByLabelText('role-form-sort'))
-    await user.type(screen.getByLabelText('role-form-sort'), '15')
+    const code = await screen.findByLabelText('role-form-code')
+    expect(code).toBeDisabled()
+    expect(code).toHaveValue('dev')
+    await user.clear(screen.getByLabelText('role-form-name'))
+    await user.type(screen.getByLabelText('role-form-name'), '开发工程师')
     await user.click(screen.getByRole('button', { name: /提\s*交/ }))
-    await waitFor(() => {
-      expect(db.roles.find((role) => role.code === 'dev')?.labels['zh-CN']).toBe('开发')
-    })
+    await waitFor(() => expect(db.roles.find((role) => role.code === 'dev')?.name).toBe('开发工程师'))
     expect(sent.at(-1)).toMatchObject({
       method: 'PATCH',
-      body: { labels: { 'zh-CN': '开发', en: 'Developer' }, sort: 15, lockVersion: 0 },
+      body: { name: '开发工程师', lockVersion: 0 },
     })
-    const devRole = db.roles.find((role) => role.code === 'dev')
-    expect(devRole?.sort).toBe(15)
-    expect(devRole?.lockVersion).toBe(1)
-    expect(await screen.findByText('开发')).toBeInTheDocument()
+    expect(await screen.findByText('开发工程师')).toBeInTheDocument()
   })
 
-  test('删除内置角色被守卫拦住：确认框写明规则，服务端 42203 后角色仍在', async () => {
+  test('删除角色：确认框写明后果，DELETE 落到该角色', async () => {
     const user = userEvent.setup()
+    pushRole(99, '临时角色')
     renderPage(<RoleListPage />)
-    await screen.findByText('研发')
-    await user.click(within(rowOf('研发')).getByRole('button', { name: '删除' }))
-    expect(await screen.findByText('内置角色不可删除（可改名或调整排序）。')).toBeInTheDocument()
-    expect(screen.getByText('仍被账号使用的角色不可删除，请先调整这些账号的角色。')).toBeInTheDocument()
-    await user.click(await screen.findByRole('button', { name: /确\s*定/ }))
-    await waitFor(() => {
-      expect(sent.at(-1)).toMatchObject({ method: 'DELETE' })
-    })
-    expect(db.roles.some((role) => role.code === 'dev')).toBe(true)
-    expect(await screen.findByText('操作条件不满足，请确认对象状态后重试。')).toBeInTheDocument()
-  })
-
-  test('删除仍被账号使用的自建角色被守卫拦住；未被使用的可删', async () => {
-    const user = userEvent.setup()
-    db.roles.push({
-      code: 'ops',
-      labels: { 'zh-CN': '运维', en: 'Ops Engineer' },
-      sort: 100,
-      builtin: false,
-      createdBy: 'admin',
-      createdAt: '2026-09-20T00:00:00Z',
-      updatedBy: null,
-      updatedAt: null,
-      lockVersion: 0,
-    })
-    const guest = db.accounts.find((account) => account.account === 'guest')
-    if (!guest) {
-      throw new Error('seed account guest missing')
-    }
-    guest.role = 'ops'
-    renderPage(<RoleListPage />)
-    await screen.findByText('运维')
-    await user.click(within(rowOf('运维')).getByRole('button', { name: '删除' }))
-    await user.click(await screen.findByRole('button', { name: /确\s*定/ }))
-    expect(await screen.findByText('操作条件不满足，请确认对象状态后重试。')).toBeInTheDocument()
-    expect(db.roles.some((role) => role.code === 'ops')).toBe(true)
-
-    // 停用该账号的使用后即可删除
-    guest.role = null
-    await user.click(within(rowOf('运维')).getByRole('button', { name: '删除' }))
-    await user.click(await screen.findByRole('button', { name: /确\s*定/ }))
-    await waitFor(() => {
-      expect(db.roles.some((role) => role.code === 'ops')).toBe(false)
-    })
+    await screen.findByText('临时角色')
+    await user.click(within(rowOf('临时角色')).getByRole('button', { name: '删除' }))
+    expect(await screen.findByText('确认删除该角色？它的成员关系与权限码会一并清除。')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /确\s*定/ }))
+    await waitFor(() => expect(db.roles.some((role) => role.id === 99)).toBe(false))
     expect(await screen.findByText('角色已删除。')).toBeInTheDocument()
   })
-})
 
-describe('角色列表页签（2026-09-20 合并：权限角色 / 岗位角色）', () => {
-  test('默认落「角色」页签并加载组列表；切到「岗位角色」后岗位字典才渲染', async () => {
+  test('复制角色：副本按勾选项带权限码/成员，源角色不变', async () => {
     const user = userEvent.setup()
-    renderPage(<RoleListPage />, GROUP_PRIVS, '/admin/roles')
-    // 页签 1 = 权限角色（原 /org/groups 列表页），缺省激活
-    expect(await screen.findByText('Admins')).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '角色' })).toHaveAttribute('aria-selected', 'true')
-    // 岗位字典此时未挂载（表数据来自 GET /roles，未激活的页签不加载）
-    expect(screen.queryByText('研发')).not.toBeInTheDocument()
-    await user.click(screen.getByRole('tab', { name: '岗位角色' }))
-    expect(await screen.findByText('研发')).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '岗位角色' })).toHaveAttribute('aria-selected', 'true')
+    pushRole(97, '源角色')
+    db.rolePrivs.push({ roleId: 97, code: 'account-view' }, { roleId: 97, code: 'department-view' })
+    db.userRoles.push({ accountId: 2, roleId: 97 })
+    renderPage(<RoleListPage />)
+    await screen.findByText('源角色')
+    await user.click(within(rowOf('源角色')).getByRole('button', { name: '复制' }))
+    const name = await screen.findByLabelText('role-copy-name')
+    expect(name).toHaveValue('源角色-副本')
+    await user.click(screen.getByRole('button', { name: /提\s*交/ }))
+    await waitFor(() => expect(db.roles.some((role) => role.name === '源角色-副本')).toBe(true))
+    const copy = db.roles.find((role) => role.name === '源角色-副本')
+    expect(
+      db.rolePrivs
+        .filter((item) => item.roleId === copy?.id)
+        .map((item) => item.code)
+        .sort(),
+    ).toEqual(['account-view', 'department-view'])
+    expect(db.userRoles.filter((item) => item.roleId === copy?.id)).toHaveLength(1)
+    // 源角色不变
+    expect(db.rolePrivs.filter((item) => item.roleId === 97)).toHaveLength(2)
   })
 
-  test('?tab=dict 深链直接落「岗位角色」页签（权限角色页签内容不挂载）', async () => {
-    renderPage(<RoleListPage />, GROUP_PRIVS, '/admin/roles?tab=dict')
-    expect(await screen.findByText('研发')).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '岗位角色' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.queryByText('Admins')).not.toBeInTheDocument()
-  })
-
-  test('无 group-view：「角色」页签整体不渲染，岗位字典照常（组列表连请求都不发）', async () => {
-    renderPage(<RoleListPage />, ROLE_PRIVS, '/admin/roles')
-    expect(await screen.findByText('研发')).toBeInTheDocument()
-    expect(screen.queryByRole('tab', { name: '角色' })).not.toBeInTheDocument()
-    expect(screen.queryByText('Admins')).not.toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '岗位角色' })).toHaveAttribute('aria-selected', 'true')
+  test('数据权限：勾选对象后 PATCH acl', async () => {
+    const user = userEvent.setup()
+    pushRole(96, '数据权限角色')
+    renderPage(<RoleListPage />)
+    await screen.findByText('数据权限角色')
+    await user.click(within(rowOf('数据权限角色')).getByRole('button', { name: '数据权限' }))
+    expect(await screen.findByText(/数据权限 · 数据权限角色/)).toBeInTheDocument()
+    await user.click(screen.getByLabelText('role-acl-products'))
+    await user.click(await screen.findByTitle('Demo Product'))
+    await user.click(screen.getByRole('button', { name: /提\s*交/ }))
+    await waitFor(() => {
+      const acl = db.roles.find((role) => role.id === 96)?.acl as { products?: number[] } | undefined
+      expect(acl?.products).toContain(1)
+    })
   })
 })
 
-describe('角色选项来源（账号侧）', () => {
-  test('账号列表的角色列显示字典名称（dev → 研发），筛选下拉同样来自字典', async () => {
+describe('账号侧的角色（成员关系）', () => {
+  test('账号列表的角色列显示角色名（角色表解析），不是裸码', async () => {
     renderPage(<AccountListPage />, ACCOUNT_PRIVS, '/org/accounts')
     expect(await screen.findByText('Dev One')).toBeInTheDocument()
-    // 登录名/姓名列之外，role 列渲染的是 GET /roles 的当前语言 label，不再是裸码
-    expect(within(rowOf('Dev One')).getByText('研发')).toBeInTheDocument()
-    expect(within(rowOf('Dev One')).queryByText('dev')).not.toBeInTheDocument()
+    expect(within(rowOf('Dev One')).getByText('成员')).toBeInTheDocument()
+    // admin 是超管角色成员
+    expect(within(rowOf('Admin User')).getByText('管理员')).toBeInTheDocument()
   })
 })

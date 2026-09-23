@@ -13,12 +13,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListMyTasksParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -32,8 +32,20 @@ role?: ListMyTasksRole;
  */
 sort?: string;
 q?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[status]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[priority]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[type]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[deadline]'?: string;
 };

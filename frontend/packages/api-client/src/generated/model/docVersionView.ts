@@ -12,24 +12,44 @@
  * 正文快照（doc 卡 §3.3；version=0 为草稿工作副本，≥1 为不可变发布快照）
  */
 export interface DocVersionView {
+  /** 主键 id */
   id: number;
+  /** 文档 id */
   docId: number;
-  /** @minimum 0 */
+  /**
+     * 版本
+     * @minimum 0
+     */
   version: number;
-  /** @maxLength 255 */
+  /**
+     * 文档标题（版本快照）
+     * @maxLength 255
+     */
   title: string;
   /**
      * Markdown 源码
      * @nullable
      */
   content?: string | null;
-  /** @maxLength 255 */
+  /**
+     * 摘要（内容截断）
+     * @maxLength 255
+     */
   digest: string;
+  /** 附件文件 id 集合 */
   files?: number[];
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
 }

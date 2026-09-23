@@ -7,35 +7,72 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { PlanViewClosedReason } from './planViewClosedReason';
 import type { PlanViewCustomFields } from './planViewCustomFields';
 import type { PlanViewStatus } from './planViewStatus';
 
 export interface PlanView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 父节点 id（0 或空=顶级） */
   parentId?: number;
-  /** @maxLength 90 */
+  /**
+     * 计划名称
+     * @maxLength 90
+     */
   title: string;
+  /** 状态 */
   status: PlanViewStatus;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
-  /** @nullable */
+  /**
+     * 完成时间
+     * @nullable
+     */
   finishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
-  /** @nullable */
-  closedReason?: string | null;
+  /**
+     * 关闭原因
+     * @nullable
+     */
+  closedReason?: PlanViewClosedReason;
+  /** 自定义字段（动态字段表） */
   customFields?: PlanViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

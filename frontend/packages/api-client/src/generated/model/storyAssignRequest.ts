@@ -9,7 +9,11 @@
  */
 
 export interface StoryAssignRequest {
+  /** 处理人（登录账号，空=未指派） */
   assignee: string;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

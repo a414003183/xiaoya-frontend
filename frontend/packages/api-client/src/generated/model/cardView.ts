@@ -13,32 +13,53 @@ import type { CardViewStatus } from './cardViewStatus';
  * 看板卡片（归属单源 lane_id + sort）
  */
 export interface CardView {
+  /** 主键 id */
   id: number;
+  /** 看板 id */
   boardId: number;
   /** 拖拽即改本字段 */
   laneId: number;
-  /** @maxLength 255 */
+  /**
+     * 卡片标题
+     * @maxLength 255
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 状态 */
   status: CardViewStatus;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
   /**
+     * 预估工时
      * @minimum 0
      * @nullable
      */
   estimateHours?: number | null;
   /**
+     * 进度（0~100）
      * @minimum 0
      * @maximum 100
      */
@@ -48,14 +69,24 @@ export interface CardView {
      * @nullable
      */
   color?: string | null;
+  /** 是否归档 */
   archived: boolean;
   /** 列内排序权重，拖拽改写 */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

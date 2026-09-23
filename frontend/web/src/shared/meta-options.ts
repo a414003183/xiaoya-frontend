@@ -35,14 +35,19 @@ export function metaOptions(
 }
 
 /**
- * 计算字典项（§3.9 `GET /dicts/{name}` 的 `{value,i18n}`）→ antd Select options。
- * 与 `metaOptions` 同构：后端只给值与文案键，译文在前端解析。
+ * 计算字典项（§3.9 `GET /dicts/{name}`）→ antd Select options。
+ * 两种条目形都认：代码注册的内置字典给 `{value,i18n}`（i18n 是**翻译键**，
+ * 译文在前端解析）；DB 字典（T16）给 `{value,label}`（管理员填的**字面文案**，不是翻译键）。
+ * label 优先：它只会出现在 DB 字典上，不会与翻译键混。
  */
 export function dictOptions(
-  items: readonly { value: string; i18n?: string | undefined }[] | undefined,
+  items: readonly { value: string; i18n?: string | undefined; label?: string | undefined }[] | undefined,
   t: Translate,
 ): { value: string; label: string }[] {
-  return (items ?? []).map((item) => ({ value: item.value, label: item.i18n ? t(item.i18n) : item.value }))
+  return (items ?? []).map((item) => ({
+    value: item.value,
+    label: item.label ?? (item.i18n ? t(item.i18n) : item.value),
+  }))
 }
 
 /**

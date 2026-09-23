@@ -111,15 +111,53 @@ describe('ListCard（功能按钮与表格同卡）', () => {
     expect(within(card as HTMLElement).getByRole('button', { name: 'common.action.columnSetting' })).toBeInTheDocument()
   })
 
+  /* T13 真机发现（2026-09-21）：左组（标题/功能按钮）为空时，antd 自带的
+     `.ant-flex:empty{display:none}` 会把它从布局里摘掉，space-between 只剩一个子项 →
+     齿轮落到卡头最左（审计日志、登录日志、在线用户三页都中招）。故右组自带 auto 外边距。 */
+  test('无功能按钮时齿轮仍贴卡头最右（右组自带 auto 外边距，不靠兄弟项撑）', () => {
+    render(
+      <MemoryRouter>
+        <ListCard columns={columns} columnSettingKey="test-list" rowKey="id" dataSource={[]} />
+      </MemoryRouter>,
+    )
+    const gear = screen.getByRole('button', { name: 'common.action.columnSetting' })
+    expect((gear.parentElement as HTMLElement).style.marginInlineStart).toBe('auto')
+  })
+
   test('表格数据与表头渲染（列定义由 ListCard 交给 Table）', () => {
     renderList()
     expect(screen.getByText('甲')).toBeInTheDocument()
-    expect(screen.getByText('状态')).toBeInTheDocument()
+    expect(headers()).toEqual(['编号', '名称', '状态', '负责人'])
   })
 
   test('无 Provider 时按页面默认列渲染（不请求、不报错）', () => {
     renderList()
     expect(headers()).toEqual(['编号', '名称', '状态', '负责人'])
+  })
+
+  /* T04（用户事项 4）：列表在窄屏下由**表体自己**出横向滚动条，而不是把页面撑破。
+     antd 只在收到 scroll.x 时渲染测量行/横向滚动容器，故「测量行在」即「scroll.x 生效」；
+     页面显式传 scroll 时缺省不得压过页面。 */
+  test('缺省给表体开横向滚动容器（scroll.x = max-content）', () => {
+    const { container } = renderList()
+    expect(container.querySelector('.ant-table-measure-row')).not.toBeNull()
+  })
+
+  test('页面显式传 scroll 时以页面为准（缺省不覆盖 x，y 照传）', () => {
+    render(
+      <MemoryRouter>
+        <ListCard
+          columns={columns}
+          columnSettingKey="test-list"
+          rowKey="id"
+          dataSource={[{ id: 1, name: '甲', status: 'doing', owner: 'admin' }]}
+          scroll={{ x: 800, y: 200 }}
+        />
+      </MemoryRouter>,
+    )
+    // antd 收到 y 才切出 .ant-table-body（固定表头形态）：证明页面传的 scroll 原样透传
+    expect(document.querySelector('.ant-table-body')).not.toBeNull()
+    expect(document.querySelector('.ant-table-body > table')?.getAttribute('style')).toContain('width: 800px')
   })
 })
 

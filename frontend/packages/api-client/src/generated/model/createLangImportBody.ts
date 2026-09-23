@@ -9,8 +9,6 @@
  */
 
 export type CreateLangImportBody = {
-  /** .xlsx/.xls 文件；首行表头须含 key，且至少含 zh-cn/en 之一 */
+  /** .xlsx/.xls 文件（≤5MB、解压后 ≤64MB、≤5000 数据行）；首行表头须**精确**为 `key | zh-cn | en` （列名与顺序一致，列头即语言）；不接受公式单元格。一份文件包揽全部语言 */
   file: Blob | File;
-  /** 本次上传的语言码（zh-cn/en；记录进上传日志） */
-  lang: string;
 };

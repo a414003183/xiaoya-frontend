@@ -9,6 +9,9 @@ import { useMemo } from 'react'
  *
  * 安全（A7-3 定案：渲染端消毒）：marked 自 v5 不再内置消毒，而正文可由任意持 doc-edit 权限的账号写入，
  * 故渲染前统一过 DOMPurify（剥 script/事件属性/javascript: 协议），兜住存储型 XSS。
+ * T61/SEC-15 加严：表单族标签一律剥掉（`<form>/<input>/<button>/...` 钓鱼表单注入——假登录框骗同事口令，
+ * 后端 CSP 的 `form-action 'self'` 是它的第二层）；链接一律补 `rel="noopener noreferrer"`（被打开的页面
+ * 拿不到 opener，`target=_blank` 的尤其必须带）。
  * 存储端保留原始 Markdown 不改写——版本历史与动态流 diff 依赖原文逐字节可比。
  */
 const MARKDOWN_CLASS = [
@@ -28,8 +31,34 @@ const MARKDOWN_CLASS = [
   'tw:[&_td]:border tw:[&_td]:border-border-strong tw:[&_td]:px-2',
 ].join(' ')
 
+/** T61/SEC-15：钓鱼表单族一律剥掉（剥标签留正文——文本不骗人，控件才骗人）。 */
+const FORBID_TAGS = [
+  'form',
+  'input',
+  'button',
+  'textarea',
+  'select',
+  'option',
+  'optgroup',
+  'fieldset',
+  'legend',
+  'label',
+  'datalist',
+  'output',
+]
+
+// T61/SEC-15：消毒后的链接一律补 rel（模块级注册一次，不随渲染重复挂钩）
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.tagName === 'A') {
+    node.setAttribute('rel', 'noopener noreferrer')
+  }
+})
+
 export function MarkdownView({ content, emptyText }: { content?: string | null | undefined; emptyText: string }) {
-  const html = useMemo(() => (content ? DOMPurify.sanitize(marked.parse(content, { async: false })) : ''), [content])
+  const html = useMemo(
+    () => (content ? DOMPurify.sanitize(marked.parse(content, { async: false }), { FORBID_TAGS }) : ''),
+    [content],
+  )
   if (html === '') {
     return <EmptyState description={emptyText} />
   }

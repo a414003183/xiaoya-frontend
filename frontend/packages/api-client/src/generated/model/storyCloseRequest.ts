@@ -10,9 +10,16 @@
 import type { StoryCloseRequestClosedReason } from './storyCloseRequestClosedReason';
 
 export interface StoryCloseRequest {
+  /** 关闭原因 */
   closedReason: StoryCloseRequestClosedReason;
-  /** @nullable */
+  /**
+     * 重复目标需求 id
+     * @nullable
+     */
   duplicateOfId?: number | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

@@ -9,6 +9,7 @@
  */
 
 /**
+ * 自定义字段（动态字段表）
  * @nullable
  */
 export type TestCaseCreateRequestCustomFields = { [key: string]: unknown } | null;

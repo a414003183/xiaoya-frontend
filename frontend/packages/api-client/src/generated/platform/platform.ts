@@ -28,7 +28,10 @@ import type {
 
 import type {
   AccountView,
+  AuditLogDetail,
   AuditLogList,
+  AuditQueryStatList,
+  AuditVerifyResult,
   BadRequestResponse,
   ColumnPrefUpdateRequest,
   ColumnPrefView,
@@ -36,40 +39,65 @@ import type {
   CommentList,
   CommentView,
   CreateLangImportBody,
-  DeleteLangItemsParams,
+  DeleteMenuParams,
+  DictDataList,
+  DictDataRequest,
+  DictDataUpdateRequest,
+  DictDataView,
+  DictTypeList,
+  DictTypeRequest,
+  DictTypeUpdateRequest,
+  DictTypeView,
   DictView,
   ErrorEnvelope,
   FileList,
   FileView,
   ForbiddenResponse,
-  GetLangItemsParams,
   GetMetaParams,
   GetSettingsParams,
   GlobalSearchParams,
   LangImportList,
   LangImportView,
-  LangItemView,
-  LangItemsUpdateRequest,
   LangOverrideList,
   ListAuditLogsParams,
+  ListAuditQueryStatsParams,
   ListCommentsParams,
+  ListDictItemsParams,
+  ListDictTypesParams,
   ListFilesParams,
   ListLangImportsParams,
   ListLangOverridesParams,
   ListNotificationsParams,
+  ListOnlineUsersParams,
+  ListSettingEntriesParams,
   LoginRequest,
   MeView,
+  MenuNode,
+  MenuRequest,
+  MenuTree,
+  MenuUpdateRequest,
   MetaView,
   NotFoundResponse,
   NotificationList,
   NotificationUnreadCountView,
   NotificationView,
-  PutLangItemsParams,
+  OnlineUserList,
+  PageRegistry,
+  ReferencedResponse,
+  RouteTable,
   SearchResultList,
+  ServerMetricsView,
+  SettingEntryCreateRequest,
+  SettingEntryList,
+  SettingEntryUpdateRequest,
+  SettingEntryView,
   SettingView,
   SettingsUpdateRequest,
   UnauthorizedResponse,
-  UploadFileBody
+  UpdateMenuParams,
+  UploadFileBody,
+  ValidationResponse,
+  VerifyAuditLogsParams
 } from '../model';
 
 import { httpFetch } from '../../http';
@@ -225,10 +253,15 @@ export type logoutResponse401 = {
   status: 401
 }
 
+export type logoutResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
 export type logoutResponseSuccess = (logoutResponse200) & {
   headers: Headers;
 };
-export type logoutResponseError = (logoutResponse401) & {
+export type logoutResponseError = (logoutResponse401 | logoutResponse422) & {
   headers: Headers;
 };
 
@@ -262,7 +295,7 @@ export const logout = async ( options?: Parameters<typeof httpFetch>[1]): Promis
 
 export const getLogoutMutationKey = () => ['logout'] as const;
 
-export const getLogoutMutationOptions = <TError = ErrorEnvelope,
+export const getLogoutMutationOptions = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext> => {
 
@@ -291,13 +324,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type LogoutMutationResult = NonNullable<Awaited<ReturnType<typeof logout>>>
 
-    export type LogoutMutationError = ErrorEnvelope
+    export type LogoutMutationError = ErrorEnvelope | ValidationResponse
 
 
     /**
  * @summary 登出（删会话行，清 cookie）
  */
-export const useLogout = <TError = ErrorEnvelope,
+export const useLogout = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof logout>>,
@@ -691,10 +724,15 @@ export type markNotificationReadResponse404 = {
   status: 404
 }
 
+export type markNotificationReadResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
 export type markNotificationReadResponseSuccess = (markNotificationReadResponse200) & {
   headers: Headers;
 };
-export type markNotificationReadResponseError = (markNotificationReadResponse401 | markNotificationReadResponse403 | markNotificationReadResponse404) & {
+export type markNotificationReadResponseError = (markNotificationReadResponse401 | markNotificationReadResponse403 | markNotificationReadResponse404 | markNotificationReadResponse422) & {
   headers: Headers;
 };
 
@@ -728,7 +766,7 @@ export const markNotificationRead = async (notificationId: number, options?: Par
 
 export const getMarkNotificationReadMutationKey = () => ['markNotificationRead'] as const;
 
-export const getMarkNotificationReadMutationOptions = <TError = ErrorEnvelope,
+export const getMarkNotificationReadMutationOptions = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markNotificationRead>>, TError,MarkNotificationReadMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof markNotificationRead>>, TError,MarkNotificationReadMutationVariables, TContext> => {
 
@@ -757,13 +795,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type MarkNotificationReadMutationResult = NonNullable<Awaited<ReturnType<typeof markNotificationRead>>>
 
-    export type MarkNotificationReadMutationError = ErrorEnvelope
+    export type MarkNotificationReadMutationError = ErrorEnvelope | ValidationResponse
     export type MarkNotificationReadMutationVariables = {notificationId: number}
 
     /**
  * @summary 标记通知已读（幂等；他人通知 → 40302）
  */
-export const useMarkNotificationRead = <TError = ErrorEnvelope,
+export const useMarkNotificationRead = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markNotificationRead>>, TError,MarkNotificationReadMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof markNotificationRead>>,
@@ -935,7 +973,7 @@ export const getUploadFileUrl = () => {
 }
 
 /**
- * @summary 上传附件（multipart 单文件；黑名单扩展名/超 50MB → 42201）
+ * @summary 上传附件（multipart 单文件；主动内容/可执行扩展名不收、图片类核对内容魔数、超 50MB → 42201）
  */
 export const uploadFile = async (uploadFileBody: UploadFileBody, options?: Parameters<typeof httpFetch>[1]): Promise<uploadFileResponse> => {
     const formData = new FormData();
@@ -995,7 +1033,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadFileMutationVariables = {data: UploadFileBody}
 
     /**
- * @summary 上传附件（multipart 单文件；黑名单扩展名/超 50MB → 42201）
+ * @summary 上传附件（multipart 单文件；主动内容/可执行扩展名不收、图片类核对内容魔数、超 50MB → 42201）
  */
 export const useUploadFile = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadFile>>, TError,UploadFileMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -1022,10 +1060,15 @@ export type listFilesResponse401 = {
   status: 401
 }
 
+export type listFilesResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
 export type listFilesResponseSuccess = (listFilesResponse200) & {
   headers: Headers;
 };
-export type listFilesResponseError = (listFilesResponse400 | listFilesResponse401) & {
+export type listFilesResponseError = (listFilesResponse400 | listFilesResponse401 | listFilesResponse403) & {
   headers: Headers;
 };
 
@@ -1047,6 +1090,8 @@ export const getListFilesUrl = (params: ListFilesParams,) => {
 }
 
 /**
+ * 数据权限：绑定对象可见即可列出（objectType→可见性谓词由各域注册，见 platform 卡 §7.2）；
+ * 绑定对象不可见或查无此对象 → 40302。
  * @summary 按对象列出附件（filters[objectType] + filters[objectId] 必填，缺 → 40001）
  */
 export const listFiles = async (params: ListFilesParams, options?: Parameters<typeof httpFetch>[1]): Promise<listFilesResponse> => {
@@ -1148,6 +1193,11 @@ export type downloadFileResponse401 = {
   status: 401
 }
 
+export type downloadFileResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
 export type downloadFileResponse404 = {
   data: ErrorEnvelope
   status: 404
@@ -1156,7 +1206,7 @@ export type downloadFileResponse404 = {
 export type downloadFileResponseSuccess = (downloadFileResponse200) & {
   headers: Headers;
 };
-export type downloadFileResponseError = (downloadFileResponse401 | downloadFileResponse404) & {
+export type downloadFileResponseError = (downloadFileResponse401 | downloadFileResponse403 | downloadFileResponse404) & {
   headers: Headers;
 };
 
@@ -1171,6 +1221,8 @@ export const getDownloadFileUrl = (fileId: number,) => {
 }
 
 /**
+ * 数据权限：绑定对象的文件「对象可见即可下载」；未绑定对象的文件仅上传人/超管可见；
+ * 对象不可见且非上传人/超管 → 40302。
  * @summary 下载附件（恒 Content-Disposition: attachment；downloads+1）
  */
 export const downloadFile = async (fileId: number, options?: Parameters<typeof httpFetch>[1]): Promise<downloadFileResponse> => {
@@ -1305,6 +1357,7 @@ export const getGetRawFileUrl = (fileId: number,) => {
 }
 
 /**
+ * 数据权限同 downloadFile（绑定对象可见 或 上传人/超管，否则 40302）。
  * @summary 图片内联预览（白名单 jpg/jpeg/png/gif/webp/bmp；非图片 → 40001；不计 downloads）
  */
 export const getRawFile = async (fileId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getRawFileResponse> => {
@@ -1416,10 +1469,15 @@ export type deleteFileResponse404 = {
   status: 404
 }
 
+export type deleteFileResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type deleteFileResponseSuccess = (deleteFileResponse200) & {
   headers: Headers;
 };
-export type deleteFileResponseError = (deleteFileResponse401 | deleteFileResponse403 | deleteFileResponse404) & {
+export type deleteFileResponseError = (deleteFileResponse401 | deleteFileResponse403 | deleteFileResponse404 | deleteFileResponse422) & {
   headers: Headers;
 };
 
@@ -1453,7 +1511,7 @@ export const deleteFile = async (fileId: number, options?: Parameters<typeof htt
 
 export const getDeleteFileMutationKey = () => ['deleteFile'] as const;
 
-export const getDeleteFileMutationOptions = <TError = ErrorEnvelope,
+export const getDeleteFileMutationOptions = <TError = ErrorEnvelope | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteFile>>, TError,DeleteFileMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteFile>>, TError,DeleteFileMutationVariables, TContext> => {
 
@@ -1482,13 +1540,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type DeleteFileMutationResult = NonNullable<Awaited<ReturnType<typeof deleteFile>>>
 
-    export type DeleteFileMutationError = ErrorEnvelope
+    export type DeleteFileMutationError = ErrorEnvelope | ReferencedResponse
     export type DeleteFileMutationVariables = {fileId: number}
 
     /**
  * @summary 删除附件（软删；仅上传人或超管，否则 40302）
  */
-export const useDeleteFile = <TError = ErrorEnvelope,
+export const useDeleteFile = <TError = ErrorEnvelope | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteFile>>, TError,DeleteFileMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteFile>>,
@@ -2033,10 +2091,15 @@ export type putSettingsResponse403 = {
   status: 403
 }
 
+export type putSettingsResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
 export type putSettingsResponseSuccess = (putSettingsResponse200) & {
   headers: Headers;
 };
-export type putSettingsResponseError = (putSettingsResponse401 | putSettingsResponse403) & {
+export type putSettingsResponseError = (putSettingsResponse401 | putSettingsResponse403 | putSettingsResponse422) & {
   headers: Headers;
 };
 
@@ -2084,7 +2147,7 @@ return httpFetch<putSettingsResponse>(getPutSettingsUrl(),
 
 export const getPutSettingsMutationKey = () => ['putSettings'] as const;
 
-export const getPutSettingsMutationOptions = <TError = ErrorEnvelope,
+export const getPutSettingsMutationOptions = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSettings>>, TError,PutSettingsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putSettings>>, TError,PutSettingsMutationVariables, TContext> => {
 
@@ -2113,13 +2176,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof putSettings>>>
     export type PutSettingsMutationBody = SettingsUpdateRequest
-    export type PutSettingsMutationError = ErrorEnvelope
+    export type PutSettingsMutationError = ErrorEnvelope | ValidationResponse
     export type PutSettingsMutationVariables = {data: SettingsUpdateRequest}
 
     /**
  * @summary 设置批量写（notify.* 个人级 owner=@me；其余系统键需 setting-manage）
  */
-export const usePutSettings = <TError = ErrorEnvelope,
+export const usePutSettings = <TError = ErrorEnvelope | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSettings>>, TError,PutSettingsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putSettings>>,
@@ -2129,7 +2192,2568 @@ export const usePutSettings = <TError = ErrorEnvelope,
       > => {
       return useMutation(getPutSettingsMutationOptions(options), queryClient);
     }
-    export type getColumnPrefResponse200 = {
+    export type listSettingEntriesResponse200 = {
+  data: SettingEntryList
+  status: 200
+}
+
+export type listSettingEntriesResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listSettingEntriesResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listSettingEntriesResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listSettingEntriesResponseSuccess = (listSettingEntriesResponse200) & {
+  headers: Headers;
+};
+export type listSettingEntriesResponseError = (listSettingEntriesResponse400 | listSettingEntriesResponse401 | listSettingEntriesResponse403) & {
+  headers: Headers;
+};
+
+export type listSettingEntriesResponse = (listSettingEntriesResponseSuccess | listSettingEntriesResponseError)
+
+export const getListSettingEntriesUrl = (params?: ListSettingEntriesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/setting-entries?${stringifiedParams}` : `/api/v1/setting-entries`
+}
+
+/**
+ * 参数管理页数据源。作用域恒为 owner=system 且 section=''（服务端注入，客户端改不了）； 支持 filters[domain]（等值或逗号 IN）、q（LIKE domain/item_key）与 sort 白名单 domain/itemKey （缺省按域名与键名字典序）。value 原样出 JSON 文本，读取方按 JSON 解析。 读写同用 setting-manage 码；键值读取仍走 GET /settings?keys=。
+ * @summary 系统参数列表（setting 表 owner=system 的行；个人偏好行不在内）
+ */
+export const listSettingEntries = async (params?: ListSettingEntriesParams, options?: Parameters<typeof httpFetch>[1]): Promise<listSettingEntriesResponse> => {
+
+  return httpFetch<listSettingEntriesResponse>(getListSettingEntriesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSettingEntriesQueryKey = (params?: ListSettingEntriesParams,) => {
+    return [
+    `/api/v1/setting-entries`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListSettingEntriesQueryOptions = <TData = Awaited<ReturnType<typeof listSettingEntries>>, TError = ErrorEnvelope>(params?: ListSettingEntriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSettingEntriesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSettingEntries>>> = ({ signal }) => listSettingEntries(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListSettingEntriesQueryResult = NonNullable<Awaited<ReturnType<typeof listSettingEntries>>>
+export type ListSettingEntriesQueryError = ErrorEnvelope
+
+
+export function useListSettingEntries<TData = Awaited<ReturnType<typeof listSettingEntries>>, TError = ErrorEnvelope>(
+ params: undefined |  ListSettingEntriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSettingEntries>>,
+          TError,
+          Awaited<ReturnType<typeof listSettingEntries>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSettingEntries<TData = Awaited<ReturnType<typeof listSettingEntries>>, TError = ErrorEnvelope>(
+ params?: ListSettingEntriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSettingEntries>>,
+          TError,
+          Awaited<ReturnType<typeof listSettingEntries>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSettingEntries<TData = Awaited<ReturnType<typeof listSettingEntries>>, TError = ErrorEnvelope>(
+ params?: ListSettingEntriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 系统参数列表（setting 表 owner=system 的行；个人偏好行不在内）
+ */
+
+export function useListSettingEntries<TData = Awaited<ReturnType<typeof listSettingEntries>>, TError = ErrorEnvelope>(
+ params?: ListSettingEntriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSettingEntries>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListSettingEntriesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type createSettingEntryResponse200 = {
+  data: SettingEntryView
+  status: 200
+}
+
+export type createSettingEntryResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type createSettingEntryResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type createSettingEntryResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type createSettingEntryResponseSuccess = (createSettingEntryResponse200) & {
+  headers: Headers;
+};
+export type createSettingEntryResponseError = (createSettingEntryResponse401 | createSettingEntryResponse403 | createSettingEntryResponse422) & {
+  headers: Headers;
+};
+
+export type createSettingEntryResponse = (createSettingEntryResponseSuccess | createSettingEntryResponseError)
+
+export const getCreateSettingEntryUrl = () => {
+
+
+
+
+  return `/api/v1/setting-entries`
+}
+
+/**
+ * key 形如 `<domain>.<key>`（domain 小写字母开头，两段各 ≤60 字符）；value 必须是合法 JSON 文本 （字符串要带引号，如 "Asia/Shanghai"；JSON null 用 `null`）——读取方按 JSON 解析，非法值不放行。
+ * @summary 新建系统参数（键重复 → 42201 fields.key=duplicate）
+ */
+export const createSettingEntry = async (settingEntryCreateRequest: SettingEntryCreateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createSettingEntryResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<createSettingEntryResponse>(getCreateSettingEntryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(settingEntryCreateRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateSettingEntryMutationKey = () => ['createSettingEntry'] as const;
+
+export const getCreateSettingEntryMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSettingEntry>>, TError,CreateSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSettingEntry>>, TError,CreateSettingEntryMutationVariables, TContext> => {
+
+const mutationKey = getCreateSettingEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSettingEntry>>, CreateSettingEntryMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSettingEntry(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSettingEntryMutationResult = NonNullable<Awaited<ReturnType<typeof createSettingEntry>>>
+    export type CreateSettingEntryMutationBody = SettingEntryCreateRequest
+    export type CreateSettingEntryMutationError = ErrorEnvelope
+    export type CreateSettingEntryMutationVariables = {data: SettingEntryCreateRequest}
+
+    /**
+ * @summary 新建系统参数（键重复 → 42201 fields.key=duplicate）
+ */
+export const useCreateSettingEntry = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSettingEntry>>, TError,CreateSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createSettingEntry>>,
+        TError,
+        CreateSettingEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSettingEntryMutationOptions(options), queryClient);
+    }
+    export type updateSettingEntryResponse200 = {
+  data: SettingEntryView
+  status: 200
+}
+
+export type updateSettingEntryResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type updateSettingEntryResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type updateSettingEntryResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type updateSettingEntryResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type updateSettingEntryResponseSuccess = (updateSettingEntryResponse200) & {
+  headers: Headers;
+};
+export type updateSettingEntryResponseError = (updateSettingEntryResponse401 | updateSettingEntryResponse403 | updateSettingEntryResponse404 | updateSettingEntryResponse422) & {
+  headers: Headers;
+};
+
+export type updateSettingEntryResponse = (updateSettingEntryResponseSuccess | updateSettingEntryResponseError)
+
+export const getUpdateSettingEntryUrl = (key: string,) => {
+
+
+
+
+  return `/api/v1/setting-entries/${key}`
+}
+
+/**
+ * @summary 改系统参数的值（键不可改；读取方下一次查询即读到新值）
+ */
+export const updateSettingEntry = async (key: string,
+    settingEntryUpdateRequest: SettingEntryUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateSettingEntryResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<updateSettingEntryResponse>(getUpdateSettingEntryUrl(key),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(settingEntryUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateSettingEntryMutationKey = () => ['updateSettingEntry'] as const;
+
+export const getUpdateSettingEntryMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettingEntry>>, TError,UpdateSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSettingEntry>>, TError,UpdateSettingEntryMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSettingEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSettingEntry>>, UpdateSettingEntryMutationVariables> = (props) => {
+          const {key,data} = props ?? {};
+
+          return  updateSettingEntry(key,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSettingEntryMutationResult = NonNullable<Awaited<ReturnType<typeof updateSettingEntry>>>
+    export type UpdateSettingEntryMutationBody = SettingEntryUpdateRequest
+    export type UpdateSettingEntryMutationError = ErrorEnvelope
+    export type UpdateSettingEntryMutationVariables = {key: string;data: SettingEntryUpdateRequest}
+
+    /**
+ * @summary 改系统参数的值（键不可改；读取方下一次查询即读到新值）
+ */
+export const useUpdateSettingEntry = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettingEntry>>, TError,UpdateSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSettingEntry>>,
+        TError,
+        UpdateSettingEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSettingEntryMutationOptions(options), queryClient);
+    }
+    export type deleteSettingEntryResponse200 = {
+  data: null
+  status: 200
+}
+
+export type deleteSettingEntryResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type deleteSettingEntryResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type deleteSettingEntryResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type deleteSettingEntryResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type deleteSettingEntryResponseSuccess = (deleteSettingEntryResponse200) & {
+  headers: Headers;
+};
+export type deleteSettingEntryResponseError = (deleteSettingEntryResponse401 | deleteSettingEntryResponse403 | deleteSettingEntryResponse404 | deleteSettingEntryResponse422) & {
+  headers: Headers;
+};
+
+export type deleteSettingEntryResponse = (deleteSettingEntryResponseSuccess | deleteSettingEntryResponseError)
+
+export const getDeleteSettingEntryUrl = (key: string,) => {
+
+
+
+
+  return `/api/v1/setting-entries/${key}`
+}
+
+/**
+ * @summary 删系统参数（行不存在 → 40401，不做幂等吞掉：页面上的行已过期该提示）
+ */
+export const deleteSettingEntry = async (key: string, options?: Parameters<typeof httpFetch>[1]): Promise<deleteSettingEntryResponse> => {
+
+  return httpFetch<deleteSettingEntryResponse>(getDeleteSettingEntryUrl(key),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSettingEntryMutationKey = () => ['deleteSettingEntry'] as const;
+
+export const getDeleteSettingEntryMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSettingEntry>>, TError,DeleteSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSettingEntry>>, TError,DeleteSettingEntryMutationVariables, TContext> => {
+
+const mutationKey = getDeleteSettingEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSettingEntry>>, DeleteSettingEntryMutationVariables> = (props) => {
+          const {key} = props ?? {};
+
+          return  deleteSettingEntry(key,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSettingEntryMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSettingEntry>>>
+
+    export type DeleteSettingEntryMutationError = ErrorEnvelope
+    export type DeleteSettingEntryMutationVariables = {key: string}
+
+    /**
+ * @summary 删系统参数（行不存在 → 40401，不做幂等吞掉：页面上的行已过期该提示）
+ */
+export const useDeleteSettingEntry = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSettingEntry>>, TError,DeleteSettingEntryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSettingEntry>>,
+        TError,
+        DeleteSettingEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteSettingEntryMutationOptions(options), queryClient);
+    }
+    export type listDictTypesResponse200 = {
+  data: DictTypeList
+  status: 200
+}
+
+export type listDictTypesResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listDictTypesResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listDictTypesResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listDictTypesResponseSuccess = (listDictTypesResponse200) & {
+  headers: Headers;
+};
+export type listDictTypesResponseError = (listDictTypesResponse400 | listDictTypesResponse401 | listDictTypesResponse403) & {
+  headers: Headers;
+};
+
+export type listDictTypesResponse = (listDictTypesResponseSuccess | listDictTypesResponseError)
+
+export const getListDictTypesUrl = (params?: ListDictTypesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/dict-types?${stringifiedParams}` : `/api/v1/dict-types`
+}
+
+/**
+ * 管理后台可维护的字典类型（dict_type 表）。读取侧 GET /dicts/{code} 先查代码注册的内置字典、 再回落到这里——本表只做**扩展**，故创建时 code 撞上内置字典名会 422。
+ * @summary 字典类型列表（DB 字典；代码注册的内置字典不在这个表里）
+ */
+export const listDictTypes = async (params?: ListDictTypesParams, options?: Parameters<typeof httpFetch>[1]): Promise<listDictTypesResponse> => {
+
+  return httpFetch<listDictTypesResponse>(getListDictTypesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDictTypesQueryKey = (params?: ListDictTypesParams,) => {
+    return [
+    `/api/v1/dict-types`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListDictTypesQueryOptions = <TData = Awaited<ReturnType<typeof listDictTypes>>, TError = ErrorEnvelope>(params?: ListDictTypesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDictTypesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDictTypes>>> = ({ signal }) => listDictTypes(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListDictTypesQueryResult = NonNullable<Awaited<ReturnType<typeof listDictTypes>>>
+export type ListDictTypesQueryError = ErrorEnvelope
+
+
+export function useListDictTypes<TData = Awaited<ReturnType<typeof listDictTypes>>, TError = ErrorEnvelope>(
+ params: undefined |  ListDictTypesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDictTypes>>,
+          TError,
+          Awaited<ReturnType<typeof listDictTypes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListDictTypes<TData = Awaited<ReturnType<typeof listDictTypes>>, TError = ErrorEnvelope>(
+ params?: ListDictTypesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDictTypes>>,
+          TError,
+          Awaited<ReturnType<typeof listDictTypes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListDictTypes<TData = Awaited<ReturnType<typeof listDictTypes>>, TError = ErrorEnvelope>(
+ params?: ListDictTypesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 字典类型列表（DB 字典；代码注册的内置字典不在这个表里）
+ */
+
+export function useListDictTypes<TData = Awaited<ReturnType<typeof listDictTypes>>, TError = ErrorEnvelope>(
+ params?: ListDictTypesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictTypes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListDictTypesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type createDictTypeResponse200 = {
+  data: DictTypeView
+  status: 200
+}
+
+export type createDictTypeResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type createDictTypeResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type createDictTypeResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type createDictTypeResponseSuccess = (createDictTypeResponse200) & {
+  headers: Headers;
+};
+export type createDictTypeResponseError = (createDictTypeResponse401 | createDictTypeResponse403 | createDictTypeResponse422) & {
+  headers: Headers;
+};
+
+export type createDictTypeResponse = (createDictTypeResponseSuccess | createDictTypeResponseError)
+
+export const getCreateDictTypeUrl = () => {
+
+
+
+
+  return `/api/v1/dict-types`
+}
+
+/**
+ * @summary 新建字典类型（code 与内置字典名或已有类型重复 → 42201 fields.code=duplicate）
+ */
+export const createDictType = async (dictTypeRequest: DictTypeRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createDictTypeResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<createDictTypeResponse>(getCreateDictTypeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(dictTypeRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateDictTypeMutationKey = () => ['createDictType'] as const;
+
+export const getCreateDictTypeMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDictType>>, TError,CreateDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDictType>>, TError,CreateDictTypeMutationVariables, TContext> => {
+
+const mutationKey = getCreateDictTypeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDictType>>, CreateDictTypeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createDictType(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDictTypeMutationResult = NonNullable<Awaited<ReturnType<typeof createDictType>>>
+    export type CreateDictTypeMutationBody = DictTypeRequest
+    export type CreateDictTypeMutationError = ErrorEnvelope
+    export type CreateDictTypeMutationVariables = {data: DictTypeRequest}
+
+    /**
+ * @summary 新建字典类型（code 与内置字典名或已有类型重复 → 42201 fields.code=duplicate）
+ */
+export const useCreateDictType = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDictType>>, TError,CreateDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createDictType>>,
+        TError,
+        CreateDictTypeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateDictTypeMutationOptions(options), queryClient);
+    }
+    export type updateDictTypeResponse200 = {
+  data: DictTypeView
+  status: 200
+}
+
+export type updateDictTypeResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type updateDictTypeResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type updateDictTypeResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type updateDictTypeResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type updateDictTypeResponseSuccess = (updateDictTypeResponse200) & {
+  headers: Headers;
+};
+export type updateDictTypeResponseError = (updateDictTypeResponse401 | updateDictTypeResponse403 | updateDictTypeResponse404 | updateDictTypeResponse422) & {
+  headers: Headers;
+};
+
+export type updateDictTypeResponse = (updateDictTypeResponseSuccess | updateDictTypeResponseError)
+
+export const getUpdateDictTypeUrl = (code: string,) => {
+
+
+
+
+  return `/api/v1/dict-types/${code}`
+}
+
+/**
+ * @summary 改字典类型的名称或状态（code 不可改：它是读取侧的查询键）
+ */
+export const updateDictType = async (code: string,
+    dictTypeUpdateRequest: DictTypeUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateDictTypeResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<updateDictTypeResponse>(getUpdateDictTypeUrl(code),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(dictTypeUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateDictTypeMutationKey = () => ['updateDictType'] as const;
+
+export const getUpdateDictTypeMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDictType>>, TError,UpdateDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDictType>>, TError,UpdateDictTypeMutationVariables, TContext> => {
+
+const mutationKey = getUpdateDictTypeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDictType>>, UpdateDictTypeMutationVariables> = (props) => {
+          const {code,data} = props ?? {};
+
+          return  updateDictType(code,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDictTypeMutationResult = NonNullable<Awaited<ReturnType<typeof updateDictType>>>
+    export type UpdateDictTypeMutationBody = DictTypeUpdateRequest
+    export type UpdateDictTypeMutationError = ErrorEnvelope
+    export type UpdateDictTypeMutationVariables = {code: string;data: DictTypeUpdateRequest}
+
+    /**
+ * @summary 改字典类型的名称或状态（code 不可改：它是读取侧的查询键）
+ */
+export const useUpdateDictType = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDictType>>, TError,UpdateDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateDictType>>,
+        TError,
+        UpdateDictTypeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateDictTypeMutationOptions(options), queryClient);
+    }
+    export type deleteDictTypeResponse200 = {
+  data: null
+  status: 200
+}
+
+export type deleteDictTypeResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type deleteDictTypeResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type deleteDictTypeResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type deleteDictTypeResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
+export type deleteDictTypeResponseSuccess = (deleteDictTypeResponse200) & {
+  headers: Headers;
+};
+export type deleteDictTypeResponseError = (deleteDictTypeResponse401 | deleteDictTypeResponse403 | deleteDictTypeResponse404 | deleteDictTypeResponse422) & {
+  headers: Headers;
+};
+
+export type deleteDictTypeResponse = (deleteDictTypeResponseSuccess | deleteDictTypeResponseError)
+
+export const getDeleteDictTypeUrl = (code: string,) => {
+
+
+
+
+  return `/api/v1/dict-types/${code}`
+}
+
+/**
+ * @summary 删字典类型（**级联删其数据项**；类型不存在 → 40401）
+ */
+export const deleteDictType = async (code: string, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDictTypeResponse> => {
+
+  return httpFetch<deleteDictTypeResponse>(getDeleteDictTypeUrl(code),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDictTypeMutationKey = () => ['deleteDictType'] as const;
+
+export const getDeleteDictTypeMutationOptions = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDictType>>, TError,DeleteDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDictType>>, TError,DeleteDictTypeMutationVariables, TContext> => {
+
+const mutationKey = getDeleteDictTypeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDictType>>, DeleteDictTypeMutationVariables> = (props) => {
+          const {code} = props ?? {};
+
+          return  deleteDictType(code,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDictTypeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDictType>>>
+
+    export type DeleteDictTypeMutationError = ErrorEnvelope | ReferencedResponse
+    export type DeleteDictTypeMutationVariables = {code: string}
+
+    /**
+ * @summary 删字典类型（**级联删其数据项**；类型不存在 → 40401）
+ */
+export const useDeleteDictType = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDictType>>, TError,DeleteDictTypeMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDictType>>,
+        TError,
+        DeleteDictTypeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteDictTypeMutationOptions(options), queryClient);
+    }
+    export type listDictItemsResponse200 = {
+  data: DictDataList
+  status: 200
+}
+
+export type listDictItemsResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listDictItemsResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listDictItemsResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listDictItemsResponseSuccess = (listDictItemsResponse200) & {
+  headers: Headers;
+};
+export type listDictItemsResponseError = (listDictItemsResponse400 | listDictItemsResponse401 | listDictItemsResponse403) & {
+  headers: Headers;
+};
+
+export type listDictItemsResponse = (listDictItemsResponseSuccess | listDictItemsResponseError)
+
+export const getListDictItemsUrl = (code: string,
+    params?: ListDictItemsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/dict-types/${code}/items?${stringifiedParams}` : `/api/v1/dict-types/${code}/items`
+}
+
+/**
+ * @summary 某字典类型的数据项列表（作用域恒为路径里的类型；按 sortNo 升序）
+ */
+export const listDictItems = async (code: string,
+    params?: ListDictItemsParams, options?: Parameters<typeof httpFetch>[1]): Promise<listDictItemsResponse> => {
+
+  return httpFetch<listDictItemsResponse>(getListDictItemsUrl(code,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDictItemsQueryKey = (code: string,
+    params?: ListDictItemsParams,) => {
+    return [
+    `/api/v1/dict-types/${code}/items`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListDictItemsQueryOptions = <TData = Awaited<ReturnType<typeof listDictItems>>, TError = ErrorEnvelope>(code: string,
+    params?: ListDictItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDictItemsQueryKey(code,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDictItems>>> = ({ signal }) => listDictItems(code,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: code !== null && code !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListDictItemsQueryResult = NonNullable<Awaited<ReturnType<typeof listDictItems>>>
+export type ListDictItemsQueryError = ErrorEnvelope
+
+
+export function useListDictItems<TData = Awaited<ReturnType<typeof listDictItems>>, TError = ErrorEnvelope>(
+ code: string,
+    params: undefined |  ListDictItemsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDictItems>>,
+          TError,
+          Awaited<ReturnType<typeof listDictItems>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListDictItems<TData = Awaited<ReturnType<typeof listDictItems>>, TError = ErrorEnvelope>(
+ code: string,
+    params?: ListDictItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDictItems>>,
+          TError,
+          Awaited<ReturnType<typeof listDictItems>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListDictItems<TData = Awaited<ReturnType<typeof listDictItems>>, TError = ErrorEnvelope>(
+ code: string,
+    params?: ListDictItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 某字典类型的数据项列表（作用域恒为路径里的类型；按 sortNo 升序）
+ */
+
+export function useListDictItems<TData = Awaited<ReturnType<typeof listDictItems>>, TError = ErrorEnvelope>(
+ code: string,
+    params?: ListDictItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listDictItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListDictItemsQueryOptions(code,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type createDictItemResponse200 = {
+  data: DictDataView
+  status: 200
+}
+
+export type createDictItemResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type createDictItemResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type createDictItemResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type createDictItemResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type createDictItemResponseSuccess = (createDictItemResponse200) & {
+  headers: Headers;
+};
+export type createDictItemResponseError = (createDictItemResponse401 | createDictItemResponse403 | createDictItemResponse404 | createDictItemResponse422) & {
+  headers: Headers;
+};
+
+export type createDictItemResponse = (createDictItemResponseSuccess | createDictItemResponseError)
+
+export const getCreateDictItemUrl = (code: string,) => {
+
+
+
+
+  return `/api/v1/dict-types/${code}/items`
+}
+
+/**
+ * @summary 新建数据项（类型不存在 → 40401；同类型下 itemValue 重复 → 42201）
+ */
+export const createDictItem = async (code: string,
+    dictDataRequest: DictDataRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createDictItemResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<createDictItemResponse>(getCreateDictItemUrl(code),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(dictDataRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateDictItemMutationKey = () => ['createDictItem'] as const;
+
+export const getCreateDictItemMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDictItem>>, TError,CreateDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDictItem>>, TError,CreateDictItemMutationVariables, TContext> => {
+
+const mutationKey = getCreateDictItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDictItem>>, CreateDictItemMutationVariables> = (props) => {
+          const {code,data} = props ?? {};
+
+          return  createDictItem(code,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDictItemMutationResult = NonNullable<Awaited<ReturnType<typeof createDictItem>>>
+    export type CreateDictItemMutationBody = DictDataRequest
+    export type CreateDictItemMutationError = ErrorEnvelope
+    export type CreateDictItemMutationVariables = {code: string;data: DictDataRequest}
+
+    /**
+ * @summary 新建数据项（类型不存在 → 40401；同类型下 itemValue 重复 → 42201）
+ */
+export const useCreateDictItem = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDictItem>>, TError,CreateDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createDictItem>>,
+        TError,
+        CreateDictItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateDictItemMutationOptions(options), queryClient);
+    }
+    export type updateDictItemResponse200 = {
+  data: DictDataView
+  status: 200
+}
+
+export type updateDictItemResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type updateDictItemResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type updateDictItemResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type updateDictItemResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type updateDictItemResponseSuccess = (updateDictItemResponse200) & {
+  headers: Headers;
+};
+export type updateDictItemResponseError = (updateDictItemResponse401 | updateDictItemResponse403 | updateDictItemResponse404 | updateDictItemResponse422) & {
+  headers: Headers;
+};
+
+export type updateDictItemResponse = (updateDictItemResponseSuccess | updateDictItemResponseError)
+
+export const getUpdateDictItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/v1/dict-items/${id}`
+}
+
+/**
+ * @summary 改数据项（标签/值/排序/状态；值改成同类型已有的 → 42201）
+ */
+export const updateDictItem = async (id: number,
+    dictDataUpdateRequest: DictDataUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateDictItemResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<updateDictItemResponse>(getUpdateDictItemUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(dictDataUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateDictItemMutationKey = () => ['updateDictItem'] as const;
+
+export const getUpdateDictItemMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDictItem>>, TError,UpdateDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDictItem>>, TError,UpdateDictItemMutationVariables, TContext> => {
+
+const mutationKey = getUpdateDictItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDictItem>>, UpdateDictItemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateDictItem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDictItemMutationResult = NonNullable<Awaited<ReturnType<typeof updateDictItem>>>
+    export type UpdateDictItemMutationBody = DictDataUpdateRequest
+    export type UpdateDictItemMutationError = ErrorEnvelope
+    export type UpdateDictItemMutationVariables = {id: number;data: DictDataUpdateRequest}
+
+    /**
+ * @summary 改数据项（标签/值/排序/状态；值改成同类型已有的 → 42201）
+ */
+export const useUpdateDictItem = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDictItem>>, TError,UpdateDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateDictItem>>,
+        TError,
+        UpdateDictItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateDictItemMutationOptions(options), queryClient);
+    }
+    export type deleteDictItemResponse200 = {
+  data: null
+  status: 200
+}
+
+export type deleteDictItemResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type deleteDictItemResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type deleteDictItemResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type deleteDictItemResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
+export type deleteDictItemResponseSuccess = (deleteDictItemResponse200) & {
+  headers: Headers;
+};
+export type deleteDictItemResponseError = (deleteDictItemResponse401 | deleteDictItemResponse403 | deleteDictItemResponse404 | deleteDictItemResponse422) & {
+  headers: Headers;
+};
+
+export type deleteDictItemResponse = (deleteDictItemResponseSuccess | deleteDictItemResponseError)
+
+export const getDeleteDictItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/v1/dict-items/${id}`
+}
+
+/**
+ * @summary 删数据项（不存在 → 40401）
+ */
+export const deleteDictItem = async (id: number, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDictItemResponse> => {
+
+  return httpFetch<deleteDictItemResponse>(getDeleteDictItemUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDictItemMutationKey = () => ['deleteDictItem'] as const;
+
+export const getDeleteDictItemMutationOptions = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDictItem>>, TError,DeleteDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDictItem>>, TError,DeleteDictItemMutationVariables, TContext> => {
+
+const mutationKey = getDeleteDictItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDictItem>>, DeleteDictItemMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteDictItem(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDictItemMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDictItem>>>
+
+    export type DeleteDictItemMutationError = ErrorEnvelope | ReferencedResponse
+    export type DeleteDictItemMutationVariables = {id: number}
+
+    /**
+ * @summary 删数据项（不存在 → 40401）
+ */
+export const useDeleteDictItem = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDictItem>>, TError,DeleteDictItemMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDictItem>>,
+        TError,
+        DeleteDictItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteDictItemMutationOptions(options), queryClient);
+    }
+    export type getServerMetricsResponse200 = {
+  data: ServerMetricsView
+  status: 200
+}
+
+export type getServerMetricsResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type getServerMetricsResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type getServerMetricsResponseSuccess = (getServerMetricsResponse200) & {
+  headers: Headers;
+};
+export type getServerMetricsResponseError = (getServerMetricsResponse401 | getServerMetricsResponse403) & {
+  headers: Headers;
+};
+
+export type getServerMetricsResponse = (getServerMetricsResponseSuccess | getServerMetricsResponseError)
+
+export const getGetServerMetricsUrl = () => {
+
+
+
+
+  return `/api/v1/monitor/server`
+}
+
+/**
+ * 聚合端点：后端直读 JDK 的 OperatingSystemMXBean 与 FileStore，**不直暴露 actuator** （actuator 只开了 health/info）。拿不到的指标给 -1（如部分平台没有 CPU 负载实现）， 页面据此显示「—」而不是 0（ 0 会被误读成空闲）。
+ * @summary 单机负载快照（CPU / 内存 / 磁盘 + JVM 堆与运行时长）
+ */
+export const getServerMetrics = async ( options?: Parameters<typeof httpFetch>[1]): Promise<getServerMetricsResponse> => {
+
+  return httpFetch<getServerMetricsResponse>(getGetServerMetricsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetServerMetricsQueryKey = () => {
+    return [
+    `/api/v1/monitor/server`
+    ] as const;
+    }
+
+
+export const getGetServerMetricsQueryOptions = <TData = Awaited<ReturnType<typeof getServerMetrics>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetServerMetricsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getServerMetrics>>> = ({ signal }) => getServerMetrics({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetServerMetricsQueryResult = NonNullable<Awaited<ReturnType<typeof getServerMetrics>>>
+export type GetServerMetricsQueryError = ErrorEnvelope
+
+
+export function useGetServerMetrics<TData = Awaited<ReturnType<typeof getServerMetrics>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getServerMetrics>>,
+          TError,
+          Awaited<ReturnType<typeof getServerMetrics>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetServerMetrics<TData = Awaited<ReturnType<typeof getServerMetrics>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getServerMetrics>>,
+          TError,
+          Awaited<ReturnType<typeof getServerMetrics>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetServerMetrics<TData = Awaited<ReturnType<typeof getServerMetrics>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 单机负载快照（CPU / 内存 / 磁盘 + JVM 堆与运行时长）
+ */
+
+export function useGetServerMetrics<TData = Awaited<ReturnType<typeof getServerMetrics>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getServerMetrics>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetServerMetricsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listMenusResponse200 = {
+  data: MenuTree
+  status: 200
+}
+
+export type listMenusResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listMenusResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listMenusResponseSuccess = (listMenusResponse200) & {
+  headers: Headers;
+};
+export type listMenusResponseError = (listMenusResponse401 | listMenusResponse403) & {
+  headers: Headers;
+};
+
+export type listMenusResponse = (listMenusResponseSuccess | listMenusResponseError)
+
+export const getListMenusUrl = () => {
+
+
+
+
+  return `/api/v1/menus/tree`
+}
+
+/**
+ * 管理视图：直接读 `menu` 表整树（含停用、隐藏页、按钮节点）。每行都是可编辑/可删除的普通数据行， 没有「内置节点」与「覆盖行」之分。按钮节点的存在性仍来自代码（见 `MenuNode.kind`）， 其标题/排序/状态可被同 key 的 DB 行覆盖。
+ * @summary 菜单树（纯 DB 的管理视图，不按权限过滤）
+ */
+export const listMenus = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listMenusResponse> => {
+
+  return httpFetch<listMenusResponse>(getListMenusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMenusQueryKey = () => {
+    return [
+    `/api/v1/menus/tree`
+    ] as const;
+    }
+
+
+export const getListMenusQueryOptions = <TData = Awaited<ReturnType<typeof listMenus>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMenusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMenus>>> = ({ signal }) => listMenus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMenusQueryResult = NonNullable<Awaited<ReturnType<typeof listMenus>>>
+export type ListMenusQueryError = ErrorEnvelope
+
+
+export function useListMenus<TData = Awaited<ReturnType<typeof listMenus>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenus<TData = Awaited<ReturnType<typeof listMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenus<TData = Awaited<ReturnType<typeof listMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 菜单树（纯 DB 的管理视图，不按权限过滤）
+ */
+
+export function useListMenus<TData = Awaited<ReturnType<typeof listMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMenusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type createMenuResponse200 = {
+  data: MenuNode
+  status: 200
+}
+
+export type createMenuResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type createMenuResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type createMenuResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type createMenuResponseSuccess = (createMenuResponse200) & {
+  headers: Headers;
+};
+export type createMenuResponseError = (createMenuResponse401 | createMenuResponse403 | createMenuResponse422) & {
+  headers: Headers;
+};
+
+export type createMenuResponse = (createMenuResponseSuccess | createMenuResponseError)
+
+export const getCreateMenuUrl = () => {
+
+
+
+
+  return `/api/v1/menus`
+}
+
+/**
+ * `type` + `title` 必填，目录的 `parentKey` 可空（= 一级模块）。菜单项（`type=menu`）的 `path` 必须命中 页面注册表里的页面——服务端据此推导 `component`（页面实现是代码，不能手选）；目录与按钮不需要 path。 改已有节点走 PATCH；没有「覆盖行」，也没有 key 入口（页面节点的 key 就是 path，由服务端推导）。
+ * @summary 新建菜单节点（目录/菜单/按钮）
+ */
+export const createMenu = async (menuRequest: MenuRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createMenuResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<createMenuResponse>(getCreateMenuUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(menuRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateMenuMutationKey = () => ['createMenu'] as const;
+
+export const getCreateMenuMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenu>>, TError,CreateMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMenu>>, TError,CreateMenuMutationVariables, TContext> => {
+
+const mutationKey = getCreateMenuMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMenu>>, CreateMenuMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMenu(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMenuMutationResult = NonNullable<Awaited<ReturnType<typeof createMenu>>>
+    export type CreateMenuMutationBody = MenuRequest
+    export type CreateMenuMutationError = ErrorEnvelope
+    export type CreateMenuMutationVariables = {data: MenuRequest}
+
+    /**
+ * @summary 新建菜单节点（目录/菜单/按钮）
+ */
+export const useCreateMenu = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenu>>, TError,CreateMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMenu>>,
+        TError,
+        CreateMenuMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMenuMutationOptions(options), queryClient);
+    }
+    export type updateMenuResponse200 = {
+  data: MenuNode
+  status: 200
+}
+
+export type updateMenuResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type updateMenuResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type updateMenuResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type updateMenuResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type updateMenuResponseSuccess = (updateMenuResponse200) & {
+  headers: Headers;
+};
+export type updateMenuResponseError = (updateMenuResponse401 | updateMenuResponse403 | updateMenuResponse404 | updateMenuResponse422) & {
+  headers: Headers;
+};
+
+export type updateMenuResponse = (updateMenuResponseSuccess | updateMenuResponseError)
+
+export const getUpdateMenuUrl = (params: UpdateMenuParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/menus?${stringifiedParams}` : `/api/v1/menus`
+}
+
+/**
+ * 身份是 node_key，走查询参数 `nodeKey`——**不能**放路径段：页面节点的 key 就是它的 path（含 `/`）， 路径里的 `%2F` 会被 Tomcat 直接 400（实测），按钮 key 里的 `#` 在路径里是 fragment 分隔符。 传了的字段才改；`path` 传空串 = 清空（仅菜单项有意义，目录/按钮的 path 恒为空）。 改 `path` 时组件按新 path 重新匹配注册表（未命中则保留原组件）。
+ * @summary 改菜单行（标题/路径/图标/排序/权限码/状态）
+ */
+export const updateMenu = async (menuUpdateRequest: MenuUpdateRequest,
+    params: UpdateMenuParams, options?: Parameters<typeof httpFetch>[1]): Promise<updateMenuResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<updateMenuResponse>(getUpdateMenuUrl(params),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(menuUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateMenuMutationKey = () => ['updateMenu'] as const;
+
+export const getUpdateMenuMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenu>>, TError,UpdateMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMenu>>, TError,UpdateMenuMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMenuMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMenu>>, UpdateMenuMutationVariables> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  updateMenu(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMenuMutationResult = NonNullable<Awaited<ReturnType<typeof updateMenu>>>
+    export type UpdateMenuMutationBody = MenuUpdateRequest
+    export type UpdateMenuMutationError = ErrorEnvelope
+    export type UpdateMenuMutationVariables = {data: MenuUpdateRequest;params: UpdateMenuParams}
+
+    /**
+ * @summary 改菜单行（标题/路径/图标/排序/权限码/状态）
+ */
+export const useUpdateMenu = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenu>>, TError,UpdateMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMenu>>,
+        TError,
+        UpdateMenuMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMenuMutationOptions(options), queryClient);
+    }
+    export type deleteMenuResponse200 = {
+  data: null
+  status: 200
+}
+
+export type deleteMenuResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type deleteMenuResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type deleteMenuResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type deleteMenuResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
+export type deleteMenuResponseSuccess = (deleteMenuResponse200) & {
+  headers: Headers;
+};
+export type deleteMenuResponseError = (deleteMenuResponse401 | deleteMenuResponse403 | deleteMenuResponse404 | deleteMenuResponse422) & {
+  headers: Headers;
+};
+
+export type deleteMenuResponse = (deleteMenuResponseSuccess | deleteMenuResponseError)
+
+export const getDeleteMenuUrl = (params: DeleteMenuParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/menus?${stringifiedParams}` : `/api/v1/menus`
+}
+
+/**
+ * 身份同样走查询参数 `nodeKey`。删除即真删（`menu` 表没有 deleted_at/lock_version，是物理删除）： 节点及其全部子孙（按钮/隐藏页）一起消失；页面节点被删后，其权限码不再出现在树上 （角色授权里的旧码自然失效、不报错）。删除规则细化（有子节点拒绝 42203 等）归 T07。
+ * @summary 删菜单行（该项连子孙一起删）
+ */
+export const deleteMenu = async (params: DeleteMenuParams, options?: Parameters<typeof httpFetch>[1]): Promise<deleteMenuResponse> => {
+
+  return httpFetch<deleteMenuResponse>(getDeleteMenuUrl(params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteMenuMutationKey = () => ['deleteMenu'] as const;
+
+export const getDeleteMenuMutationOptions = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMenu>>, TError,DeleteMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMenu>>, TError,DeleteMenuMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMenuMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMenu>>, DeleteMenuMutationVariables> = (props) => {
+          const {params} = props ?? {};
+
+          return  deleteMenu(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMenuMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMenu>>>
+
+    export type DeleteMenuMutationError = ErrorEnvelope | ReferencedResponse
+    export type DeleteMenuMutationVariables = {params: DeleteMenuParams}
+
+    /**
+ * @summary 删菜单行（该项连子孙一起删）
+ */
+export const useDeleteMenu = <TError = ErrorEnvelope | ReferencedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMenu>>, TError,DeleteMenuMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMenu>>,
+        TError,
+        DeleteMenuMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteMenuMutationOptions(options), queryClient);
+    }
+    export type listGrantableMenusResponse200 = {
+  data: MenuTree
+  status: 200
+}
+
+export type listGrantableMenusResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listGrantableMenusResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listGrantableMenusResponseSuccess = (listGrantableMenusResponse200) & {
+  headers: Headers;
+};
+export type listGrantableMenusResponseError = (listGrantableMenusResponse401 | listGrantableMenusResponse403) & {
+  headers: Headers;
+};
+
+export type listGrantableMenusResponse = (listGrantableMenusResponseSuccess | listGrantableMenusResponseError)
+
+export const getListGrantableMenusUrl = () => {
+
+
+
+
+  return `/api/v1/menus/grantable`
+}
+
+/**
+ * @summary 可授权菜单树（角色权限勾选页的数据源；含按钮节点，不按权限过滤）
+ */
+export const listGrantableMenus = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listGrantableMenusResponse> => {
+
+  return httpFetch<listGrantableMenusResponse>(getListGrantableMenusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGrantableMenusQueryKey = () => {
+    return [
+    `/api/v1/menus/grantable`
+    ] as const;
+    }
+
+
+export const getListGrantableMenusQueryOptions = <TData = Awaited<ReturnType<typeof listGrantableMenus>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGrantableMenusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGrantableMenus>>> = ({ signal }) => listGrantableMenus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListGrantableMenusQueryResult = NonNullable<Awaited<ReturnType<typeof listGrantableMenus>>>
+export type ListGrantableMenusQueryError = ErrorEnvelope
+
+
+export function useListGrantableMenus<TData = Awaited<ReturnType<typeof listGrantableMenus>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listGrantableMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listGrantableMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListGrantableMenus<TData = Awaited<ReturnType<typeof listGrantableMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listGrantableMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listGrantableMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListGrantableMenus<TData = Awaited<ReturnType<typeof listGrantableMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 可授权菜单树（角色权限勾选页的数据源；含按钮节点，不按权限过滤）
+ */
+
+export function useListGrantableMenus<TData = Awaited<ReturnType<typeof listGrantableMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGrantableMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListGrantableMenusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listMenuRoutesResponse200 = {
+  data: RouteTable
+  status: 200
+}
+
+export type listMenuRoutesResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listMenuRoutesResponseSuccess = (listMenuRoutesResponse200) & {
+  headers: Headers;
+};
+export type listMenuRoutesResponseError = (listMenuRoutesResponse401) & {
+  headers: Headers;
+};
+
+export type listMenuRoutesResponse = (listMenuRoutesResponseSuccess | listMenuRoutesResponseError)
+
+export const getListMenuRoutesUrl = () => {
+
+
+
+
+  return `/api/v1/menus/routes`
+}
+
+/**
+ * 登录即可访问（它就是「本系统有哪些页面」）。前端建立会话后取它建路由，取不到回落代码生成的静态路由表。
+ * @summary 前端路由表（全部页面的 path/component/perm/activeMenu）
+ */
+export const listMenuRoutes = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listMenuRoutesResponse> => {
+
+  return httpFetch<listMenuRoutesResponse>(getListMenuRoutesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMenuRoutesQueryKey = () => {
+    return [
+    `/api/v1/menus/routes`
+    ] as const;
+    }
+
+
+export const getListMenuRoutesQueryOptions = <TData = Awaited<ReturnType<typeof listMenuRoutes>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMenuRoutesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMenuRoutes>>> = ({ signal }) => listMenuRoutes({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMenuRoutesQueryResult = NonNullable<Awaited<ReturnType<typeof listMenuRoutes>>>
+export type ListMenuRoutesQueryError = ErrorEnvelope
+
+
+export function useListMenuRoutes<TData = Awaited<ReturnType<typeof listMenuRoutes>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenuRoutes>>,
+          TError,
+          Awaited<ReturnType<typeof listMenuRoutes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenuRoutes<TData = Awaited<ReturnType<typeof listMenuRoutes>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenuRoutes>>,
+          TError,
+          Awaited<ReturnType<typeof listMenuRoutes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenuRoutes<TData = Awaited<ReturnType<typeof listMenuRoutes>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 前端路由表（全部页面的 path/component/perm/activeMenu）
+ */
+
+export function useListMenuRoutes<TData = Awaited<ReturnType<typeof listMenuRoutes>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuRoutes>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMenuRoutesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listMenuPageRegistryResponse200 = {
+  data: PageRegistry
+  status: 200
+}
+
+export type listMenuPageRegistryResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listMenuPageRegistryResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listMenuPageRegistryResponseSuccess = (listMenuPageRegistryResponse200) & {
+  headers: Headers;
+};
+export type listMenuPageRegistryResponseError = (listMenuPageRegistryResponse401 | listMenuPageRegistryResponse403) & {
+  headers: Headers;
+};
+
+export type listMenuPageRegistryResponse = (listMenuPageRegistryResponseSuccess | listMenuPageRegistryResponseError)
+
+export const getListMenuPageRegistryUrl = () => {
+
+
+
+
+  return `/api/v1/menus/page-registry`
+}
+
+/**
+ * 数据源是 tools/route-codegen.mjs 生成的 navigation.json（页面注解的产物，与前端 routes.tsx 同源同批）。 管理员按 path 建菜单项时用它自动匹配组件；组件本身不能手选（代码所有）。
+ * @summary 页面注册表（页面 path → component/title/perm，含隐藏页）
+ */
+export const listMenuPageRegistry = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listMenuPageRegistryResponse> => {
+
+  return httpFetch<listMenuPageRegistryResponse>(getListMenuPageRegistryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMenuPageRegistryQueryKey = () => {
+    return [
+    `/api/v1/menus/page-registry`
+    ] as const;
+    }
+
+
+export const getListMenuPageRegistryQueryOptions = <TData = Awaited<ReturnType<typeof listMenuPageRegistry>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMenuPageRegistryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMenuPageRegistry>>> = ({ signal }) => listMenuPageRegistry({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMenuPageRegistryQueryResult = NonNullable<Awaited<ReturnType<typeof listMenuPageRegistry>>>
+export type ListMenuPageRegistryQueryError = ErrorEnvelope
+
+
+export function useListMenuPageRegistry<TData = Awaited<ReturnType<typeof listMenuPageRegistry>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenuPageRegistry>>,
+          TError,
+          Awaited<ReturnType<typeof listMenuPageRegistry>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenuPageRegistry<TData = Awaited<ReturnType<typeof listMenuPageRegistry>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMenuPageRegistry>>,
+          TError,
+          Awaited<ReturnType<typeof listMenuPageRegistry>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMenuPageRegistry<TData = Awaited<ReturnType<typeof listMenuPageRegistry>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 页面注册表（页面 path → component/title/perm，含隐藏页）
+ */
+
+export function useListMenuPageRegistry<TData = Awaited<ReturnType<typeof listMenuPageRegistry>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMenuPageRegistry>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMenuPageRegistryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listMyMenusResponse200 = {
+  data: MenuTree
+  status: 200
+}
+
+export type listMyMenusResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listMyMenusResponseSuccess = (listMyMenusResponse200) & {
+  headers: Headers;
+};
+export type listMyMenusResponseError = (listMyMenusResponse401) & {
+  headers: Headers;
+};
+
+export type listMyMenusResponse = (listMyMenusResponseSuccess | listMyMenusResponseError)
+
+export const getListMyMenusUrl = () => {
+
+
+
+
+  return `/api/v1/menus/my`
+}
+
+/**
+ * 登录即可访问（不给权限码——它就是「我的菜单」）。过滤规则：`status=disabled` 的项及其 DB 行不下发；`perm` 不在当前账号权限码集合内的项不下发；因此变空的组/分区也不下发。 内置基线在没有 DB 覆盖时原样返回，故本端点失败时前端回落静态 `navigation` 等价。
+ * @summary 当前用户可见菜单树（侧栏数据源；按权限码 + 状态过滤）
+ */
+export const listMyMenus = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listMyMenusResponse> => {
+
+  return httpFetch<listMyMenusResponse>(getListMyMenusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyMenusQueryKey = () => {
+    return [
+    `/api/v1/menus/my`
+    ] as const;
+    }
+
+
+export const getListMyMenusQueryOptions = <TData = Awaited<ReturnType<typeof listMyMenus>>, TError = ErrorEnvelope>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyMenusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyMenus>>> = ({ signal }) => listMyMenus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMyMenusQueryResult = NonNullable<Awaited<ReturnType<typeof listMyMenus>>>
+export type ListMyMenusQueryError = ErrorEnvelope
+
+
+export function useListMyMenus<TData = Awaited<ReturnType<typeof listMyMenus>>, TError = ErrorEnvelope>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listMyMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyMenus<TData = Awaited<ReturnType<typeof listMyMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyMenus>>,
+          TError,
+          Awaited<ReturnType<typeof listMyMenus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyMenus<TData = Awaited<ReturnType<typeof listMyMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 当前用户可见菜单树（侧栏数据源；按权限码 + 状态过滤）
+ */
+
+export function useListMyMenus<TData = Awaited<ReturnType<typeof listMyMenus>>, TError = ErrorEnvelope>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyMenus>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMyMenusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type getColumnPrefResponse200 = {
   data: ColumnPrefView
   status: 200
 }
@@ -2462,379 +5086,6 @@ export const useResetColumnPref = <TError = ErrorEnvelope,
       > => {
       return useMutation(getResetColumnPrefMutationOptions(options), queryClient);
     }
-    export type getLangItemsResponse200 = {
-  data: LangItemView
-  status: 200
-}
-
-export type getLangItemsResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type getLangItemsResponseSuccess = (getLangItemsResponse200) & {
-  headers: Headers;
-};
-export type getLangItemsResponseError = (getLangItemsResponse401) & {
-  headers: Headers;
-};
-
-export type getLangItemsResponse = (getLangItemsResponseSuccess | getLangItemsResponseError)
-
-export const getGetLangItemsUrl = (domain: string,
-    field: string,
-    params?: GetLangItemsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/lang-items/${domain}/${field}?${stringifiedParams}` : `/api/v1/lang-items/${domain}/${field}`
-}
-
-/**
- * @summary 文案读取（内建默认 + 覆盖合并，overridden 标记）
- */
-export const getLangItems = async (domain: string,
-    field: string,
-    params?: GetLangItemsParams, options?: Parameters<typeof httpFetch>[1]): Promise<getLangItemsResponse> => {
-
-  return httpFetch<getLangItemsResponse>(getGetLangItemsUrl(domain,field,params),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getGetLangItemsQueryKey = (domain: string,
-    field: string,
-    params?: GetLangItemsParams,) => {
-    return [
-    `/api/v1/lang-items/${domain}/${field}`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetLangItemsQueryOptions = <TData = Awaited<ReturnType<typeof getLangItems>>, TError = ErrorEnvelope>(domain: string,
-    field: string,
-    params?: GetLangItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetLangItemsQueryKey(domain,field,params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLangItems>>> = ({ signal }) => getLangItems(domain,field,params, { signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: domain !== null && domain !== undefined && field !== null && field !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetLangItemsQueryResult = NonNullable<Awaited<ReturnType<typeof getLangItems>>>
-export type GetLangItemsQueryError = ErrorEnvelope
-
-
-export function useGetLangItems<TData = Awaited<ReturnType<typeof getLangItems>>, TError = ErrorEnvelope>(
- domain: string,
-    field: string,
-    params: undefined |  GetLangItemsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getLangItems>>,
-          TError,
-          Awaited<ReturnType<typeof getLangItems>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetLangItems<TData = Awaited<ReturnType<typeof getLangItems>>, TError = ErrorEnvelope>(
- domain: string,
-    field: string,
-    params?: GetLangItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getLangItems>>,
-          TError,
-          Awaited<ReturnType<typeof getLangItems>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetLangItems<TData = Awaited<ReturnType<typeof getLangItems>>, TError = ErrorEnvelope>(
- domain: string,
-    field: string,
-    params?: GetLangItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 文案读取（内建默认 + 覆盖合并，overridden 标记）
- */
-
-export function useGetLangItems<TData = Awaited<ReturnType<typeof getLangItems>>, TError = ErrorEnvelope>(
- domain: string,
-    field: string,
-    params?: GetLangItemsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLangItems>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetLangItemsQueryOptions(domain,field,params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-export type putLangItemsResponse200 = {
-  data: LangItemView
-  status: 200
-}
-
-export type putLangItemsResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type putLangItemsResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type putLangItemsResponseSuccess = (putLangItemsResponse200) & {
-  headers: Headers;
-};
-export type putLangItemsResponseError = (putLangItemsResponse401 | putLangItemsResponse403) & {
-  headers: Headers;
-};
-
-export type putLangItemsResponse = (putLangItemsResponseSuccess | putLangItemsResponseError)
-
-export const getPutLangItemsUrl = (domain: string,
-    field: string,
-    params?: PutLangItemsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/lang-items/${domain}/${field}?${stringifiedParams}` : `/api/v1/lang-items/${domain}/${field}`
-}
-
-/**
- * @summary 保存文案覆盖（lang-manage）
- */
-export const putLangItems = async (domain: string,
-    field: string,
-    langItemsUpdateRequest: LangItemsUpdateRequest,
-    params?: PutLangItemsParams, options?: Parameters<typeof httpFetch>[1]): Promise<putLangItemsResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<putLangItemsResponse>(getPutLangItemsUrl(domain,field,params),
-  {
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(langItemsUpdateRequest)
-  }
-);}
-
-
-
-
-
-export const getPutLangItemsMutationKey = () => ['putLangItems'] as const;
-
-export const getPutLangItemsMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putLangItems>>, TError,PutLangItemsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof putLangItems>>, TError,PutLangItemsMutationVariables, TContext> => {
-
-const mutationKey = getPutLangItemsMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putLangItems>>, PutLangItemsMutationVariables> = (props) => {
-          const {domain,field,data,params} = props ?? {};
-
-          return  putLangItems(domain,field,data,params,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutLangItemsMutationResult = NonNullable<Awaited<ReturnType<typeof putLangItems>>>
-    export type PutLangItemsMutationBody = LangItemsUpdateRequest
-    export type PutLangItemsMutationError = ErrorEnvelope
-    export type PutLangItemsMutationVariables = {domain: string;field: string;data: LangItemsUpdateRequest;params?: PutLangItemsParams}
-
-    /**
- * @summary 保存文案覆盖（lang-manage）
- */
-export const usePutLangItems = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putLangItems>>, TError,PutLangItemsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putLangItems>>,
-        TError,
-        PutLangItemsMutationVariables,
-        TContext
-      > => {
-      return useMutation(getPutLangItemsMutationOptions(options), queryClient);
-    }
-    export type deleteLangItemsResponse200 = {
-  data: LangItemView
-  status: 200
-}
-
-export type deleteLangItemsResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type deleteLangItemsResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type deleteLangItemsResponseSuccess = (deleteLangItemsResponse200) & {
-  headers: Headers;
-};
-export type deleteLangItemsResponseError = (deleteLangItemsResponse401 | deleteLangItemsResponse403) & {
-  headers: Headers;
-};
-
-export type deleteLangItemsResponse = (deleteLangItemsResponseSuccess | deleteLangItemsResponseError)
-
-export const getDeleteLangItemsUrl = (domain: string,
-    field: string,
-    params?: DeleteLangItemsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/lang-items/${domain}/${field}?${stringifiedParams}` : `/api/v1/lang-items/${domain}/${field}`
-}
-
-/**
- * @summary 恢复默认（删覆盖层，lang-manage）
- */
-export const deleteLangItems = async (domain: string,
-    field: string,
-    params?: DeleteLangItemsParams, options?: Parameters<typeof httpFetch>[1]): Promise<deleteLangItemsResponse> => {
-
-  return httpFetch<deleteLangItemsResponse>(getDeleteLangItemsUrl(domain,field,params),
-  {
-    ...options,
-    method: 'DELETE'
-
-
-  }
-);}
-
-
-
-
-
-export const getDeleteLangItemsMutationKey = () => ['deleteLangItems'] as const;
-
-export const getDeleteLangItemsMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLangItems>>, TError,DeleteLangItemsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteLangItems>>, TError,DeleteLangItemsMutationVariables, TContext> => {
-
-const mutationKey = getDeleteLangItemsMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteLangItems>>, DeleteLangItemsMutationVariables> = (props) => {
-          const {domain,field,params} = props ?? {};
-
-          return  deleteLangItems(domain,field,params,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteLangItemsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteLangItems>>>
-
-    export type DeleteLangItemsMutationError = ErrorEnvelope
-    export type DeleteLangItemsMutationVariables = {domain: string;field: string;params?: DeleteLangItemsParams}
-
-    /**
- * @summary 恢复默认（删覆盖层，lang-manage）
- */
-export const useDeleteLangItems = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLangItems>>, TError,DeleteLangItemsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteLangItems>>,
-        TError,
-        DeleteLangItemsMutationVariables,
-        TContext
-      > => {
-      return useMutation(getDeleteLangItemsMutationOptions(options), queryClient);
-    }
     export type listLangOverridesResponse200 = {
   data: LangOverrideList
   status: 200
@@ -3123,12 +5374,11 @@ export const getCreateLangImportUrl = () => {
 }
 
 /**
- * @summary 上传语言包 Excel（格式校验 + 落覆盖 + 记操作，lang-manage）
+ * @summary 上传语言包 Excel（单文件全语言：格式校验 + 落覆盖 + 记操作，lang-manage）
  */
 export const createLangImport = async (createLangImportBody: CreateLangImportBody, options?: Parameters<typeof httpFetch>[1]): Promise<createLangImportResponse> => {
     const formData = new FormData();
 formData.append(`file`, createLangImportBody.file);
-formData.append(`lang`, createLangImportBody.lang);
 
   return httpFetch<createLangImportResponse>(getCreateLangImportUrl(),
   {
@@ -3178,7 +5428,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateLangImportMutationVariables = {data: CreateLangImportBody}
 
     /**
- * @summary 上传语言包 Excel（格式校验 + 落覆盖 + 记操作，lang-manage）
+ * @summary 上传语言包 Excel（单文件全语言：格式校验 + 落覆盖 + 记操作，lang-manage）
  */
 export const useCreateLangImport = <TError = UnauthorizedResponse | ForbiddenResponse | ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLangImport>>, TError,CreateLangImportMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -3366,7 +5616,7 @@ export const getListAuditLogsUrl = (params?: ListAuditLogsParams,) => {
 }
 
 /**
- * audit_log 流水只读视图（B1 §H3）：登录与每次成功的写请求各一行，按 created_at 倒序（缺省 -createdAt）。 支持 filters[account]/filters[action]/filters[objectType]/filters[objectId]（等值或逗号 IN） 与 filters[createdAt] 时间区间，以及 q 关键词（LIKE account/action）。无写端点：行由 AuditRecorder 追加。
+ * audit_log 流水只读视图（B1 §H3；T04 审计 2.0）：登录与每次写请求各一行（成功 result=success、 失败 result=fail + reason），按 created_at 倒序（缺省 -createdAt）。分类 category 见 ADR-004 的 9 类， 动作到分类的映射由后端 AuditCatalog 声明；query 类不进本表（聚合在 /audit-logs/query-stats）。 支持 filters[account]/filters[action]/filters[objectType]/filters[objectId]/filters[category]/ filters[result]/filters[batchId]（等值或逗号 IN）与 filters[createdAt] 时间区间，以及 q 关键词 （LIKE account/action）。无写端点：行由 AuditRecorder 追加。
  * @summary 操作日志列表（谁在什么时候做了什么；只读，行由写端点的审计横切落库）
  */
 export const listAuditLogs = async (params?: ListAuditLogsParams, options?: Parameters<typeof httpFetch>[1]): Promise<listAuditLogsResponse> => {
@@ -3458,7 +5708,656 @@ export function useListAuditLogs<TData = Awaited<ReturnType<typeof listAuditLogs
 
 
 
-export type createCommentResponse200 = {
+export type getAuditLogResponse200 = {
+  data: AuditLogDetail
+  status: 200
+}
+
+export type getAuditLogResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type getAuditLogResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type getAuditLogResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type getAuditLogResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type getAuditLogResponseSuccess = (getAuditLogResponse200) & {
+  headers: Headers;
+};
+export type getAuditLogResponseError = (getAuditLogResponse400 | getAuditLogResponse401 | getAuditLogResponse403 | getAuditLogResponse404) & {
+  headers: Headers;
+};
+
+export type getAuditLogResponse = (getAuditLogResponseSuccess | getAuditLogResponseError)
+
+export const getGetAuditLogUrl = (auditId: number,) => {
+
+
+
+
+  return `/api/v1/audit-logs/${auditId}`
+}
+
+/**
+ * 按 id 取单行（T04）。changes 是结构化的字段级 diff（敏感字段值掩码为 ***），snapshot 是审批/发布类 的完整前后快照，extra 是动作自定义补充；三者只在详情返回，列表不带（体积）。不存在 → 40401。
+ * @summary 审计日志详情（单行全字段，含 changes/snapshot/extra）
+ */
+export const getAuditLog = async (auditId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getAuditLogResponse> => {
+
+  return httpFetch<getAuditLogResponse>(getGetAuditLogUrl(auditId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAuditLogQueryKey = (auditId: number,) => {
+    return [
+    `/api/v1/audit-logs/${auditId}`
+    ] as const;
+    }
+
+
+export const getGetAuditLogQueryOptions = <TData = Awaited<ReturnType<typeof getAuditLog>>, TError = ErrorEnvelope>(auditId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAuditLogQueryKey(auditId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAuditLog>>> = ({ signal }) => getAuditLog(auditId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: auditId !== null && auditId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAuditLogQueryResult = NonNullable<Awaited<ReturnType<typeof getAuditLog>>>
+export type GetAuditLogQueryError = ErrorEnvelope
+
+
+export function useGetAuditLog<TData = Awaited<ReturnType<typeof getAuditLog>>, TError = ErrorEnvelope>(
+ auditId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuditLog>>,
+          TError,
+          Awaited<ReturnType<typeof getAuditLog>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAuditLog<TData = Awaited<ReturnType<typeof getAuditLog>>, TError = ErrorEnvelope>(
+ auditId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuditLog>>,
+          TError,
+          Awaited<ReturnType<typeof getAuditLog>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAuditLog<TData = Awaited<ReturnType<typeof getAuditLog>>, TError = ErrorEnvelope>(
+ auditId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 审计日志详情（单行全字段，含 changes/snapshot/extra）
+ */
+
+export function useGetAuditLog<TData = Awaited<ReturnType<typeof getAuditLog>>, TError = ErrorEnvelope>(
+ auditId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuditLog>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAuditLogQueryOptions(auditId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type verifyAuditLogsResponse200 = {
+  data: AuditVerifyResult
+  status: 200
+}
+
+export type verifyAuditLogsResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type verifyAuditLogsResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type verifyAuditLogsResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type verifyAuditLogsResponseSuccess = (verifyAuditLogsResponse200) & {
+  headers: Headers;
+};
+export type verifyAuditLogsResponseError = (verifyAuditLogsResponse400 | verifyAuditLogsResponse401 | verifyAuditLogsResponse403) & {
+  headers: Headers;
+};
+
+export type verifyAuditLogsResponse = (verifyAuditLogsResponseSuccess | verifyAuditLogsResponseError)
+
+export const getVerifyAuditLogsUrl = (params?: VerifyAuditLogsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/audit-logs/verify?${stringifiedParams}` : `/api/v1/audit-logs/verify`
+}
+
+/**
+ * T04 防篡改工具（ADR-004 决策 4）：按 id 升序逐行重算 hash=sha256(prev_hash + 规范序列化)， 与行内 hash 比对，返回首处不一致的行 id。V43 之前的历史行无 hash（unhashedPrefix 计数， 不参与校验）；保留策略清理过的前缀不存在（checkedFrom 之后的链自洽即有效）。 maxRows 是单次扫描上限（默认 10000，上限 50000），超限 scanLimitReached=true，供多次续扫。
+ * @summary 审计哈希链校验（逐行重算，返回首处断链 id）
+ */
+export const verifyAuditLogs = async (params?: VerifyAuditLogsParams, options?: Parameters<typeof httpFetch>[1]): Promise<verifyAuditLogsResponse> => {
+
+  return httpFetch<verifyAuditLogsResponse>(getVerifyAuditLogsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getVerifyAuditLogsQueryKey = (params?: VerifyAuditLogsParams,) => {
+    return [
+    `/api/v1/audit-logs/verify`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getVerifyAuditLogsQueryOptions = <TData = Awaited<ReturnType<typeof verifyAuditLogs>>, TError = ErrorEnvelope>(params?: VerifyAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getVerifyAuditLogsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof verifyAuditLogs>>> = ({ signal }) => verifyAuditLogs(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type VerifyAuditLogsQueryResult = NonNullable<Awaited<ReturnType<typeof verifyAuditLogs>>>
+export type VerifyAuditLogsQueryError = ErrorEnvelope
+
+
+export function useVerifyAuditLogs<TData = Awaited<ReturnType<typeof verifyAuditLogs>>, TError = ErrorEnvelope>(
+ params: undefined |  VerifyAuditLogsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof verifyAuditLogs>>,
+          TError,
+          Awaited<ReturnType<typeof verifyAuditLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useVerifyAuditLogs<TData = Awaited<ReturnType<typeof verifyAuditLogs>>, TError = ErrorEnvelope>(
+ params?: VerifyAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof verifyAuditLogs>>,
+          TError,
+          Awaited<ReturnType<typeof verifyAuditLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useVerifyAuditLogs<TData = Awaited<ReturnType<typeof verifyAuditLogs>>, TError = ErrorEnvelope>(
+ params?: VerifyAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 审计哈希链校验（逐行重算，返回首处断链 id）
+ */
+
+export function useVerifyAuditLogs<TData = Awaited<ReturnType<typeof verifyAuditLogs>>, TError = ErrorEnvelope>(
+ params?: VerifyAuditLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof verifyAuditLogs>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getVerifyAuditLogsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listAuditQueryStatsResponse200 = {
+  data: AuditQueryStatList
+  status: 200
+}
+
+export type listAuditQueryStatsResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listAuditQueryStatsResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listAuditQueryStatsResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listAuditQueryStatsResponseSuccess = (listAuditQueryStatsResponse200) & {
+  headers: Headers;
+};
+export type listAuditQueryStatsResponseError = (listAuditQueryStatsResponse400 | listAuditQueryStatsResponse401 | listAuditQueryStatsResponse403) & {
+  headers: Headers;
+};
+
+export type listAuditQueryStatsResponse = (listAuditQueryStatsResponseSuccess | listAuditQueryStatsResponseError)
+
+export const getListAuditQueryStatsUrl = (params?: ListAuditQueryStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/audit-logs/query-stats?${stringifiedParams}` : `/api/v1/audit-logs/query-stats`
+}
+
+/**
+ * T04（ADR-004 决策 3）：query 类操作不进 audit_log 主表，按 account+resource+day 聚合到 audit_query_stat（count 次数 / totalMs 累计耗时），由 QueryStatFilter 异步刷写。 采样率 setting `audit.query-sample-rate`（默认 100）。
+ * @summary 查询聚合统计（普通查询/列表按 账号+模块+天 采样聚合）
+ */
+export const listAuditQueryStats = async (params?: ListAuditQueryStatsParams, options?: Parameters<typeof httpFetch>[1]): Promise<listAuditQueryStatsResponse> => {
+
+  return httpFetch<listAuditQueryStatsResponse>(getListAuditQueryStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAuditQueryStatsQueryKey = (params?: ListAuditQueryStatsParams,) => {
+    return [
+    `/api/v1/audit-logs/query-stats`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAuditQueryStatsQueryOptions = <TData = Awaited<ReturnType<typeof listAuditQueryStats>>, TError = ErrorEnvelope>(params?: ListAuditQueryStatsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAuditQueryStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAuditQueryStats>>> = ({ signal }) => listAuditQueryStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListAuditQueryStatsQueryResult = NonNullable<Awaited<ReturnType<typeof listAuditQueryStats>>>
+export type ListAuditQueryStatsQueryError = ErrorEnvelope
+
+
+export function useListAuditQueryStats<TData = Awaited<ReturnType<typeof listAuditQueryStats>>, TError = ErrorEnvelope>(
+ params: undefined |  ListAuditQueryStatsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAuditQueryStats>>,
+          TError,
+          Awaited<ReturnType<typeof listAuditQueryStats>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAuditQueryStats<TData = Awaited<ReturnType<typeof listAuditQueryStats>>, TError = ErrorEnvelope>(
+ params?: ListAuditQueryStatsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAuditQueryStats>>,
+          TError,
+          Awaited<ReturnType<typeof listAuditQueryStats>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAuditQueryStats<TData = Awaited<ReturnType<typeof listAuditQueryStats>>, TError = ErrorEnvelope>(
+ params?: ListAuditQueryStatsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 查询聚合统计（普通查询/列表按 账号+模块+天 采样聚合）
+ */
+
+export function useListAuditQueryStats<TData = Awaited<ReturnType<typeof listAuditQueryStats>>, TError = ErrorEnvelope>(
+ params?: ListAuditQueryStatsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAuditQueryStats>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListAuditQueryStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type listOnlineUsersResponse200 = {
+  data: OnlineUserList
+  status: 200
+}
+
+export type listOnlineUsersResponse400 = {
+  data: ErrorEnvelope
+  status: 400
+}
+
+export type listOnlineUsersResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type listOnlineUsersResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type listOnlineUsersResponseSuccess = (listOnlineUsersResponse200) & {
+  headers: Headers;
+};
+export type listOnlineUsersResponseError = (listOnlineUsersResponse400 | listOnlineUsersResponse401 | listOnlineUsersResponse403) & {
+  headers: Headers;
+};
+
+export type listOnlineUsersResponse = (listOnlineUsersResponseSuccess | listOnlineUsersResponseError)
+
+export const getListOnlineUsersUrl = (params?: ListOnlineUsersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/online-users?${stringifiedParams}` : `/api/v1/online-users`
+}
+
+/**
+ * 每行 = 一个在线会话（登出与过期都物理删行，见 SessionResolver/LogoutHandler），按 last_seen_at 倒序（缺省 -lastSeenAt）；current 标出请求者自己那条。支持 filters[account]（等值或逗号 IN） 与 sort 白名单。强退见 DELETE /online-users/{sessionId}。
+ * @summary 在线用户列表（session 表现存行即在线集；id 是 token 摘要，cookie 凭据不出网）
+ */
+export const listOnlineUsers = async (params?: ListOnlineUsersParams, options?: Parameters<typeof httpFetch>[1]): Promise<listOnlineUsersResponse> => {
+
+  return httpFetch<listOnlineUsersResponse>(getListOnlineUsersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListOnlineUsersQueryKey = (params?: ListOnlineUsersParams,) => {
+    return [
+    `/api/v1/online-users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListOnlineUsersQueryOptions = <TData = Awaited<ReturnType<typeof listOnlineUsers>>, TError = ErrorEnvelope>(params?: ListOnlineUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListOnlineUsersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listOnlineUsers>>> = ({ signal }) => listOnlineUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListOnlineUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listOnlineUsers>>>
+export type ListOnlineUsersQueryError = ErrorEnvelope
+
+
+export function useListOnlineUsers<TData = Awaited<ReturnType<typeof listOnlineUsers>>, TError = ErrorEnvelope>(
+ params: undefined |  ListOnlineUsersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listOnlineUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listOnlineUsers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListOnlineUsers<TData = Awaited<ReturnType<typeof listOnlineUsers>>, TError = ErrorEnvelope>(
+ params?: ListOnlineUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listOnlineUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listOnlineUsers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListOnlineUsers<TData = Awaited<ReturnType<typeof listOnlineUsers>>, TError = ErrorEnvelope>(
+ params?: ListOnlineUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 在线用户列表（session 表现存行即在线集；id 是 token 摘要，cookie 凭据不出网）
+ */
+
+export function useListOnlineUsers<TData = Awaited<ReturnType<typeof listOnlineUsers>>, TError = ErrorEnvelope>(
+ params?: ListOnlineUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOnlineUsers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListOnlineUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type kickOnlineUserResponse200 = {
+  data: null
+  status: 200
+}
+
+export type kickOnlineUserResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type kickOnlineUserResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type kickOnlineUserResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
+export type kickOnlineUserResponseSuccess = (kickOnlineUserResponse200) & {
+  headers: Headers;
+};
+export type kickOnlineUserResponseError = (kickOnlineUserResponse401 | kickOnlineUserResponse403 | kickOnlineUserResponse422) & {
+  headers: Headers;
+};
+
+export type kickOnlineUserResponse = (kickOnlineUserResponseSuccess | kickOnlineUserResponseError)
+
+export const getKickOnlineUserUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/v1/online-users/${sessionId}`
+}
+
+/**
+ * sessionId 是 GET /online-users 给出的 id（token 的 sha256），不是 cookie 值本身。幂等：行已消失 （对方已登出 / 已过期）同样 200——管理意图「这条会话没了」已达成。成功的写请求由审计横切落 audit_log（action=online-user-kick）。
+ * @summary 强退（删会话行 → 该 cookie 的下一次请求 40101）
+ */
+export const kickOnlineUser = async (sessionId: string, options?: Parameters<typeof httpFetch>[1]): Promise<kickOnlineUserResponse> => {
+
+  return httpFetch<kickOnlineUserResponse>(getKickOnlineUserUrl(sessionId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getKickOnlineUserMutationKey = () => ['kickOnlineUser'] as const;
+
+export const getKickOnlineUserMutationOptions = <TError = ErrorEnvelope | ValidationResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof kickOnlineUser>>, TError,KickOnlineUserMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof kickOnlineUser>>, TError,KickOnlineUserMutationVariables, TContext> => {
+
+const mutationKey = getKickOnlineUserMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof kickOnlineUser>>, KickOnlineUserMutationVariables> = (props) => {
+          const {sessionId} = props ?? {};
+
+          return  kickOnlineUser(sessionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type KickOnlineUserMutationResult = NonNullable<Awaited<ReturnType<typeof kickOnlineUser>>>
+
+    export type KickOnlineUserMutationError = ErrorEnvelope | ValidationResponse
+    export type KickOnlineUserMutationVariables = {sessionId: string}
+
+    /**
+ * @summary 强退（删会话行 → 该 cookie 的下一次请求 40101）
+ */
+export const useKickOnlineUser = <TError = ErrorEnvelope | ValidationResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof kickOnlineUser>>, TError,KickOnlineUserMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof kickOnlineUser>>,
+        TError,
+        KickOnlineUserMutationVariables,
+        TContext
+      > => {
+      return useMutation(getKickOnlineUserMutationOptions(options), queryClient);
+    }
+    export type createCommentResponse200 = {
   data: CommentView
   status: 200
 }

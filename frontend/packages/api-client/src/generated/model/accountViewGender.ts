@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 性别
+ */
 export type AccountViewGender = typeof AccountViewGender[keyof typeof AccountViewGender];
 
 

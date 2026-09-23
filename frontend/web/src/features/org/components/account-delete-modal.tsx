@@ -37,7 +37,7 @@ export function AccountDeleteModal({
       footer={
         <Space>
           <Button onClick={onClose}>{t('common.action.cancel')}</Button>
-          <Button danger loading={remove.isPending} onClick={() => void remove.mutateAsync()}>
+          <Button danger loading={remove.isPending} onClick={() => remove.mutate()}>
             {t('common.action.delete')}
           </Button>
         </Space>

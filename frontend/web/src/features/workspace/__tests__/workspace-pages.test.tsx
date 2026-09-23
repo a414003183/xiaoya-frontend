@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node'
 import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { db, resetMockData } from '../../../mocks/db'
+import { db, grantRolePrivileges, resetMockData } from '../../../mocks/db'
 import { handlers } from '../../../mocks/handlers'
 import MyDashboardPage from '../pages/my-dashboard-page.page'
 import TodoBatchCreatePage from '../pages/todo-batch-create-page.page'
@@ -207,7 +207,7 @@ describe('待办删除入口（V-01 接线）', () => {
 
   test('非创建人/负责人 → 40302 数据权限文案，待办保留', async () => {
     db.currentAccountId = 2 // dev1：非 todo 1 的创建人/负责人且非超管
-    db.groups.find((item) => item.id === 2)?.privCodes.push('todo-view', 'todo-delete')
+    grantRolePrivileges(2, ['todo-view', 'todo-delete'])
     renderDetail(['todo-view', 'todo-delete'])
     expect(await screen.findByText('Prepare Sprint 1 acceptance materials')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /删\s*除/ }))

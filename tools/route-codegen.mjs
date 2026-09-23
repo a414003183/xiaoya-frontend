@@ -6,7 +6,7 @@
 //   · activeMenuMap（隐藏页 → 菜单高亮目标）。
 // 手改 web/src/app/routes.tsx 即 CI 红（pnpm routes:check）。
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -32,8 +32,10 @@ const GROUP_META = {
 // （组 → 分区 → 项），一级/二级都内联下拉展开（不做右侧浮层）。分区必须登记在本表——未登记即报错，
 // 否则分区标题没有 i18n 键、也没有固定展示序（游离分区）。
 const SECTION_META = {
+  'admin/system': { order: 1, title: 'nav.section.adminSystem' },
   'admin/lang': { order: 2, title: 'nav.section.adminLang' },
   'admin/audit': { order: 5, title: 'nav.section.auditLog' },
+  'admin/monitor': { order: 6, title: 'nav.section.adminMonitor' },
 }
 
 /** 注解键白名单：出现白名单外的 @key 即报错（防拼写静默丢失）。 */
@@ -74,6 +76,23 @@ function parseAnnotation(firstLine, full) {
   return values
 }
 
+/**
+ * 页面按钮权限码扫描（T26）：页面文件里 `<HasPerm perm="x">` 与 `hasPerm(…, 'x')` 的字面量即该页面的按钮权限。
+ * 这是「按钮属于哪个页面」的唯一真源——菜单管理/角色授权两页的按钮层级都由它生成，不再靠人工建按钮节点。
+ * 取不到的（工作流动作码，如 task-finish 走 meta.actions[].code）由后端按权限编目的域归属到域首页。
+ */
+const BUTTON_PATTERNS = [/<HasPerm[^>]*\sperm="([a-z][a-z0-9-]*)"/g, /hasPerm\([^,)]+,\s*'([a-z][a-z0-9-]*)'\)/g]
+
+function scanButtons(source) {
+  const codes = new Set()
+  for (const pattern of BUTTON_PATTERNS) {
+    for (const match of source.matchAll(pattern)) {
+      codes.add(match[1])
+    }
+  }
+  return [...codes].sort()
+}
+
 function scanPages(dir) {
   if (!existsSync(dir)) return
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -88,6 +107,7 @@ function scanPages(dir) {
         .split('\n')
         .find((line) => line.trim().length > 0) ?? ''
     const values = parseAnnotation(firstLine, full)
+    const source = readFileSync(full, 'utf8')
     const relImport =
       '../' +
       full
@@ -121,6 +141,7 @@ function scanPages(dir) {
       order: values.order && values.order !== true ? Number(values.order) : 999,
       icon: values.icon && values.icon !== true && values.icon !== '-' ? values.icon : null,
       hide: values.hide === true,
+      buttons: scanButtons(source),
       activeMenu: values.activeMenu && values.activeMenu !== true ? values.activeMenu : null,
       relImport,
       name: componentName,
@@ -193,7 +214,7 @@ lines.push(
 lines.push(' * 注解字段：@route/@title/@perm/@menu/@order/@icon/@hide/@activeMenu（06 A1-1）。')
 lines.push(' */')
 lines.push("import { PageLoading } from '@zentao/design-system'")
-lines.push("import { lazy, type ReactNode, Suspense } from 'react'")
+lines.push("import { type ComponentType, lazy, type LazyExoticComponent, type ReactNode, Suspense } from 'react'")
 lines.push("import type { RouteObject } from 'react-router'")
 lines.push('')
 lines.push('export type NavigationItem = { path: string; title: string; perm?: string; icon?: string; order: number }')
@@ -209,6 +230,17 @@ for (const page of pages) {
 }
 lines.push('')
 lines.push('const withSuspense = (node: ReactNode) => <Suspense fallback={<PageLoading />}>{node}</Suspense>')
+lines.push('')
+lines.push('/**')
+lines.push(' * 页面组件表（T26 动态路由）：component 名 → lazy 组件。')
+lines.push(' * 路由的**层级与路径**来自后端菜单数据（GET /menus/routes，内置基线 + DB 覆盖），')
+lines.push(' * 组件实现只能来自代码，故这里按页面文件生成一张查表：管理端改了路径，前端按 component 名找回同一个组件。')
+lines.push(' */')
+lines.push('export const pageComponents: Record<string, LazyExoticComponent<ComponentType>> = {')
+for (const page of pages) {
+  lines.push(`  ${page.name},`)
+}
+lines.push('}')
 lines.push('')
 lines.push('export const generatedRoutes: RouteObject[] = [')
 for (const page of pages) {
@@ -270,6 +302,52 @@ if (hiddenWithMenu.length > 0) {
 lines.push('')
 
 writeFileSync(outputFile, `${lines.join('\n')}\n`)
+
+// 后端菜单基线（T19 P2-1 / T26 结构升级）：与上面 navigation 同源同批的第二份产物。
+// 后端「菜单管理」「角色授权」「前端路由表」都读它；backend 既不跑这个生成器也读不到 routes.tsx
+// （前端产物），故写成 classpath 资源。两份产物必须同批提交：routes:check 一并 diff。
+//
+// T26 起结构分两块：
+//  · groups 只描述容器与**页面引用**（组 →（分区 →）页面 path）；
+//  · pages 承载**全部页面**（含 @hide）的元数据：component（页面实现，代码所有）、path、title、perm、
+//    hidden、activeMenu、buttons（该页面的按钮权限码，从页面文件的 HasPerm/hasPerm 扫出来）。
+// 页面字段只有 pages 一处，组树只引用 path——两处各写一份必然漂移。
+const baselineFile = join(root, 'backend', 'src', 'main', 'resources', 'menu', 'navigation.json')
+const baseline = {
+  groups: sortedGroups.map(([key, nodes]) => {
+    const meta = GROUP_META[key]
+    return {
+      key,
+      title: `nav.group.${key}`,
+      ...(meta ? { icon: meta.icon } : {}),
+      children: nodes.map((node) =>
+        node.sectionKey === null
+          ? { page: node.page.path }
+          : {
+              key: node.sectionKey,
+              title: SECTION_META[node.sectionKey].title,
+              order: node.order,
+              children: sortItems(node.items).map((item) => ({ page: item.path })),
+            },
+      ),
+    }
+  }),
+  pages: pages.map((page) => ({
+    key: page.path,
+    path: page.path,
+    component: page.name,
+    title: page.title,
+    order: page.order,
+    ...(page.perm !== null ? { perm: page.perm } : {}),
+    ...(page.icon !== null ? { icon: page.icon } : {}),
+    hidden: page.hide,
+    ...(page.activeMenu !== null ? { activeMenu: page.activeMenu } : {}),
+    ...(page.menu !== null ? { menu: page.menu } : {}),
+    buttons: page.buttons,
+  })),
+}
+mkdirSync(dirname(baselineFile), { recursive: true })
+writeFileSync(baselineFile, `${JSON.stringify(baseline, null, 2)}\n`)
 
 // 生成物必须同时满足 Biome 格式，否则 pnpm routes 之后 lint 必红（同源生成 → 同源格式化）。
 // 用 Node 直接跑 Biome 的 JS 入口，避免 Windows 下 .cmd 的 spawn 限制。

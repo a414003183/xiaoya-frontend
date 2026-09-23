@@ -1,4 +1,5 @@
 /** @route /test-cases/:caseId @title quality.title.testCaseDetail @perm testcase-view @hide @activeMenu /products */
+// list-standard: exempt (sub-table) — 详情/表单内的结构性子表，非列表页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
@@ -207,7 +208,11 @@ export default function TestCaseDetailPage() {
             {
               key: 'files',
               label: t('testCase.tab.files'),
-              children: <FileUploadField objectType="testCase" objectId={caseId} />,
+              children: (
+                <HasPerm perm="file-upload">
+                  <FileUploadField objectType="testCase" objectId={caseId} />
+                </HasPerm>
+              ),
             },
             {
               key: 'comments',

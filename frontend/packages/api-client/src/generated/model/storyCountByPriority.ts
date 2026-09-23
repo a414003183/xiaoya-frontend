@@ -9,6 +9,8 @@
  */
 
 export interface StoryCountByPriority {
+  /** 优先级 */
   priority: number;
+  /** 条数 */
   count: number;
 }

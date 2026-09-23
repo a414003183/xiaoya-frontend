@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListTestCasesParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -26,27 +26,57 @@ limit?: LimitParameter;
  * 排序，白名单 id/priority/status/createdAt
  */
 sort?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[status]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[priority]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[type]'?: string;
 /**
- * 逗号分隔多选
+ * 逗号分隔多选；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[stage]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[libraryId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[categoryId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[storyId]'?: string;
 /**
- * 项目维度视图（B-PRJ-17 补口）
+ * 项目维度视图（B-PRJ-17 补口）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[projectId]'?: string;
 /**
- * 执行维度视图（B-PRJ-17 补口）
+ * 执行维度视图（B-PRJ-17 补口）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[executionId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[lastRunResult]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdBy]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdAt]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[id]'?: string;
 /**
  * LIKE title/keywords

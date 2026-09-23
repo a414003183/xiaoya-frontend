@@ -20,6 +20,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   deleteSuiteAction,
   fetchSuite,
@@ -35,6 +36,7 @@ import { suiteTone, testCaseTone } from '../model'
 /** 套件详情（T-7 / quality §6 D 范式：套件信息 + 用例清单 + 关联/解除；无状态机故无动作区）。 */
 export default function SuiteDetailPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -60,6 +62,7 @@ export default function SuiteDetailPage() {
       void queryClient.invalidateQueries({ queryKey: ['getSuite'] })
       void queryClient.invalidateQueries({ queryKey: ['listSuites'] })
     },
+    onError: feedback.failed,
   })
 
   const remove = useMutation({

@@ -9,32 +9,61 @@
  */
 
 export interface BuildCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 执行 id
+     * @nullable
+     */
   executionId?: number | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @maxLength 150 */
+  /**
+     * 构建名称
+     * @maxLength 150
+     */
   name: string;
   /**
+     * 源码路径
      * @maxLength 255
      * @nullable
      */
   scmPath?: string | null;
   /**
+     * 产物路径
      * @maxLength 255
      * @nullable
      */
   filePath?: string | null;
-  /** @nullable */
+  /**
+     * 构建日期
+     * @nullable
+     */
   buildDate?: string | null;
-  /** @nullable */
+  /**
+     * 构建人
+     * @nullable
+     */
   builder?: string | null;
-  /** @nullable */
+  /**
+     * 关联需求 id 集合
+     * @nullable
+     */
   storyIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 关联 Bug id 集合
+     * @nullable
+     */
   bugIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
 }

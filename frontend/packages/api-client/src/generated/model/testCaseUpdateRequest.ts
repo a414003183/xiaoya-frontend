@@ -14,30 +14,48 @@ import type { TestCaseUpdateRequestType } from './testCaseUpdateRequestType';
 
 export interface TestCaseUpdateRequest {
   /**
+     * 用例标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 前置条件
+     * @nullable
+     */
   precondition?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TestCaseUpdateRequestType;
-  /** @nullable */
+  /**
+     * 用例所属阶段（自定义阶段名）
+     * @nullable
+     */
   stage?: TestCaseUpdateRequestStageItem[] | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
   /**
      * 03 §1 唯一例外：标记态三态直改；改 wait → 40001
@@ -50,5 +68,6 @@ export interface TestCaseUpdateRequest {
      * @nullable
      */
   steps?: CaseStep[] | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

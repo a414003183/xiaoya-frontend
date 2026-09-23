@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { DateField, NumberField, TextAreaField } from '../../../shared/form-fields'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { deleteEffortAction, type EffortView, patchEffort } from '../api/task.api'
 
 /** effort §3b 校验：workDate ≤ 今天、consumedHours > 0、leftHours ≥ 0。 */
@@ -43,6 +44,7 @@ export function TaskEffortEditModal({
   onClose: () => void
 }) {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { control, handleSubmit } = useForm<EffortFormValues>({
@@ -80,6 +82,7 @@ export function TaskEffortEditModal({
       invalidate()
       onClose()
     },
+    onError: feedback.failed,
   })
   const submit = handleSubmit((values) => save.mutate(values))
 

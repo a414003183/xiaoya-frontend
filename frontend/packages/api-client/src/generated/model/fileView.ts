@@ -12,18 +12,27 @@
  * 附件（platform 卡 §3.5；path 内部列不进响应体）
  */
 export interface FileView {
+  /** 主键 id */
   id: number;
-  /** @maxLength 255 */
+  /**
+     * 文件标题
+     * @maxLength 255
+     */
   title: string;
   /** = /files/{id}/download，编辑器插图用 */
   url: string;
+  /** 文件扩展名 */
   extension: string;
   /** 字节 */
   size: number;
   /** 空=未绑定对象 */
   objectType: string;
+  /** 绑定对象 id */
   objectId: number;
+  /** 下载次数 */
   downloads: number;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
 }

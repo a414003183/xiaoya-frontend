@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type StageUpdateRequestType = typeof StageUpdateRequestType[keyof typeof StageUpdateRequestType] | null;

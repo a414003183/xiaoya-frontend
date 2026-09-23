@@ -9,13 +9,20 @@
  */
 
 export interface BranchCreateRequest {
-  /** @maxLength 255 */
+  /**
+     * 分支名称
+     * @maxLength 255
+     */
   name: string;
   /**
+     * 描述
      * @maxLength 255
      * @nullable
      */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

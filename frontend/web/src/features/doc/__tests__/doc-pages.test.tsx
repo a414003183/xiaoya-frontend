@@ -45,6 +45,8 @@ const PRIVILEGES = [
   'doc-space-create',
   'doc-space-edit',
   'doc-space-delete',
+  // T02：附件上传控件（FileUploadField）按 file-upload 码显隐
+  'file-upload',
 ]
 
 /** 编辑页用 useBlocker（离开未存提示），须走 data router（生产同 createBrowserRouter）。 */
@@ -98,8 +100,9 @@ describe('编辑页（§4 versions/0 与 40302 呈现）', () => {
 
   test('只读者（ACL readers）请求 versions/0 → 40302 呈现为不可编辑页', async () => {
     // dev1 具备 doc-edit 功能码，但文档 3 是 private：readers 命中 → 服务端 40302（§7 双层 ACL）
-    const group = db.groups.find((item) => item.id === 2)
-    group?.privCodes.push(...PRIVILEGES)
+    for (const code of PRIVILEGES) {
+      db.rolePrivs.push({ roleId: 2, code })
+    }
     db.currentAccountId = 2
     renderPage(<DocEditPage />, '/docs/:docId/edit', '/docs/3/edit')
     expect(await screen.findByText('无权编辑该文档。')).toBeInTheDocument()

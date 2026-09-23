@@ -10,7 +10,11 @@
 import type { PlanCloseRequestClosedReason } from './planCloseRequestClosedReason';
 
 export interface PlanCloseRequest {
+  /** 关闭原因 */
   closedReason: PlanCloseRequestClosedReason;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

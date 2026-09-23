@@ -7,8 +7,11 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { StoryCountByTypeType } from './storyCountByTypeType';
 
 export interface StoryCountByType {
-  type: string;
+  /** 类型 */
+  type: StoryCountByTypeType;
+  /** 条数 */
   count: number;
 }

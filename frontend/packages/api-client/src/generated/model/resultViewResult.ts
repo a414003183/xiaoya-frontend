@@ -9,6 +9,7 @@
  */
 
 /**
+ * 执行结果
  * @nullable
  */
 export type ResultViewResult = typeof ResultViewResult[keyof typeof ResultViewResult] | null;

@@ -11,18 +11,27 @@ import type { SuiteUpdateRequestType } from './suiteUpdateRequestType';
 
 export interface SuiteUpdateRequest {
   /**
+     * 套件名称
      * @maxLength 255
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: SuiteUpdateRequestType;
   /**
+     * 排序值（升序，越小越前）
      * @minimum 0
      * @nullable
      */
   sort?: number | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

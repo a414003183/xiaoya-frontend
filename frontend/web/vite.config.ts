@@ -15,7 +15,14 @@ export default defineConfig({
     // 端口与代理目标可用环境变量覆盖，便于与其它会话/实例并行起服（缺省仍是 5173 → 8080）
     port: Number(process.env.VITE_PORT ?? 5173),
     proxy: {
-      '/api': process.env.VITE_API_PROXY ?? 'http://localhost:8080',
+      // T61/SEC-19：必须 changeOrigin: false（字符串简写默认 true，会把 Host 改写成代理目标）——
+      // 后端 CSRF 二层按「Origin 与 Host 同源」校验，改写 Host 会让开发态的写请求全被 40301 拒掉。
+      // 留着浏览器的原 Host 即与 Origin 一致；打包形态同源，天然满足。
+      '/api': { target: process.env.VITE_API_PROXY ?? 'http://localhost:8080', changeOrigin: false },
+      // 接口文档（T14）由后端出：开发态不代理就会落到 Vite 的 SPA 兜底上，
+      // 「系统监控 → 系统接口」里的两个链接会打开应用自己的页面。打包形态下同源，无需代理。
+      '/v3/api-docs': { target: process.env.VITE_API_PROXY ?? 'http://localhost:8080', changeOrigin: false },
+      '/swagger-ui': { target: process.env.VITE_API_PROXY ?? 'http://localhost:8080', changeOrigin: false },
     },
   },
   build: {
@@ -50,5 +57,18 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     // 并行负载下 MSW+antd 渲染偶发超默认 5s（隔离跑绿）；放宽到 15s 不弱化断言
     testTimeout: 15_000,
+    // T73/OPS-02 覆盖率采集：`pnpm --filter web test --coverage`
+    // 出 lcov（Sonar 消费）+ json-summary（数值汇报）+ text（本地直读）。
+    // T94 覆盖率 ratchet（CONVENTIONS §10）：行覆盖最低线 75（**只升不降**——改阈值必须往上调，
+    // 并同步 ci.yml 注释与 docs/plan/governance/quality-gate.md）。2026-09-22 定值 75：
+    // T73 实测基线 77.21%（vitest v8 行覆盖），留 ~2pt 抖动余量；只在 --coverage 跑时生效。
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'json-summary'],
+      reportsDirectory: './coverage',
+      thresholds: {
+        lines: 75,
+      },
+    },
   },
 })

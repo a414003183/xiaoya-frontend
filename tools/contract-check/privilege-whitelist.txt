@@ -1,22 +1,32 @@
-# 权限覆盖白名单（06 A7-6）：不带 @RequirePrivilege 的端点必须在此登记，每行 `<METHOD> <path>  # 理由`。
-# 理由必须指向「为什么不需要类级/方法级权限码」：认证态自证（本人/会话自身）、或处理器内部的判定点（文件行号）。
-# 端点补上 @RequirePrivilege 后必须同步删除对应行，否则门禁报「白名单条目已失效」。
+# 权限覆盖登记处（06 A7-6；T50 起配 tools/contract-check/check-privilege-coverage.mjs）。
+#
+# 每个控制器端点三选一（三者互斥，门禁强制）：
+#   1. `@RequirePrivilege("code")` —— 有功能码的端点，**不进本文件**；
+#   2. `@Anonymous("理由")`        —— 真匿名端点（登录前无会话），理由写在注解里，**不进本文件**；
+#   3. 本文件一行 `<METHOD> <path>  # 理由` —— 需要登录但不需要功能码的端点（"认证即放行"）。
+#
+# 本文件只收第 3 类：理由必须指向「为什么不需要功能码」——认证态自证（本人/会话自身）、
+# 或处理器内部的判定点（文件行号）。运行时这层由 PrivilegeInterceptor 的默认态兜住：
+# 未标注的端点一律先解析会话（无会话 40101），不再匿名可达（T50 收口 SEC-02）。
+# 端点补上 @RequirePrivilege 或 @Anonymous 后必须同步删除对应行，否则门禁报「白名单条目已失效」。
 
 # ── 会话与身份（登录前无会话 / 只及自身）──
-POST /api/v1/session              # 登录：登录前无会话，无需权限码（LoginHandler 限流 + 锁定 40101）
-DELETE /api/v1/session            # 登出：仅销毁当前会话
+DELETE /api/v1/session            # 登出：仅销毁当前会话；无 cookie 时 currentToken 同样抛 40101，状态码与拦截器默认态一致
 GET /api/v1/me                    # 会话自身信息：Principal 自证，驱动前端菜单显隐
+# （POST /api/v1/session 登录已改标 @Anonymous("登录：登录前必然无会话……")，见 SessionController.login）
 
 # ── 平台基础数据（读面；写面均有码）──
 GET /api/v1/meta/{domain}         # 表单/表格元数据：字段与动作目录（按钮显隐服务端按 /me 权限码过滤）
 GET /api/v1/dicts/{name}          # 计算字典（时区/语言/权限码目录）：只读常量集，权限矩阵页亦需
-GET /api/v1/lang-items/{domain}/{field}  # 文案读取：内建默认 + 覆盖合并；写面带 lang-manage
 GET /api/v1/settings              # 设置读取：个人键仅回本人；写面见 SaveSettingsHandler.java:33 分流
 PUT /api/v1/settings              # 设置写入：notify.* 个人级免码、系统键需 setting-manage（SaveSettingsHandler.java:33）
 GET /api/v1/column-prefs/{resource}  # 列设置读取：个人偏好，恒按 principal.accountId() 过滤（本账号自证）
 PUT /api/v1/column-prefs/{resource}  # 列设置保存：个人偏好，account_id 取 principal.accountId()，无跨账号写面
 DELETE /api/v1/column-prefs/{resource}  # 列设置重置：同上，只删本人行（回页面默认）
 GET /api/v1/search                # 全局搜索：结果集按调用者可见性过滤（platform 卡 §5.2 scope 白名单）
+GET /api/v1/menus/my              # 我的菜单（侧栏数据源）：服务端已按调用者权限码过滤（MenuQueryService.myTree）
+GET /api/v1/menus/routes          # 前端路由表（T26 动态路由）：就是「本系统有哪些页面」，不含业务数据；页面内可见性由 perm 与后端守卫决定
+GET /api/v1/lang-items/overrides  # 文案覆盖层（运行时合并数据源，domains/i18n.md 登记为「登录」）：内容就是界面已发布的文案，无业务数据；要码会让普通用户拿不到覆盖文案（T05 修正）
 
 # ── 通知（recipient 恒为当前账号，处理器内判定）──
 GET /api/v1/notifications         # 通知列表：查询条件由服务端注入 recipient=@me
@@ -35,7 +45,7 @@ GET /api/v1/files/{fileId}/raw    # 图片内联：同上 canDownload（FileCont
 DELETE /api/v1/files/{fileId}     # 删除：canDelete（上传者/管理员，FileController.java:117）
 
 # ── 部门树读（多页面共用数据源；写面均有码）──
-GET /api/v1/departments/tree      # 账号列表左树/人员页/工作量页共用；写路径 create/edit/delete 均带 department-* 码
+GET /api/v1/departments/tree      # 账号列表左树/人员页/工作量页共用；写路径 create/edit/delete 均带 department-* 码（T66 收口：登录即可，契约不再声明 403）
 
 # ── 批量端点（handler 内逐 action 查码，与单条动作同源）──
 POST /api/v1/products/batch       # 批量动作：逐项按 action 解析权限码（ProductBatchHandler）

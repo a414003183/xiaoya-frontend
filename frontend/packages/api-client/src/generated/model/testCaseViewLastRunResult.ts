@@ -9,6 +9,7 @@
  */
 
 /**
+ * 最近执行结果
  * @nullable
  */
 export type TestCaseViewLastRunResult = typeof TestCaseViewLastRunResult[keyof typeof TestCaseViewLastRunResult] | null;

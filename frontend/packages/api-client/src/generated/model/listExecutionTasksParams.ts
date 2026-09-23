@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListExecutionTasksParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -27,44 +27,56 @@ limit?: LimitParameter;
  */
 sort?: string;
 /**
- * 状态等值/IN（wait|doing|done|pause|cancel|closed）
+ * 状态等值/IN（wait|doing|done|pause|cancel|closed）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[status]'?: string;
 /**
- * 类型等值/IN（design|devel|request|test|study|discuss|ui|affair|misc）
+ * 类型等值/IN（design|devel|request|test|study|discuss|ui|affair|misc）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[type]'?: string;
 /**
- * 优先级等值/IN（1–4）
+ * 优先级等值/IN（1–4）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[priority]'?: string;
 /**
- * 指派账号；@me=当前账号、@null=未指派、@notNull=已指派
+ * 指派账号；@me=当前账号、@null=未指派、@notNull=已指派；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[assignee]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[storyId]'?: string;
 /**
- * @null=顶层任务；=id 取该任务的子任务
+ * @null=顶层任务；=id 取该任务的子任务；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[parentId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[categoryId]'?: string;
 /**
- * done|cancel
+ * done|cancel；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[closedReason]'?: string;
 /**
- * true|false
+ * true|false；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[isParent]'?: string;
 /**
- * 日期闭区间 a..b，半开 ..b / a..
+ * 日期闭区间 a..b，半开 ..b / a..；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[deadline]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdBy]'?: string;
 /**
- * 时间闭区间 a..b，半开 ..b / a..
+ * 时间闭区间 a..b，半开 ..b / a..；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[createdAt]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[id]'?: string;
 /**
  * LIKE title/keywords（不命中 description）

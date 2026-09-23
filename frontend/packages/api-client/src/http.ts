@@ -73,14 +73,19 @@ function dedupe(request: Request, next: Next): Promise<Response> {
   return promise
 }
 
-/** 401 → 广播会话失效；登录页自身排除（错误密码也返回 401，不应踢回登录页）。 */
+/**
+ * 401 广播会话失效（登录页自身排除：错误密码也返回 401，不应踢回登录页）。
+ * 独立成函数是因为 FormData 分支不走 middleware 链，但必须保持同一个 401 语义（FE-03）。
+ */
+function guardSession(response: Response): Response {
+  if (response.status === 401 && typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  }
+  return response
+}
+
 function sessionGuard(request: Request, next: Next): Promise<Response> {
-  return next(request).then((response) => {
-    if (response.status === 401 && typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
-    }
-    return response
-  })
+  return next(request).then(guardSession)
 }
 
 const MIDDLEWARE: ReadonlyArray<Middleware> = [sessionGuard, dedupe, timeout]
@@ -129,7 +134,9 @@ export async function httpFetch<R>(url: string, init?: RequestInit): Promise<R> 
   const resolvedUrl =
     typeof window !== 'undefined' && !url.startsWith('http') ? new URL(url, window.location.origin).toString() : url
   if (isFormData) {
-    // FormData 直连：绕过 Request 再包装（部分运行时/测试环境的 FormData 兼容层无法二次序列化），超时/401 守卫保持等价
+    // FormData 直连：绕过 Request 再包装（部分运行时/测试环境的 FormData 兼容层无法二次序列化），
+    // 故不走 compose()。middleware 语义在此显式保持等价：timeout 手动挂（同 DEFAULT_TIMEOUT_MS）、
+    // 401 走 guardSession（**曾经漏掉**，上传失败时不会广播会话过期）、dedupe 只作用于 GET 不适用。
     const requestSignal = init?.signal ?? null
     const response = await fetch(resolvedUrl, {
       ...init,
@@ -139,7 +146,7 @@ export async function httpFetch<R>(url: string, init?: RequestInit): Promise<R> 
           ? AbortSignal.any([requestSignal, AbortSignal.timeout(DEFAULT_TIMEOUT_MS)])
           : AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     })
-    return parseResponse<R>(response)
+    return parseResponse<R>(guardSession(response))
   }
   const request = new Request(resolvedUrl, { ...init, headers })
   const response = await compose(request)

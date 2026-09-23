@@ -9,5 +9,6 @@
  */
 
 export interface StoryRejectRequest {
+  /** 备注（可省，记入动态流） */
   comment: string;
 }

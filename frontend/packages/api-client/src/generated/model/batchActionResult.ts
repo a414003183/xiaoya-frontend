@@ -10,5 +10,6 @@
 import type { BatchResultItem } from './batchResultItem';
 
 export interface BatchActionResult {
+  /** 逐项结果 */
   results: BatchResultItem[];
 }

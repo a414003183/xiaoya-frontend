@@ -1,16 +1,7 @@
+// list-standard: exempt (modal) — 弹窗内关联小表，无列表页身份
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
-import {
-  Button,
-  EmptyState,
-  Modal,
-  Segmented,
-  Select,
-  Space,
-  Table,
-  Typography,
-  useMessage,
-} from '@zentao/design-system'
+import { LinkPickerModal, Segmented, useMessage } from '@zentao/design-system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -22,7 +13,8 @@ import {
   unlinkPlanAction,
 } from '../api/product.api'
 
-/** 关联对象弹窗（T-10 复用壳：plan/release/build 三族 link/unlink 同构，objectType 页签 = 需求/Bug）。 */
+/** 关联对象弹窗（T-10 复用壳：plan/release/build 三族 link/unlink 同构，objectType 页签 = 需求/Bug）。
+ * 呈现面收敛到 design-system 的 LinkPickerModal（T72/FE-11 单源）；本壳只留取数/变更/失效语义。 */
 export function LinkObjectsModal({
   open,
   onClose,
@@ -71,68 +63,51 @@ export function LinkObjectsModal({
   })
 
   return (
-    <Modal open={open} title={title} width={720} footer={null} onCancel={onClose}>
-      <Segmented
-        value={tab}
-        onChange={(value) => setTab(value as 'story' | 'bug')}
-        options={[
-          { value: 'story', label: t('story.title.list') },
-          { value: 'bug', label: t('plan.tab.bugs') },
-        ]}
-      />
-      {tab === 'story' ? (
-        <div className="tw:mt-3 tw:flex tw:flex-col tw:gap-3">
-          <Space.Compact className="tw:w-full">
-            <Select
-              mode="multiple"
-              className="tw:w-full"
-              aria-label="link-stories"
-              placeholder={t('plan.action.link')}
-              optionFilterProp="label"
-              value={selected}
-              onChange={(value) => setSelected(value)}
-              options={candidates.map((story) => ({
-                value: story.id,
-                label: `#${story.id} ${story.title}`,
-              }))}
-            />
-            <Button type="primary" loading={link.isPending} onClick={() => link.mutate()}>
-              {t('plan.action.link')}
-            </Button>
-          </Space.Compact>
-          <Typography.Text type="secondary">{t('plan.message.linkHint')}</Typography.Text>
-          {linked.length === 0 ? (
-            <EmptyState description={t('common.empty')} />
-          ) : (
-            <Table
-              rowKey="id"
-              size="small"
-              pagination={false}
-              dataSource={linked}
-              columns={[
-                { title: t('story.field.id'), dataIndex: 'id', width: 80 },
-                { title: t('story.field.title'), dataIndex: 'title' },
-                {
-                  title: t('common.action.manage'),
-                  render: (_: unknown, record: StoryView) => (
-                    <Button size="small" loading={unlink.isPending} onClick={() => unlink.mutate([record.id])}>
-                      {t('common.action.unlink')}
-                    </Button>
-                  ),
-                },
-              ]}
-            />
-          )}
-          {link.error || unlink.error ? (
-            <Typography.Paragraph type="danger">{errorText(link.error ?? unlink.error, t)}</Typography.Paragraph>
-          ) : null}
-        </div>
-      ) : (
-        <div className="tw:mt-3">
-          <EmptyState description={t('plan.message.bugEmpty')} />
-        </div>
-      )}
-    </Modal>
+    <LinkPickerModal
+      open={open}
+      title={title}
+      onCancel={onClose}
+      error={link.error || unlink.error ? errorText(link.error ?? unlink.error, t) : null}
+      toolbar={
+        <Segmented
+          value={tab}
+          onChange={(value) => setTab(value as 'story' | 'bug')}
+          options={[
+            { value: 'story', label: t('story.title.list') },
+            { value: 'bug', label: t('plan.tab.bugs') },
+          ]}
+        />
+      }
+      picker={
+        tab === 'story'
+          ? {
+              kind: 'select',
+              rows: candidates,
+              labelOf: (story) => `#${story.id} ${story.title}`,
+              placeholder: t('plan.action.link'),
+              ariaLabel: 'link-stories',
+              actionLabel: t('plan.action.link'),
+              hint: t('plan.message.linkHint'),
+              selectedIds: selected,
+              onSelectionChange: setSelected,
+              onAction: () => link.mutate(),
+              pending: link.isPending,
+            }
+          : { kind: 'empty', description: t('plan.message.bugEmpty') }
+      }
+      linked={{
+        rows: linked,
+        columns: [
+          { title: t('story.field.id'), dataIndex: 'id', width: 80 },
+          { title: t('story.field.title'), dataIndex: 'title' },
+        ],
+        emptyLabel: t('common.empty'),
+        manageLabel: t('common.action.manage'),
+        unlinkLabel: t('common.action.unlink'),
+        onUnlink: (id) => unlink.mutate([id]),
+        pending: unlink.isPending,
+      }}
+    />
   )
 }
 

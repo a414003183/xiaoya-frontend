@@ -16,7 +16,7 @@ import {
   listDocs,
   listDocVersions,
   listFiles,
-  listGroups,
+  listRoles,
   listSpaceDocs,
   moveDoc,
   publishDoc,
@@ -196,13 +196,13 @@ export const fetchDocMeta = (): Promise<DomainMeta> => fetchMeta('doc')
 export const fetchDocSpaceMeta = (): Promise<DomainMeta> => fetchMeta('docSpace')
 
 /**
- * 权限组选项（org 域只读，B-DOC-07 白名单组多选）。
+ * 角色选项（org 域只读，B-DOC-07 白名单组多选；T23 起白名单里的「组」就是角色）。
  * org 域无 index 出口（跨域 barrel 不存在），按 platform File 只读引用先例（fetchDocFiles 同款）直取生成端点；
  * 升级路径：org 域建 index.ts 出口后改走 barrel。
  */
 export async function fetchGroupOptions(): Promise<{ id: number; name: string }[]> {
-  const data = ok(await listGroups()).data
-  return data.items.map((group) => ({ id: group.id, name: group.name }))
+  const data = ok(await listRoles()).data
+  return data.items.map((role) => ({ id: role.id, name: role.name }))
 }
 
 // ── CSV 导出资源路径（03 §3 format=csv；不含 API 基址，由 shared/use-csv-export 补基址） ──

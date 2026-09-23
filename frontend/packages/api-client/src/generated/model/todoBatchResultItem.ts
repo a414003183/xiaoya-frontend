@@ -19,7 +19,11 @@ export interface TodoBatchResultItem {
      * @nullable
      */
   id?: number | null;
+  /** 是否成功 */
   ok: boolean;
-  /** @nullable */
+  /**
+     * 失败原因（code:message 形态）
+     * @nullable
+     */
   error?: string | null;
 }

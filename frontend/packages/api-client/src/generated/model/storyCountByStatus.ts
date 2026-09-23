@@ -7,8 +7,11 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { StoryCountByStatusStatus } from './storyCountByStatusStatus';
 
 export interface StoryCountByStatus {
-  status: string;
+  /** 状态 */
+  status: StoryCountByStatusStatus;
+  /** 条数 */
   count: number;
 }

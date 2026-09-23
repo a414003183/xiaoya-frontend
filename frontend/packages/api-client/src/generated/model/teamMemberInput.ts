@@ -12,25 +12,35 @@
  * 成员表全量提交的单行（account 必填；days 超所在项目 days → 42201）
  */
 export interface TeamMemberInput {
+  /** 登录账号 */
   account: string;
   /**
+     * 成员角色
      * @maxLength 30
      * @nullable
      */
   role?: string | null;
-  /** @nullable */
+  /**
+     * 加入日期
+     * @nullable
+     */
   joinDate?: string | null;
   /**
+     * 参与天数
      * @minimum 0
      * @nullable
      */
   days?: number | null;
   /**
+     * 计划投入（人天）
      * @minimum 0
      * @maximum 24
      * @nullable
      */
   hours?: number | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

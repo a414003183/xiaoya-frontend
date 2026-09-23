@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type TodoUpdateRequestType = typeof TodoUpdateRequestType[keyof typeof TodoUpdateRequestType] | null;

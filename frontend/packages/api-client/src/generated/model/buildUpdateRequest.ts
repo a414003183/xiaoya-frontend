@@ -10,29 +10,48 @@
 
 export interface BuildUpdateRequest {
   /**
+     * 构建名称
      * @maxLength 150
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
   /**
+     * 源码路径
      * @maxLength 255
      * @nullable
      */
   scmPath?: string | null;
   /**
+     * 产物路径
      * @maxLength 255
      * @nullable
      */
   filePath?: string | null;
-  /** @nullable */
+  /**
+     * 构建日期
+     * @nullable
+     */
   buildDate?: string | null;
-  /** @nullable */
+  /**
+     * 构建人
+     * @nullable
+     */
   builder?: string | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

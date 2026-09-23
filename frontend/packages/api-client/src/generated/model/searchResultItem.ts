@@ -12,10 +12,17 @@
  * 统一搜索结果项（platform 卡 §5.2）
  */
 export interface SearchResultItem {
+  /** 绑定对象类型 */
   objectType: string;
+  /** 绑定对象 id */
   objectId: number;
+  /** 命中标题 */
   title: string;
-  /** @nullable */
+  /**
+     * 搜索命中摘要
+     * @nullable
+     */
   excerpt?: string | null;
+  /** 更新时间 */
   updatedAt: string;
 }

@@ -13,23 +13,45 @@ import type { SuiteViewType } from './suiteViewType';
  * 套件与用例库共用视图（suite 同表：type=library 且 productId=0 即用例库）
  */
 export interface SuiteView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
-  /** @maxLength 255 */
+  /**
+     * 套件名称
+     * @maxLength 255
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 类型 */
   type: SuiteViewType;
-  /** @minimum 0 */
+  /**
+     * 排序值（升序，越小越前）
+     * @minimum 0
+     */
   sort: number;
   /** 详情含关联用例 id（列表恒空数组） */
   caseIds?: number[];
+  /** 用例数 */
   caseCount: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

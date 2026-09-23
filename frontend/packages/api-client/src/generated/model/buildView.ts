@@ -9,34 +9,60 @@
  */
 
 export interface BuildView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 执行 id */
   executionId?: number;
+  /** 项目 id */
   projectId?: number;
-  /** @maxLength 150 */
+  /**
+     * 构建名称
+     * @maxLength 150
+     */
   name: string;
   /**
+     * 源码路径
      * @maxLength 255
      * @nullable
      */
   scmPath?: string | null;
   /**
+     * 产物路径
      * @maxLength 255
      * @nullable
      */
   filePath?: string | null;
+  /** 构建日期 */
   buildDate: string;
+  /** 构建人 */
   builder: string;
+  /** 关联需求 id 集合 */
   storyIds?: number[];
+  /** 关联 Bug id 集合 */
   bugIds?: number[];
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

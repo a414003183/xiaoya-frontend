@@ -13,5 +13,6 @@ import type { LangOverrideView } from './langOverrideView';
  * 某语言的覆盖层全量（不分页、无过滤；前端运行时合并，见 platform 卡 §3.12）
  */
 export interface LangOverrideList {
+  /** 覆盖层条目（全量快照，不分页） */
   items: LangOverrideView[];
 }

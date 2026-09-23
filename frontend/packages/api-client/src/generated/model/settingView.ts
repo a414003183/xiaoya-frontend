@@ -13,5 +13,6 @@ import type { SettingViewSettings } from './settingViewSettings';
  * 设置键值映射（扁平键 `<domain>.<key>` → JSON 值）
  */
 export interface SettingView {
+  /** 配置表（键 → 值） */
   settings: SettingViewSettings;
 }

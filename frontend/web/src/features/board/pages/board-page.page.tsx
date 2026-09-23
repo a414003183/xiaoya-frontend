@@ -1,5 +1,5 @@
 /** @route /boards/:boardId @title board.title.board @perm board-view @hide @activeMenu /board-spaces */
-import { closestCenter, DndContext } from '@dnd-kit/core'
+import { closestCenter, DndContext, useDndContext } from '@dnd-kit/core'
 import {
   horizontalListSortingStrategy,
   SortableContext,
@@ -27,6 +27,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   activateBoardAction,
   type BoardView,
@@ -51,6 +52,7 @@ import {
   wipExceededLaneIds,
 } from '../model'
 import { cardDragId, laneDragId, useBoardDnd } from '../use-board-dnd'
+import { LANE_BODY_HEIGHT_PX, pinCardIndex, useCardWindow } from '../use-card-window'
 
 /** 单张卡片（可拖拽：跨列/列内排序，落位由 move 端点改写 laneId + sort）。 */
 function SortableCard({ card, onOpen }: { card: CardView; onOpen: () => void }) {
@@ -112,6 +114,12 @@ function BoardLane({
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: laneDragId(lane.id),
   })
+  // FE-10 窗口化：大车道只渲染视口 ±buffer 的卡片；拖拽中的卡片钉进窗口（半途卸载会断拖拽）
+  const { active } = useDndContext()
+  const { containerRef, window: rawWindow, windowed } = useCardWindow(cards.length)
+  const activeIndex = active == null ? -1 : cards.findIndex((card) => cardDragId(card.id) === String(active.id))
+  const win = pinCardIndex(rawWindow, activeIndex, cards.length)
+  const visible = cards.slice(win.start, win.end)
   const style = {
     ...(transform ? { transform: `translate3d(${Math.round(transform.x)}px, ${Math.round(transform.y)}px, 0)` } : {}),
     ...(transition ? { transition } : {}),
@@ -160,12 +168,20 @@ function BoardLane({
           </Space>
         }
       >
-        <SortableContext items={cards.map((card) => cardDragId(card.id))} strategy={verticalListSortingStrategy}>
-          <div className="tw:flex tw:min-h-[40px] tw:flex-col tw:gap-2">
-            {cards.map((card) => (
+        <SortableContext items={visible.map((card) => cardDragId(card.id))} strategy={verticalListSortingStrategy}>
+          {/* 车道体 = 窗口化滚动容器（section 承载 aria-label 供测试/AT 定位，div 上的 aria-label 会被 a11y 门禁打回） */}
+          <section
+            ref={containerRef}
+            aria-label={`lane-cards-${lane.id}`}
+            style={windowed ? { height: LANE_BODY_HEIGHT_PX, overflowY: 'auto' } : undefined}
+            className="tw:flex tw:min-h-[40px] tw:flex-col tw:gap-2"
+          >
+            {win.topPad > 0 ? <div aria-hidden="true" style={{ height: win.topPad }} /> : null}
+            {visible.map((card) => (
               <SortableCard key={card.id} card={card} onOpen={() => onOpenCard(card.id)} />
             ))}
-          </div>
+            {win.bottomPad > 0 ? <div aria-hidden="true" style={{ height: win.bottomPad }} /> : null}
+          </section>
         </SortableContext>
         <HasPerm perm="board-card-create">
           <Button
@@ -190,6 +206,7 @@ function BoardLane({
  */
 export default function BoardPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const privileges = usePrivileges()
@@ -223,6 +240,7 @@ export default function BoardPage() {
   const toggleStatus = useMutation({
     mutationFn: (status: string) => (status === 'closed' ? activateBoardAction(boardId) : closeBoardAction(boardId)),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['getBoard'] }),
+    onError: feedback.failed,
   })
 
   if (board.isPending) {

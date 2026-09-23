@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 绑定对象类型
+ */
 export type StakeholderViewObjectType = typeof StakeholderViewObjectType[keyof typeof StakeholderViewObjectType];
 
 

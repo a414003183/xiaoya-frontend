@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type TestRunViewType = typeof TestRunViewType[keyof typeof TestRunViewType] | null;

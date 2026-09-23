@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type SuiteCreateRequestType = typeof SuiteCreateRequestType[keyof typeof SuiteCreateRequestType] | null;

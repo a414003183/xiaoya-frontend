@@ -9,9 +9,11 @@
  */
 
 /**
- * 文档库/文档白名单载荷（accounts 账号 + groupIds 组，各 ≤50）
+ * 文档库/文档白名单载荷（accounts 账号 + groupIds 组，各 ≤50；组 id 现在就是角色 id）
  */
 export interface DocAclPayload {
+  /** 账号白名单（登录名集合） */
   accounts?: string[];
+  /** 用户组 id 集合 */
   groupIds?: number[];
 }

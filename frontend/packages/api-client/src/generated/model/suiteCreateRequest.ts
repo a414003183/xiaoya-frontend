@@ -10,13 +10,23 @@
 import type { SuiteCreateRequestType } from './suiteCreateRequestType';
 
 export interface SuiteCreateRequest {
-  /** @maxLength 255 */
+  /**
+     * 套件名称
+     * @maxLength 255
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: SuiteCreateRequestType;
   /**
+     * 排序值（升序，越小越前）
      * @minimum 0
      * @nullable
      */

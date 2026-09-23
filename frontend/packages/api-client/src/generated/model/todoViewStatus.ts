@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 状态
+ */
 export type TodoViewStatus = typeof TodoViewStatus[keyof typeof TodoViewStatus];
 
 

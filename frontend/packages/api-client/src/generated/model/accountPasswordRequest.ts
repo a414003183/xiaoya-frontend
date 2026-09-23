@@ -10,11 +10,13 @@
 
 export interface AccountPasswordRequest {
   /**
+     * 当前口令
      * @minLength 1
      * @maxLength 64
      */
   oldPassword: string;
   /**
+     * 新口令
      * @minLength 6
      * @maxLength 64
      */

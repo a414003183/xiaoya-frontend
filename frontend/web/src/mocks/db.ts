@@ -13,8 +13,8 @@ import type { DocSpaceView } from '@zentao/api-client/generated/model/docSpaceVi
 import type { DocVersionView } from '@zentao/api-client/generated/model/docVersionView'
 import type { DocView } from '@zentao/api-client/generated/model/docView'
 import type { EffortView } from '@zentao/api-client/generated/model/effortView'
-import type { GroupView } from '@zentao/api-client/generated/model/groupView'
 import type { LaneView } from '@zentao/api-client/generated/model/laneView'
+import type { OnlineUserView } from '@zentao/api-client/generated/model/onlineUserView'
 import type { PlanView } from '@zentao/api-client/generated/model/planView'
 import type { ProductView } from '@zentao/api-client/generated/model/productView'
 import type { ProjectView } from '@zentao/api-client/generated/model/projectView'
@@ -43,6 +43,13 @@ export const ALL_PRIVILEGE_CODES = [
   'lang-manage',
   // platform 域审计（platform 卡 §7.1：PrivilegeCatalog.register("audit", …)，只读流水查看码）
   'audit-log-view',
+  // 在线用户（T13 P1-1：看列表与强退分开授权）
+  'online-user-view',
+  'online-user-kick',
+  // 运行时接口文档（T14 P1-2：/v3/api-docs 与 /swagger-ui 的访问码）
+  'api-doc-view',
+  // 服务监控（T17 P1-5：/monitor/server 的读取码）
+  'monitor-view',
   'account-view',
   'account-create',
   'account-edit',
@@ -56,17 +63,15 @@ export const ALL_PRIVILEGE_CODES = [
   'department-create',
   'department-edit',
   'department-delete',
-  'group-view',
-  'group-create',
-  'group-edit',
-  'group-copy',
-  'group-delete',
-  'group-priv-edit',
-  'group-member-edit',
   'personnel-view',
-  // 账号角色字典（org 卡 §3.4：旧禅道「后台→自定义→用户→角色列表」，读写分离；与后端 OrgRegistrar 同源）
+  // 角色（T23 统一实体：权限码 + 成员 + 数据权限一套；与后端 OrgRegistrar 同源）
   'role-view',
-  'role-manage',
+  'role-create',
+  'role-edit',
+  'role-delete',
+  'role-copy',
+  'role-priv-edit',
+  'role-member-edit',
   // product 域（P2）：产品/分支/分类/计划/发布/构建（ProductRegistrar 六族权限码，与后端目录同源）
   'product-view',
   'product-create',
@@ -241,8 +246,8 @@ export const PRIVILEGE_CATALOG = ALL_PRIVILEGE_CODES.map((code) => ({
 
 export type MockAccount = AccountView & { password: string }
 
-/** 角色字典行（org §3.4）：accountCount 是读侧现算（countByRole 同后端），不落库。 */
-export type RoleRow = Omit<RoleView, 'accountCount'>
+/** 角色行（T23 统一实体）：memberCount/privilegeCount 由关联表现算，不落库。 */
+export type RoleRow = Omit<RoleView, 'memberCount' | 'privilegeCount'>
 
 // ── P5 · T-1 doc / workspace 行类型：契约视图 + 软删列（deletedAt 不进响应，DB 语义见各领域卡 §3）──
 
@@ -279,9 +284,26 @@ export const db = {
   sessionActive: false,
   currentAccountId: null as number | null,
   accounts: [] as MockAccount[],
-  /** 账号角色字典（org §3.4）：内置九项与后端 V23 迁移同码/同标签/同排序。 */
+  /** 角色（T23 统一实体）：超管角色 id=1 + 内置岗位角色（与后端 V33 迁移同码同名字）。 */
   roles: [] as RoleRow[],
-  groups: [] as (GroupView & { memberIds: number[]; privCodes: string[] })[],
+  /** 角色 ↔ 权限码（role_priv）。 */
+  rolePrivs: [] as { roleId: number; code: string }[],
+  /** 账号 ↔ 角色（user_role）：账号的角色是成员关系。 */
+  userRoles: [] as { accountId: number; roleId: number }[],
+  /** 菜单行（T19 P2-1 / T21）：DB 菜单 = 内置菜单节点的覆盖层或新增节点（目录/菜单/按钮），见 mocks/menu-handlers.ts。 */
+  menus: [] as {
+    id: number
+    nodeKey: string
+    parentKey: string | null
+    nodeType: 'dir' | 'menu' | 'button'
+    title: string
+    component: string | null
+    path: string | null
+    icon: string | null
+    orderNo: number
+    perm: string | null
+    status: 'active' | 'disabled'
+  }[],
   departments: [] as {
     id: number
     name: string
@@ -291,7 +313,6 @@ export const db = {
     sort: number
     manager: string | null
   }[],
-  userGroup: [] as { accountId: number; groupId: number }[],
   notifications: [] as {
     id: number
     recipient: string
@@ -341,6 +362,21 @@ export const db = {
    * 行只由种子给出（真库由写请求的审计横切追加），故行类型就是响应视图本身。
    */
   auditLogs: [] as AuditLogView[],
+  /** 字典类型与数据项（T16 P1-4）：真库 = dict_type / dict_data 两张表；内置字典在 handler 的 switch 里。 */
+  dictTypes: [] as { code: string; name: string; status: string }[],
+  dictData: [] as {
+    id: number
+    typeCode: string
+    itemLabel: string
+    itemValue: string
+    sortNo: number
+    status: string
+  }[],
+  /**
+   * 在线会话（T13 P1-1）：真库 = session 表现存行，mock 里是种子数组。
+   * 行 id 是 token 摘要（不是 cookie 值）；`current` 由 handler 按登录账号现算，不存种子。
+   */
+  onlineUsers: [] as OnlineUserView[],
   /** 个人列设置（platform「列设置」）：键 `${accountId}:${resource}`，GET/PUT/DELETE 三端点共用。 */
   columnPrefs: new Map<string, ColumnPrefItem[]>(),
   langOverrides: new Map<string, string>(),
@@ -401,43 +437,13 @@ export const db = {
   burns: [] as BurnRow[],
 }
 
-/** 种子：admin（超管组）、dev1（默认只读组）、guest（无组无码）。密码均为 admin123。 */
+/** 种子：admin（超管角色）、dev1（成员角色）、guest（无角色无码）。密码均为 admin123。 */
 export function seed(): void {
   seedRoles()
-  db.groups.push(
-    {
-      id: 1,
-      name: 'Admins',
-      description: 'Built-in super admin group',
-      memberCount: 1,
-      privilegeCount: ALL_PRIVILEGE_CODES.length,
-      createdBy: null,
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedBy: null,
-      updatedAt: null,
-      lockVersion: 0,
-      memberIds: [1],
-      privCodes: [...ALL_PRIVILEGE_CODES],
-    },
-    {
-      id: 2,
-      name: 'Members',
-      description: 'Basic read-only',
-      memberCount: 1,
-      privilegeCount: 2,
-      createdBy: 'admin',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedBy: null,
-      updatedAt: null,
-      lockVersion: 0,
-      memberIds: [2],
-      privCodes: ['account-view', 'department-view'],
-    },
-  )
   db.accounts.push(
-    mockAccount(1, 'admin', 'Admin User', 'top', 'active', null, [1]),
-    mockAccount(2, 'dev1', 'Dev One', 'dev', 'active', 2, [2]),
-    mockAccount(3, 'guest', 'Guest User', 'others', 'active', null, []),
+    mockAccount(1, 'admin', 'Admin User', 'active', null, [1]),
+    mockAccount(2, 'dev1', 'Dev One', 'active', 2, [2]),
+    mockAccount(3, 'guest', 'Guest User', 'active', null, []),
   )
   db.departments.push(
     { id: 1, name: 'Headquarters', parentId: null, path: ',1,', grade: 1, sort: 0, manager: 'admin' },
@@ -508,6 +514,8 @@ export function seed(): void {
       id: 1,
       account: 'admin',
       action: 'login',
+      category: 'auth',
+      result: 'success',
       objectType: null,
       objectId: null,
       detail: null,
@@ -519,6 +527,8 @@ export function seed(): void {
       id: 2,
       account: null,
       action: 'login-failed',
+      category: 'auth',
+      result: 'fail',
       objectType: null,
       objectId: null,
       detail: null,
@@ -530,12 +540,47 @@ export function seed(): void {
       id: 3,
       account: 'admin',
       action: 'account-create',
+      category: 'perm',
+      result: 'success',
       objectType: 'account',
       objectId: 2,
       detail: 'POST /api/v1/accounts',
       ip: '10.0.0.1',
       traceId: 'trace-account-create',
       createdAt: '2026-09-04T10:00:00Z',
+    },
+  )
+  // 系统参数种子（T15）：参数管理页的数据源；个人偏好键在 mock 里带 `<账号>:` 前缀，故不进那个面
+  db.settings.set('common.timezone', 'Asia/Shanghai')
+  db.settings.set('common.workhours', 8)
+  db.settings.set('common.itemsPerPage', 20)
+  // 字典种子（T16）：一条可用的 DB 字典，够看形状；内置字典（timezones/locales/…）在 handler 的 switch 里
+  db.dictTypes.push({ code: 'demo-level', name: '演示等级', status: 'active' })
+  db.dictData.push(
+    { id: mockId(), typeCode: 'demo-level', itemLabel: '高', itemValue: 'high', sortNo: 20, status: 'active' },
+    { id: mockId(), typeCode: 'demo-level', itemLabel: '中', itemValue: 'medium', sortNo: 10, status: 'active' },
+    { id: mockId(), typeCode: 'demo-level', itemLabel: '低（停用）', itemValue: 'low', sortNo: 30, status: 'disabled' },
+  )
+  db.onlineUsers.push(
+    {
+      id: 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90',
+      account: 'admin',
+      ip: '10.0.0.1',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0',
+      createdAt: '2026-09-21T02:10:00Z',
+      lastSeenAt: '2026-09-21T04:12:30Z',
+      expiresAt: '2026-09-28T02:10:00Z',
+      current: false,
+    },
+    {
+      id: '0f9e8d7c6b5a49382716f5e4d3c2b1a09f8e7d6c5b4a39281706f5e4d3c2b1a0',
+      account: 'dev1',
+      ip: '10.0.0.12',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) Safari/605.1.15',
+      createdAt: '2026-09-21T03:40:00Z',
+      lastSeenAt: '2026-09-21T04:05:10Z',
+      expiresAt: '2026-09-28T03:40:00Z',
+      current: false,
     },
   )
   seedProductDomain()
@@ -546,31 +591,73 @@ export function seed(): void {
   seedDocWorkspaceDomain()
 }
 
-/** 账号角色字典种子（org §3.4）：与 `backend/src/main/resources/db/migration/V23__account_role.sql` 逐行同源。 */
+/**
+ * 角色种子（T23 统一实体）：超管角色 id=1（全部权限码）+ 成员角色 id=2（只读两码）
+ * + 旧岗位角色（研发/测试/…，与后端 V33 迁移同码同名字，内置不可删）。
+ */
 function seedRoles(): void {
-  const builtin: [string, string, string, number][] = [
-    ['dev', '研发', 'Developer', 10],
-    ['qa', '测试', 'Tester', 20],
-    ['pm', '项目经理', 'Scrum Master', 30],
-    ['po', '产品经理', 'Product Owner', 40],
-    ['td', '研发主管', 'Technical Manager', 50],
-    ['pd', '产品主管', 'Product Manager', 60],
-    ['qd', '测试主管', 'QA Manager', 70],
-    ['top', '高层管理', 'Senior Manager', 80],
-    ['others', '其他', 'Others', 90],
-  ]
-  for (const [code, zhCN, en, sort] of builtin) {
-    db.roles.push({
-      code,
-      labels: { 'zh-CN': zhCN, en },
-      sort,
+  db.roles.push(
+    {
+      id: 1,
+      code: null,
+      name: '管理员',
+      description: 'Built-in super admin role',
+      acl: {},
       builtin: true,
+      sort: 1,
+      createdBy: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedBy: null,
+      updatedAt: null,
+      lockVersion: 0,
+    },
+    {
+      id: 2,
+      code: null,
+      name: '成员',
+      description: 'Basic read-only',
+      acl: {},
+      builtin: false,
+      sort: 2,
+      createdBy: 'admin',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedBy: null,
+      updatedAt: null,
+      lockVersion: 0,
+    },
+  )
+  db.rolePrivs.push(...ALL_PRIVILEGE_CODES.map((code) => ({ roleId: 1, code })))
+  db.rolePrivs.push({ roleId: 2, code: 'account-view' }, { roleId: 2, code: 'department-view' })
+  db.userRoles.push({ accountId: 1, roleId: 1 }, { accountId: 2, roleId: 2 })
+
+  const builtin: [string, string, number][] = [
+    ['dev', '研发', 10],
+    ['qa', '测试', 20],
+    ['pm', '项目经理', 30],
+    ['po', '产品经理', 40],
+    ['td', '研发主管', 50],
+    ['pd', '产品主管', 60],
+    ['qd', '测试主管', 70],
+    ['top', '高层管理', 80],
+    ['others', '其他', 90],
+  ]
+  let id = 3
+  for (const [code, name, sort] of builtin) {
+    db.roles.push({
+      id,
+      code,
+      name,
+      description: '',
+      acl: {},
+      builtin: true,
+      sort,
       createdBy: null,
       createdAt: '2026-01-01T00:00:00Z',
       updatedBy: null,
       updatedAt: null,
       lockVersion: 0,
     })
+    id += 1
   }
 }
 
@@ -2511,17 +2598,15 @@ function mockAccount(
   id: number,
   account: string,
   realName: string,
-  role: NonNullable<AccountView['role']> | null,
   status: NonNullable<AccountView['status']>,
   departmentId: number | null,
-  groupIds: number[],
+  roleIds: number[],
 ): MockAccount {
   return {
     id,
     account,
     realName,
     nickname: null,
-    role,
     departmentId,
     email: `${account}@zentao.local`,
     mobile: null,
@@ -2531,7 +2616,7 @@ function mockAccount(
     joinedAt: null,
     avatarFileId: null,
     status,
-    groupIds,
+    roleIds,
     fails: 0,
     lockedAt: null,
     lastActiveAt: null,
@@ -2550,9 +2635,10 @@ export function resetMockData(): void {
   db.currentAccountId = null
   db.accounts.length = 0
   db.roles.length = 0
-  db.groups.length = 0
+  db.menus.length = 0
+  db.rolePrivs.length = 0
+  db.userRoles.length = 0
   db.departments.length = 0
-  db.userGroup.length = 0
   db.notifications.length = 0
   db.files.length = 0
   db.comments.length = 0
@@ -2590,6 +2676,9 @@ export function resetMockData(): void {
   db.weeklyReports.length = 0
   db.burns.length = 0
   db.auditLogs.length = 0
+  db.dictTypes.length = 0
+  db.dictData.length = 0
+  db.onlineUsers.length = 0
   db.comments.push({
     id: 1,
     objectType: 'account',
@@ -2605,6 +2694,13 @@ export function resetMockData(): void {
   seed()
 }
 
+/** 测试夹具：给角色补权限码（等价于管理端在角色权限页勾上这些码）。 */
+export function grantRolePrivileges(roleId: number, codes: string[]): void {
+  for (const code of codes) {
+    db.rolePrivs.push({ roleId, code })
+  }
+}
+
 export function currentAccount(): MockAccount | null {
   if (!db.sessionActive || db.currentAccountId === null) {
     return null
@@ -2616,10 +2712,11 @@ export function privilegesOf(account: MockAccount | null): string[] {
   if (!account) {
     return []
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return [...ALL_PRIVILEGE_CODES]
   }
-  return db.groups.filter((group) => account.groupIds.includes(group.id)).flatMap((group) => group.privCodes)
+  const roleIds = new Set(account.roleIds)
+  return [...new Set(db.rolePrivs.filter((item) => roleIds.has(item.roleId)).map((item) => item.code))]
 }
 
 export function toAccountView(account: MockAccount): AccountView {
@@ -2627,11 +2724,12 @@ export function toAccountView(account: MockAccount): AccountView {
   return view
 }
 
-/** 角色行 → 视图：accountCount 现算（软删账号不计，同后端 `countByRole`）。 */
+/** 角色行 → 视图：成员数与权限码数现算（同后端 memberCount/privilegeCount）。 */
 export function toRoleView(role: RoleRow): RoleView {
   return {
     ...role,
-    accountCount: db.accounts.filter((account) => account.role === role.code && account.deletedAt === null).length,
+    memberCount: db.userRoles.filter((item) => item.roleId === role.id).length,
+    privilegeCount: db.rolePrivs.filter((item) => item.roleId === role.id).length,
   }
 }
 

@@ -10,5 +10,6 @@
 import type { TeamMemberSubmitResultItem } from './teamMemberSubmitResultItem';
 
 export interface TeamMemberSubmitResult {
+  /** 逐项结果 */
   results: TeamMemberSubmitResultItem[];
 }

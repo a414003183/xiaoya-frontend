@@ -13,32 +13,56 @@ import type { TestCaseCreateRequestStageItem } from './testCaseCreateRequestStag
 import type { TestCaseCreateRequestType } from './testCaseCreateRequestType';
 
 export interface TestCaseCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 用例标题
+     * @maxLength 255
+     */
   title: string;
-  /** @nullable */
+  /**
+     * 前置条件
+     * @nullable
+     */
   precondition?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TestCaseCreateRequestType;
-  /** @nullable */
+  /**
+     * 用例所属阶段（自定义阶段名）
+     * @nullable
+     */
   stage?: TestCaseCreateRequestStageItem[] | null;
   /**
+     * 步骤说明
      * @maxItems 100
      * @nullable
      */
@@ -48,6 +72,9 @@ export interface TestCaseCreateRequest {
      * @nullable
      */
   needReview?: boolean | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: TestCaseCreateRequestCustomFields;
 }

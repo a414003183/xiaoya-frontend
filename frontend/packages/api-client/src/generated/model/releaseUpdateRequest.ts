@@ -10,25 +10,51 @@
 
 export interface ReleaseUpdateRequest {
   /**
+     * 版本名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 构建 id
+     * @nullable
+     */
   buildId?: number | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @nullable */
+  /**
+     * 计划发布日期
+     * @nullable
+     */
   releaseDate?: string | null;
-  /** @nullable */
+  /**
+     * 发布时间
+     * @nullable
+     */
   publishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 是否里程碑
+     * @nullable
+     */
   isMilestone?: boolean | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

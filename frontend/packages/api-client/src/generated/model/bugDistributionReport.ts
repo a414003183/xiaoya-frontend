@@ -15,8 +15,12 @@ import type { BugCountByStatus } from './bugCountByStatus';
  * Bug 分布（resolution 为空计入 unresolved 桶）
  */
 export interface BugDistributionReport {
+  /** 总条数（满足筛选的全量） */
   total: number;
+  /** 按严重级别分布 */
   bySeverity: BugCountBySeverity[];
+  /** 按状态分布 */
   byStatus: BugCountByStatus[];
+  /** 按解决结果分布（空值计入 unresolved 桶） */
   byResolution: BugCountByResolution[];
 }

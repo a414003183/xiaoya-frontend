@@ -1,10 +1,10 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createQueryClient } from '@zentao/api-client'
-import { AppProvider, ConfigProvider, createTheme } from '@zentao/design-system'
+import { ApiError, createQueryClient } from '@zentao/api-client'
+import { AppProvider, ConfigProvider, createTheme, destroyStaticMessages } from '@zentao/design-system'
 import { initI18n } from '@zentao/i18n'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { FileUploadField } from '../components/file-upload-field'
 
 initI18n()
@@ -54,6 +54,11 @@ beforeEach(() => {
   listFilesMock.mockClear()
 })
 
+afterEach(() => {
+  cleanup()
+  destroyStaticMessages()
+})
+
 function renderField() {
   return render(
     <ConfigProvider theme={createTheme()}>
@@ -87,5 +92,40 @@ describe('FileUploadField', () => {
     await waitFor(() => {
       expect(deleteFileMock).toHaveBeenCalledWith(42)
     })
+  })
+
+  test('上传失败（T69 / FE-03）：弹出按错误码映射的文案，不再是静默失败', async () => {
+    uploadFileMock.mockRejectedValueOnce(new ApiError(42201, ''))
+    const user = userEvent.setup()
+    renderField()
+    const input = await screen.findByLabelText('选择文件')
+    await user.upload(input, new File(['x'], '超限.txt', { type: 'text/plain' }))
+
+    expect(await screen.findByText('提交内容未通过校验，请检查表单。')).toBeInTheDocument()
+  })
+
+  test('上传被拒（T60）：按 fields.file 原因码说清原因，未知码回落通用文案', async () => {
+    uploadFileMock.mockRejectedValueOnce(new ApiError(42201, '', { file: 'contentMismatch' }))
+    const user = userEvent.setup()
+    renderField()
+    await user.upload(await screen.findByLabelText('选择文件'), new File(['x'], '假图.png'))
+    expect(await screen.findByText('文件内容与扩展名不符（例如并不是真正的图片）')).toBeInTheDocument()
+
+    uploadFileMock.mockRejectedValueOnce(new ApiError(42201, '', { file: 'somethingNew' }))
+    await user.upload(await screen.findByLabelText('选择文件'), new File(['x'], '未知.png'))
+    expect(await screen.findByText('提交内容未通过校验，请检查表单。')).toBeInTheDocument()
+  })
+
+  test('删除失败（T69 / FE-03）：同样有回音', async () => {
+    const user = userEvent.setup()
+    renderField()
+    const input = await screen.findByLabelText('选择文件')
+    await user.upload(input, new File(['x'], '临时.txt', { type: 'text/plain' }))
+    await screen.findByText('临时.txt')
+    deleteFileMock.mockRejectedValueOnce(new ApiError(40302, ''))
+
+    await user.click(await screen.findByRole('button', { name: '删除' }))
+
+    expect(await screen.findByText('没有访问该数据的权限。')).toBeInTheDocument()
   })
 })

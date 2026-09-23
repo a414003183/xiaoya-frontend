@@ -12,41 +12,83 @@ import type { TestRunViewStatus } from './testRunViewStatus';
 import type { TestRunViewType } from './testRunViewType';
 
 export interface TestRunView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 项目 id */
   projectId?: number;
+  /** 执行 id */
   executionId: number;
+  /** 构建 id */
   buildId?: number;
-  /** @maxLength 90 */
+  /**
+     * 测试单名称
+     * @maxLength 90
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TestRunViewType;
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
-  /** @nullable */
+  /**
+     * 实际开始时间
+     * @nullable
+     */
   realBeganAt?: string | null;
-  /** @nullable */
+  /**
+     * 实际完成时间
+     * @nullable
+     */
   realFinishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 执行成员（登录账号集合） */
   members?: string[];
+  /** 通知人（登录账号集合） */
   notifyAccounts?: string[];
+  /** 状态 */
   status: TestRunViewStatus;
-  /** @nullable */
+  /**
+     * 报告 id
+     * @nullable
+     */
   reportId?: number | null;
+  /** 自定义字段（动态字段表） */
   customFields?: TestRunViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

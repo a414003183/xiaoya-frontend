@@ -22,13 +22,14 @@ import { keywordField, ListFilterForm, selectField } from '../../../shared/list-
 import { useMetaOptions } from '../../../shared/meta-options'
 import { RowNameLink } from '../../../shared/row-name-link'
 import { withParam, withParams } from '../../../shared/url'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { fetchAccounts, fetchDepartmentTree } from '../api/org.api'
 import { AccountDeleteModal } from '../components/account-delete-modal'
 import { AccountPasswordModal } from '../components/account-password-modal'
 import { AccountResetPasswordModal } from '../components/account-reset-password-modal'
 import { AccountCreateModal } from '../forms/account-create-modal'
 import { AccountEditModal } from '../forms/account-edit-modal'
-import { useRoleLabel, useRoleOptions } from '../role-options'
+import { useRoleLabels, useRoleOptions } from '../role-options'
 
 /** 账号列表（org 卡 §6：左部门树过滤 + 行内动作启停用/解锁/编辑/改密(@me)/重置/删除；旧 user-browse）。
  * 状态/性别筛选值域来自 meta/account（role 走角色字典，见 role-options.ts）。 */
@@ -40,7 +41,7 @@ export default function AccountListPage() {
   const departmentId = searchParams.get('departmentId')
   const status = searchParams.get('status') ?? ''
   const gender = searchParams.get('gender') ?? ''
-  const role = searchParams.get('role') ?? ''
+  const roleId = searchParams.get('roleId') ?? ''
   const accountMeta = useMetaOptions('account')
   const q = searchParams.get('q') ?? ''
   const page = Number(searchParams.get('page')) || 1
@@ -54,7 +55,7 @@ export default function AccountListPage() {
   // /me 缓存形状 = 拆封后的 MeView（与 SessionGate/PrivilegesProvider 同 key 同形，A3-3 统一）
   const me = useQuery({ queryKey: ['getMe'], queryFn: async () => ok(await getMe()).data })
   const accounts = useQuery({
-    queryKey: ['listAccounts', departmentId, status, gender, role, q, page],
+    queryKey: ['listAccounts', departmentId, status, gender, roleId, q, page],
     queryFn: () =>
       fetchAccounts({
         page,
@@ -62,7 +63,7 @@ export default function AccountListPage() {
         ...(departmentId ? { 'filters[departmentId]': departmentId } : {}),
         ...(status ? { 'filters[status]': status } : {}),
         ...(gender ? { 'filters[gender]': gender } : {}),
-        ...(role ? { 'filters[role]': role } : {}),
+        ...(roleId ? { 'filters[roleId]': roleId } : {}),
         ...(q ? { q } : {}),
       }),
   })
@@ -70,18 +71,31 @@ export default function AccountListPage() {
     void queryClient.invalidateQueries({ queryKey: ['listAccounts'] })
     void queryClient.invalidateQueries({ queryKey: ['getDepartmentTree'] })
   }
-  const disable = useMutation({ mutationFn: (id: number) => disableAccount(id), onSuccess: invalidate })
-  const enable = useMutation({ mutationFn: (id: number) => enableAccount(id), onSuccess: invalidate })
-  const unlock = useMutation({ mutationFn: (id: number) => unlockAccount(id), onSuccess: invalidate })
+  const feedback = useMutationFeedback()
+  const disable = useMutation({
+    mutationFn: (id: number) => disableAccount(id),
+    onSuccess: invalidate,
+    onError: feedback.failed,
+  })
+  const enable = useMutation({
+    mutationFn: (id: number) => enableAccount(id),
+    onSuccess: invalidate,
+    onError: feedback.failed,
+  })
+  const unlock = useMutation({
+    mutationFn: (id: number) => unlockAccount(id),
+    onSuccess: invalidate,
+    onError: feedback.failed,
+  })
 
   // @me：改密端点仅限本人（org §5 password 守卫）；删除守卫 ≠ 本人/内置 admin（§4）
   const myId = me.data?.account.id
   const isSelf = (record: AccountView) => record.id === myId
   const isProtected = (record: AccountView) => isSelf(record) || record.account === 'admin'
 
-  // role 的选项与展示名来自角色字典（GET /roles），前端无内置角色清单
+  // 角色的选项与展示名来自角色表（GET /roles），前端无内置角色清单
   const roleOptions = useRoleOptions()
-  const roleLabelOf = useRoleLabel()
+  const roleLabelsOf = useRoleLabels()
 
   const columns: TableColumnsType<AccountView> = [
     { title: t('org.account.field.id'), dataIndex: 'id' },
@@ -94,7 +108,11 @@ export default function AccountListPage() {
       ),
     },
     { title: t('org.account.field.realName'), dataIndex: 'realName' },
-    { title: t('org.account.field.role'), dataIndex: 'role', render: (value: string | null) => roleLabelOf(value) },
+    {
+      title: t('org.account.field.roles'),
+      key: 'roles',
+      render: (_: unknown, record: AccountView) => roleLabelsOf(record.roleIds),
+    },
     {
       title: t('org.account.field.status'),
       dataIndex: 'status',
@@ -121,16 +139,16 @@ export default function AccountListPage() {
             {t('org.account.action.resetPassword')}
           </Button>
           {record.status === 'active' ? (
-            <Button size="small" onClick={() => void disable.mutateAsync(record.id)}>
+            <Button size="small" onClick={() => disable.mutate(record.id)}>
               {t('org.account.action.disable')}
             </Button>
           ) : (
-            <Button size="small" onClick={() => void enable.mutateAsync(record.id)}>
+            <Button size="small" onClick={() => enable.mutate(record.id)}>
               {t('org.account.action.enable')}
             </Button>
           )}
           {(record.lockedAt ?? null) !== null ? (
-            <Button size="small" onClick={() => void unlock.mutateAsync(record.id)}>
+            <Button size="small" onClick={() => unlock.mutate(record.id)}>
               {t('org.account.action.unlock')}
             </Button>
           ) : null}
@@ -187,7 +205,12 @@ export default function AccountListPage() {
               keywordField(t('org.accounts.search'), t('org.accounts.search')),
               selectField('status', t('common.field.status'), accountMeta.options('status')),
               selectField('gender', t('org.account.field.gender'), accountMeta.options('gender')),
-              selectField('role', t('org.account.field.role'), roleOptions),
+              // 角色筛选的值走 URL（字符串）：选项 value 转字符串，与 filters[roleId] 同形
+              selectField(
+                'roleId',
+                t('org.account.field.roles'),
+                roleOptions.map((option) => ({ value: String(option.value), label: option.label })),
+              ),
             ]}
           />
           <ListCard

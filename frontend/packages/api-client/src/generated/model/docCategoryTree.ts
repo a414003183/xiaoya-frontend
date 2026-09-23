@@ -10,5 +10,6 @@
 import type { DocCategoryNode } from './docCategoryNode';
 
 export interface DocCategoryTree {
+  /** 目录节点列表（嵌套树） */
   items: DocCategoryNode[];
 }

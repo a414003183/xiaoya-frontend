@@ -10,21 +10,42 @@
 import type { CategoryViewType } from './categoryViewType';
 
 export interface CategoryView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 父节点 id（0 或空=顶级） */
   parentId?: number;
+  /** 类型 */
   type: CategoryViewType;
-  /** @maxLength 60 */
+  /**
+     * 分类名称
+     * @maxLength 60
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

@@ -48,6 +48,8 @@ const PRIVILEGES = [
   'task-effort-edit',
   'task-effort-delete',
   'task-delete',
+  // T02：附件上传控件（FileUploadField）按 file-upload 码显隐
+  'file-upload',
 ]
 
 function renderPage(page: ReactElement, path: string, entry: string): void {

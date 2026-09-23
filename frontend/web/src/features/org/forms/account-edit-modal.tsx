@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { DateField, SelectField, TextField } from '../../../shared/form-fields'
-import { type AccountView, fetchDepartmentTree, fetchGroups, patchAccount } from '../api/org.api'
+import { type AccountView, fetchDepartmentTree, patchAccount } from '../api/org.api'
 import { accountGenderOptions, departmentOptions } from '../model'
 import { useRoleOptions } from '../role-options'
 import { accountEmailSchema } from './account-create-modal'
@@ -17,7 +17,6 @@ import { accountEmailSchema } from './account-create-modal'
 export const accountEditSchema = z.object({
   realName: z.string().trim().min(1, 'common.message.required').max(100, 'common.message.required'),
   nickname: z.string().trim().max(60, 'common.message.required'),
-  role: z.string().nullable(),
   departmentId: z.number().nullable(),
   email: accountEmailSchema,
   mobile: z.string().trim().max(20, 'common.message.required'),
@@ -25,7 +24,7 @@ export const accountEditSchema = z.object({
   gender: z.string().nullable(),
   birthday: z.string().trim(),
   joinedAt: z.string().trim(),
-  groupIds: z.array(z.number()),
+  roleIds: z.array(z.number()),
 })
 
 export type AccountEditValues = z.input<typeof accountEditSchema>
@@ -34,7 +33,6 @@ function valuesOf(account: AccountView): AccountEditValues {
   return {
     realName: account.realName ?? '',
     nickname: account.nickname ?? '',
-    role: account.role ?? null,
     departmentId: account.departmentId ?? null,
     email: account.email ?? '',
     mobile: account.mobile ?? '',
@@ -42,7 +40,7 @@ function valuesOf(account: AccountView): AccountEditValues {
     gender: account.gender ?? null,
     birthday: account.birthday?.slice(0, 10) ?? '',
     joinedAt: account.joinedAt?.slice(0, 10) ?? '',
-    groupIds: account.groupIds,
+    roleIds: account.roleIds,
   }
 }
 
@@ -51,7 +49,6 @@ export function accountEditBody(values: AccountEditValues): Record<string, unkno
   return {
     realName: values.realName,
     nickname: values.nickname === '' ? null : values.nickname,
-    role: values.role ?? null,
     departmentId: values.departmentId ?? null,
     email: values.email === '' ? null : values.email,
     mobile: values.mobile === '' ? null : values.mobile,
@@ -59,7 +56,7 @@ export function accountEditBody(values: AccountEditValues): Record<string, unkno
     gender: values.gender ?? null,
     birthday: values.birthday === '' ? null : values.birthday,
     joinedAt: values.joinedAt === '' ? null : values.joinedAt,
-    groupIds: values.groupIds,
+    roleIds: values.roleIds,
   }
 }
 
@@ -77,7 +74,6 @@ export function AccountEditModal({
   const queryClient = useQueryClient()
   const roleOptions = useRoleOptions()
   const departments = useQuery({ queryKey: ['getDepartmentTree'], queryFn: fetchDepartmentTree })
-  const groups = useQuery({ queryKey: ['listGroups'], queryFn: () => fetchGroups() })
   const { control, handleSubmit, reset } = useForm<AccountEditValues>({
     resolver: zodResolver(accountEditSchema),
     defaultValues: valuesOf(
@@ -86,7 +82,7 @@ export function AccountEditModal({
         account: '',
         realName: '',
         gender: 'm',
-        groupIds: [],
+        roleIds: [],
         status: 'active',
         fails: 0,
         createdAt: '',
@@ -147,10 +143,11 @@ export function AccountEditModal({
         />
         <SelectField
           control={control}
-          name="role"
-          label={t('org.account.field.role')}
+          name="roleIds"
+          label={t('org.account.field.roles')}
           options={roleOptions}
-          aria-label="account-edit-role"
+          multiple
+          aria-label="account-edit-roles"
         />
         <SelectField
           control={control}
@@ -198,14 +195,6 @@ export function AccountEditModal({
           name="joinedAt"
           label={t('org.account.field.joinedAt')}
           aria-label="account-edit-joinedAt"
-        />
-        <SelectField
-          control={control}
-          name="groupIds"
-          label={t('org.account.field.groups')}
-          options={(groups.data?.items ?? []).map((group) => ({ value: group.id, label: group.name }))}
-          multiple
-          aria-label="account-edit-groups"
         />
         {save.error ? (
           <Typography.Paragraph type="danger">{errorText(save.error, t, 'common.message.failed')}</Typography.Paragraph>

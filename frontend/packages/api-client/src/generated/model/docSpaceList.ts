@@ -10,6 +10,8 @@
 import type { DocSpaceView } from './docSpaceView';
 
 export interface DocSpaceList {
+  /** 列表项（当前页） */
   items: DocSpaceView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

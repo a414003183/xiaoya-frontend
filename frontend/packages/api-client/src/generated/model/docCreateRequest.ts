@@ -16,31 +16,64 @@ import type { DocCreateRequestType } from './docCreateRequestType';
  * 创建文档（title 必填；status=published 时 content 必填否则 42201）
  */
 export interface DocCreateRequest {
-  /** @maxLength 255 */
+  /**
+     * 文档标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: DocCreateRequestType;
-  /** @nullable */
+  /**
+     * 状态
+     * @nullable
+     */
   status?: DocCreateRequestStatus;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
   acl?: DocCreateRequestAcl;
+  /** 可编辑白名单（账号与用户组） */
   editors?: DocAclPayload;
+  /** 只读白名单（账号与用户组） */
   readers?: DocAclPayload;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 文档正文（初始内容）
+     * @nullable
+     */
   content?: string | null;
-  /** @nullable */
+  /**
+     * 附件文件 id 集合
+     * @nullable
+     */
   files?: number[] | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

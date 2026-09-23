@@ -16,29 +16,52 @@ import type { DocSpaceViewType } from './docSpaceViewType';
  * 文档库视图（doc 卡 §3.1；docCount 为派生只读）
  */
 export interface DocSpaceView {
+  /** 主键 id */
   id: number;
-  /** @maxLength 60 */
+  /**
+     * 库名称
+     * @maxLength 60
+     */
   name: string;
   /** 创建后不可改；mine 库恒 private 且仅创建者可见 */
   type: DocSpaceViewType;
+  /** 产品 id */
   productId: number;
+  /** 项目 id */
   projectId: number;
+  /** 执行 id */
   executionId: number;
   /** custom 库无 default；mine 库恒 private */
   acl: DocSpaceViewAcl;
+  /** 白名单（自定义可见集） */
   whitelist: DocAclPayload;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 库内默认排序 */
   docSort: DocSpaceViewDocSort;
+  /** 是否默认 */
   isDefault: boolean;
   /** 派生只读：库内未删文档数 */
   docCount: number;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

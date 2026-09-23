@@ -9,6 +9,7 @@
  */
 
 /**
+ * 访问控制（可见范围策略）
  * @nullable
  */
 export type DocUpdateRequestAcl = typeof DocUpdateRequestAcl[keyof typeof DocUpdateRequestAcl] | null;

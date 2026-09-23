@@ -358,10 +358,15 @@ export type batchTodosResponse403 = {
   status: 403
 }
 
+export type batchTodosResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
 export type batchTodosResponseSuccess = (batchTodosResponse200) & {
   headers: Headers;
 };
-export type batchTodosResponseError = (batchTodosResponse400 | batchTodosResponse401 | batchTodosResponse403) & {
+export type batchTodosResponseError = (batchTodosResponse400 | batchTodosResponse401 | batchTodosResponse403 | batchTodosResponse422) & {
   headers: Headers;
 };
 
@@ -409,7 +414,7 @@ return httpFetch<batchTodosResponse>(getBatchTodosUrl(),
 
 export const getBatchTodosMutationKey = () => ['batchTodos'] as const;
 
-export const getBatchTodosMutationOptions = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse,
+export const getBatchTodosMutationOptions = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof batchTodos>>, TError,BatchTodosMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof batchTodos>>, TError,BatchTodosMutationVariables, TContext> => {
 
@@ -438,13 +443,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type BatchTodosMutationResult = NonNullable<Awaited<ReturnType<typeof batchTodos>>>
     export type BatchTodosMutationBody = TodoBatchRequest
-    export type BatchTodosMutationError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse
+    export type BatchTodosMutationError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse
     export type BatchTodosMutationVariables = {data: TodoBatchRequest}
 
     /**
  * @summary 批量创建（items ≤50）或批量动作（ids+action+params，逐项部分成功）
  */
-export const useBatchTodos = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse,
+export const useBatchTodos = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof batchTodos>>, TError,BatchTodosMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof batchTodos>>,

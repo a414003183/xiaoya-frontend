@@ -39,7 +39,8 @@ afterEach(() => {
 })
 afterAll(() => server.close())
 
-const PRIVILEGES = ['testcase-view', 'testcase-edit', 'bug-create']
+// T02：file-upload = 附件上传控件（FileUploadField）的显隐码
+const PRIVILEGES = ['testcase-view', 'testcase-edit', 'bug-create', 'file-upload']
 
 function renderPage(page: ReactElement, path: string, entry: string): void {
   render(

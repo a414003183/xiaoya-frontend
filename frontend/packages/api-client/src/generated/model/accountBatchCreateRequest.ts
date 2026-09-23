@@ -10,6 +10,9 @@
 import type { AccountCreateRequest } from './accountCreateRequest';
 
 export interface AccountBatchCreateRequest {
-  /** @maxItems 50 */
+  /**
+     * 待创建账号（≤50，逐项部分成功）
+     * @maxItems 50
+     */
   items: AccountCreateRequest[];
 }

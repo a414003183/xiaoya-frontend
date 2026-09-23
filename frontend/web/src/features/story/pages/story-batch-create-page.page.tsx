@@ -1,4 +1,5 @@
 /** @route /products/:productId/stories/batch @title story.title.batchCreate @perm story-create @hide @activeMenu /products */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
@@ -169,7 +170,7 @@ export default function StoryBatchCreatePage() {
             >
               {t('common.action.add')}
             </Button>
-            <Button type="primary" loading={submit.isPending} onClick={() => void submit.mutateAsync(rows)}>
+            <Button type="primary" loading={submit.isPending} onClick={() => submit.mutate(rows)}>
               {t('common.action.submit')}
             </Button>
           </>

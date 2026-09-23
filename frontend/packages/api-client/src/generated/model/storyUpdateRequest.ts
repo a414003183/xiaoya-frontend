@@ -10,30 +10,56 @@
 
 export interface StoryUpdateRequest {
   /**
+     * 需求标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 关键词
+     * @nullable
+     */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 优先级
+     * @nullable
+     */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 预估工时
+     * @nullable
+     */
   estimateHours?: number | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
   /**
      * 改父需求（B-REQ-02 补口）：不得指向自身或后代（42203）；父须同产品 epic；0=清空为独立需求
      * @nullable
      */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 关联需求 id 集合
+     * @nullable
+     */
   linkedStoryIds?: number[] | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

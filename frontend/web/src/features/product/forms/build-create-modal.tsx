@@ -1,17 +1,36 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
-import { Form, Input, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { Form, Modal, Typography, useMessage } from '@zentao/design-system'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import { applyServerFields, DateField, SelectField, TextAreaField, TextField } from '../../../shared/form-fields'
 import { type BuildView, fetchAccountOptions, fetchBranches, patchBuild, submitBuild } from '../api/product.api'
 
-export type BuildFormValues = {
-  name: string
-  branchId: number
-  buildDate: string
-  builder: string | null
-  scmPath: string | null
-  filePath: string | null
-  description: string | null
+export const buildFormSchema = z.object({
+  name: z.string().min(1, 'common.message.required'),
+  branchId: z.number({ error: 'common.message.required' }),
+  buildDate: z.string(),
+  builder: z.string().nullable(),
+  scmPath: z.string().nullable(),
+  filePath: z.string().nullable(),
+  description: z.string().nullable(),
+})
+
+export type BuildFormValues = z.input<typeof buildFormSchema>
+
+function valuesOf(build: BuildView | null): BuildFormValues {
+  return {
+    name: build?.name ?? '',
+    branchId: build?.branchId ?? 0,
+    buildDate: build?.buildDate ?? '',
+    builder: build?.builder ?? null,
+    scmPath: build?.scmPath ?? null,
+    filePath: build?.filePath ?? null,
+    description: build?.description ?? null,
+  }
 }
 
 /** 构建创建/编辑共用表单壳（T-10；build §3.6：builder 必填、buildDate 默认当天由后端落）。 */
@@ -31,8 +50,16 @@ export function BuildFormModal({
   const message = useMessage()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [form] = Form.useForm<BuildFormValues>()
   const editing = build != null
+  const { control, handleSubmit, setError, reset } = useForm<BuildFormValues>({
+    resolver: zodResolver(buildFormSchema),
+    defaultValues: valuesOf(build ?? null),
+  })
+
+  // 切换新建/编辑对象时重置表单（defaultValues 只在首挂载生效；旧 <Form key> 重挂载语义由此等价替代）
+  useEffect(() => {
+    reset(valuesOf(build ?? null))
+  }, [build, reset])
 
   const branches = useQuery({
     queryKey: ['listBranches', productId, 'form'],
@@ -50,7 +77,10 @@ export function BuildFormModal({
       onSaved?.()
       onClose()
     },
+    onError: (error) => applyServerFields(error, setError),
   })
+
+  const submit = handleSubmit((values) => save.mutate(values))
 
   return (
     <Modal
@@ -61,63 +91,58 @@ export function BuildFormModal({
       okText={t('common.action.submit')}
       cancelText={t('common.action.cancel')}
       confirmLoading={save.isPending}
-      onOk={() => void form.submit()}
+      onOk={() => void submit()}
     >
-      <Form
-        form={form}
-        key={build?.id ?? 'create'}
-        layout="vertical"
-        initialValues={{
-          name: build?.name ?? '',
-          branchId: build?.branchId ?? 0,
-          buildDate: build?.buildDate ?? '',
-          builder: build?.builder ?? null,
-          scmPath: build?.scmPath ?? null,
-          filePath: build?.filePath ?? null,
-          description: build?.description ?? null,
-        }}
-        onFinish={(values) => save.mutate(values)}
-      >
-        <Form.Item
+      <Form layout="vertical">
+        <TextField
+          control={control}
           name="name"
           label={t('build.field.name')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="build-name" maxLength={150} />
-        </Form.Item>
-        <Form.Item name="branchId" label={t('build.field.branch')}>
-          <Select
-            aria-label="build-branch"
-            options={[
-              { value: 0, label: t('common.field.none') },
-              ...(branches.data?.items ?? []).map((branch) => ({ value: branch.id, label: branch.name })),
-            ]}
-          />
-        </Form.Item>
-        <Form.Item name="buildDate" label={t('build.field.buildDate')}>
-          <Input aria-label="build-date" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item name="builder" label={t('build.field.builder')}>
-          <Select
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="build-builder"
-            options={(accounts.data ?? []).map((account) => ({
-              value: account.account,
-              label: `${account.realName}(${account.account})`,
-            }))}
-          />
-        </Form.Item>
-        <Form.Item name="scmPath" label={t('build.field.scmPath')}>
-          <Input aria-label="build-scm-path" maxLength={255} />
-        </Form.Item>
-        <Form.Item name="filePath" label={t('build.field.filePath')}>
-          <Input aria-label="build-file-path" maxLength={255} />
-        </Form.Item>
-        <Form.Item name="description" label={t('build.field.description')}>
-          <Input.TextArea aria-label="build-description" rows={3} />
-        </Form.Item>
+          maxLength={150}
+          aria-label="build-name"
+        />
+        <SelectField
+          control={control}
+          name="branchId"
+          label={t('build.field.branch')}
+          options={[
+            { value: 0, label: t('common.field.none') },
+            ...(branches.data?.items ?? []).map((branch) => ({ value: branch.id, label: branch.name })),
+          ]}
+          aria-label="build-branch"
+        />
+        <DateField control={control} name="buildDate" label={t('build.field.buildDate')} aria-label="build-date" />
+        <SelectField
+          control={control}
+          name="builder"
+          label={t('build.field.builder')}
+          options={(accounts.data ?? []).map((account) => ({
+            value: account.account,
+            label: `${account.realName}(${account.account})`,
+          }))}
+          aria-label="build-builder"
+        />
+        <TextField
+          control={control}
+          name="scmPath"
+          label={t('build.field.scmPath')}
+          maxLength={255}
+          aria-label="build-scm-path"
+        />
+        <TextField
+          control={control}
+          name="filePath"
+          label={t('build.field.filePath')}
+          maxLength={255}
+          aria-label="build-file-path"
+        />
+        <TextAreaField
+          control={control}
+          name="description"
+          label={t('build.field.description')}
+          rows={3}
+          aria-label="build-description"
+        />
         {save.error ? (
           <Typography.Paragraph type="danger">{errorText(save.error, t, 'common.message.failed')}</Typography.Paragraph>
         ) : null}

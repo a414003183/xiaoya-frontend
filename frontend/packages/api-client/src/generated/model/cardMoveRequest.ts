@@ -12,6 +12,8 @@
  * 拖拽请求体（改 laneId+sort，同事务；wipLimit 超限 → 42203）
  */
 export interface CardMoveRequest {
+  /** 泳道 id */
   laneId: number;
+  /** 排序值（升序，越小越前） */
   sort: number;
 }

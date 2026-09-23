@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 关闭原因
+ */
 export type PlanCloseRequestClosedReason = typeof PlanCloseRequestClosedReason[keyof typeof PlanCloseRequestClosedReason];
 
 

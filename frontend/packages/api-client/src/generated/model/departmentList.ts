@@ -10,6 +10,8 @@
 import type { DepartmentNode } from './departmentNode';
 
 export interface DepartmentList {
+  /** 列表项（当前页） */
   items: DepartmentNode[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

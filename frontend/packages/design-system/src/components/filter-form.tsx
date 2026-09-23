@@ -44,7 +44,7 @@ export function FilterForm({
   onReset: () => void
 }) {
   const { t } = useTranslation()
-  const [form] = Form.useForm()
+  const [form] = Form.useForm() // form-stack-ok：列表筛选标准件（CONVENTIONS §3.2），antd 实例只做草稿回灌，无 rules 校验
   const names = useMemo(() => fields.map((field) => field.name), [fields])
   /* 生效值指纹：本页声明的每个字段都在内（含空值），值变了才回灌草稿——
      否则「无关重渲染」会把用户正在输入的内容冲掉。 */

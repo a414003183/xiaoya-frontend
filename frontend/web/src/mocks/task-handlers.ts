@@ -64,7 +64,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -902,7 +902,7 @@ export const taskHandlers = [
     if (!hasPerm([T.effortEdit])) {
       return forbidden(T.effortEdit)
     }
-    if (effort.account !== account?.account && !account?.groupIds.includes(1)) {
+    if (effort.account !== account?.account && !account?.roleIds.includes(1)) {
       return forbidden(T.effortEdit)
     }
     const task = findTask(effort.taskId)
@@ -951,7 +951,7 @@ export const taskHandlers = [
     if (!hasPerm([T.effortDelete])) {
       return forbidden(T.effortDelete)
     }
-    if (effort.account !== account?.account && !account?.groupIds.includes(1)) {
+    if (effort.account !== account?.account && !account?.roleIds.includes(1)) {
       return forbidden(T.effortDelete)
     }
     const task = findTask(effort.taskId)

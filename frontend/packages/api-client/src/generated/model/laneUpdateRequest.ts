@@ -13,20 +13,31 @@
  */
 export interface LaneUpdateRequest {
   /**
+     * 泳道名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 颜色（#RRGGBB）
+     * @nullable
+     */
   color?: string | null;
   /**
+     * WIP 上限（在制品数量限制）
      * @minimum -1
      * @maximum 999
      * @nullable
      */
   wipLimit?: number | null;
-  /** @nullable */
+  /**
+     * 是否归档
+     * @nullable
+     */
   archived?: boolean | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

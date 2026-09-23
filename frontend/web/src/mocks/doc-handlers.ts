@@ -1,5 +1,5 @@
 /**
- * doc 域 MSW handlers（P5 · T-1）：22 端点，逐一对齐 contract/openapi.yaml（tag `doc`）与 docs/rewrite/domains/doc.md §3–§5。
+ * doc 域 MSW handlers（P5 · T-1）：22 端点，逐一对齐 contract/openapi.yaml（tag `doc`）；下文 §号引自原 `docs/rewrite/domains/doc.md`（该目录已删除），契约以 openapi 为准。
  * 双层 ACL（§7）：先库门禁（open 全员 / private 创建者+白名单 / default 继承归属对象 / mine 仅创建者含超管不可见），
  * 再判文档 ACL（open 可读；private 仅 createdBy/超管/editors 可写、readers 只读、其余不可见）。
  * 状态机（§4）：create 草稿写 v0 / 直发写 v1；save-draft 覆盖 v0 不升版本不写动态流；publish 首发 v1、再发 v(n+1)（v0 无改动 → 42203）；
@@ -64,7 +64,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -158,7 +158,7 @@ function aclHit(payload: DocAclPayload | undefined, account: MockAccount): boole
   if ((payload.accounts ?? []).includes(account.account)) {
     return true
   }
-  return db.groups.some((group) => (payload.groupIds ?? []).includes(group.id) && group.memberIds.includes(account.id))
+  return db.userRoles.some((item) => (payload.groupIds ?? []).includes(item.roleId) && item.accountId === account.id)
 }
 
 /** 库门禁（§7）：mine 库仅创建者（超管也不可见）；private=创建者+白名单+超管；default 继承归属对象；open 全员。 */
@@ -171,7 +171,7 @@ function spaceVisible(space: DocSpaceRow): boolean {
   if (space.type === 'mine') {
     return space.createdBy === me
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   if (space.acl === 'open') {
@@ -202,7 +202,7 @@ function docAccess(doc: DocRow): 'edit' | 'read' | null {
   if (!space || !spaceVisible(space)) {
     return null
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return 'edit' // mine 库已在 spaceVisible 拦下，超管不豁免
   }
   const me = account.account
@@ -334,7 +334,7 @@ function aclPayloadOf(raw: unknown): Required<DocAclPayload> {
   }
 }
 
-/** 库删除/文档删除的 comment 可选体。 */
+/** publish 的 comment 可选体（删除类端点 T66 起走 DELETE + ?comment=，不再读体）。 */
 async function commentOf(request: Request): Promise<string | null> {
   const body = (await request.json().catch(() => ({}))) as { comment?: string | null }
   return body.comment ?? null
@@ -601,7 +601,7 @@ export const docHandlers = [
     return ok(spaceView(space))
   }),
 
-  http.post('*/api/v1/doc-spaces/:docSpaceId/delete', async ({ params, request }) => {
+  http.delete('*/api/v1/doc-spaces/:docSpaceId', ({ params }) => {
     if (!currentAccount()) {
       return unauthorized()
     }
@@ -617,7 +617,6 @@ export const docHandlers = [
       return conditionNotMet('库内仍有文档，无法删除。')
     }
     space.deletedAt = now()
-    await commentOf(request)
     return ok(null)
   }),
 
@@ -1331,7 +1330,7 @@ export const docHandlers = [
     return ok(docDetailView(doc))
   }),
 
-  http.post('*/api/v1/docs/:docId/delete', async ({ params, request }) => {
+  http.delete('*/api/v1/docs/:docId', ({ params }) => {
     if (!currentAccount()) {
       return unauthorized()
     }
@@ -1346,7 +1345,6 @@ export const docHandlers = [
     if (access !== 'edit') {
       return hidden('只读白名单账号不可删除该文档。')
     }
-    await commentOf(request)
     // 软删并级联子文档（§4 delete 副作用）
     for (const item of collectSubtree(doc)) {
       item.deletedAt = now()

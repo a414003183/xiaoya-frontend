@@ -12,10 +12,14 @@
  * 一条文案覆盖行（platform 卡 §3.12；key 为全点分键，lang/domain/section 为存储拆分）
  */
 export interface LangOverrideView {
+  /** 语言代码 */
   lang: string;
+  /** 文案域 */
   domain: string;
+  /** 文案分区（zh.common 这类前缀） */
   section: string;
   /** 全点分键（= domain + '.' + 其余段；与语言包键同形） */
   key: string;
+  /** 覆盖文案 */
   value: string;
 }

@@ -10,6 +10,8 @@
 import type { AuditLogView } from './auditLogView';
 
 export interface AuditLogList {
+  /** 列表项（当前页） */
   items: AuditLogView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

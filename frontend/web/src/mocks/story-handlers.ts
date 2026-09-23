@@ -1,4 +1,5 @@
 import type { StoryView } from '@zentao/api-client/generated/model/storyView'
+import type { StoryViewClosedReason } from '@zentao/api-client/generated/model/storyViewClosedReason'
 import { HttpResponse, http } from 'msw'
 import { currentAccount, db, error, FORBIDDEN, mockId, NOT_FOUND, privilegesOf, UNAUTHENTICATED } from './db'
 import {
@@ -41,7 +42,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -314,7 +315,7 @@ export const storyHandlers = [
           return { id, ok: false, error: '42202' }
         }
         story.status = 'closed'
-        story.closedReason = String(reason)
+        story.closedReason = String(reason) as StoryViewClosedReason
         story.closedAt = new Date().toISOString()
         record('story', id, 'closed')
       } else if (body.action === 'activate') {
@@ -608,7 +609,7 @@ export const storyHandlers = [
       return validation('关闭原因为重复时必须选择重复需求。', { duplicateOfId: 'required' })
     }
     story.status = 'closed'
-    story.closedReason = body.closedReason
+    story.closedReason = body.closedReason as StoryViewClosedReason
     story.duplicateOfId = body.duplicateOfId ?? null
     story.closedBy = currentAccount()?.account ?? null
     story.closedAt = new Date().toISOString()

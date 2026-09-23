@@ -7,21 +7,25 @@
  *
  * OpenAPI spec version: 0.2.0
  */
-import type { RoleCreateRequestLabels } from './roleCreateRequestLabels';
 
 export interface RoleCreateRequest {
   /**
-     * 角色码（小写字母开头，字母/数字/连字符；上限 16 与 account.role 列同宽）
+     * 角色名称
+     * @minLength 1
+     * @maxLength 60
+     */
+  name: string;
+  /**
+     * 可选稳定标识（小写字母开头，字母/数字/连字符）；留空表示这个角色不对外暴露码
      * @minLength 2
-     * @maxLength 16
+     * @maxLength 32
      * @pattern ^[a-z][a-z0-9-]*$
      */
-  code: string;
-  /** 语言码 → 角色名（至少一个非空） */
-  labels: RoleCreateRequestLabels;
+  code?: string;
   /**
-     * 缺省排到末尾
+     * 描述
+     * @maxLength 255
      * @nullable
      */
-  sort?: number | null;
+  description?: string | null;
 }

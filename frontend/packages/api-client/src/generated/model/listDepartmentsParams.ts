@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListDepartmentsParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -27,11 +27,11 @@ limit?: LimitParameter;
  */
 sort?: string;
 /**
- * 上级部门 id / 逗号 IN（根部门的 parentId 为 null，不做等值过滤）
+ * 上级部门 id / 逗号 IN（根部门的 parentId 为 null，不做等值过滤）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[parentId]'?: string;
 /**
- * 层级（根=1）
+ * 层级（根=1）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[grade]'?: string;
 /**

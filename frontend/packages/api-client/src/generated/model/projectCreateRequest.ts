@@ -28,9 +28,13 @@ export interface ProjectCreateRequest {
      * @nullable
      */
   parentId?: number | null;
-  /** @maxLength 90 */
+  /**
+     * 项目名称
+     * @maxLength 90
+     */
   name: string;
   /**
+     * 编码（业务唯一标识）
      * @maxLength 45
      * @nullable
      */
@@ -45,7 +49,10 @@ export interface ProjectCreateRequest {
      * @nullable
      */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
   /**
      * ≥0 且 ≤3650，缺省 0
@@ -53,6 +60,7 @@ export interface ProjectCreateRequest {
      */
   days?: number | null;
   /**
+     * 预算
      * @minimum 0
      * @nullable
      */
@@ -69,15 +77,30 @@ export interface ProjectCreateRequest {
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 项目经理（登录账号）
+     * @nullable
+     */
   pm?: string | null;
-  /** @nullable */
+  /**
+     * 产品负责人（登录账号）
+     * @nullable
+     */
   po?: string | null;
-  /** @nullable */
+  /**
+     * 测试负责人（登录账号）
+     * @nullable
+     */
   qd?: string | null;
-  /** @nullable */
+  /**
+     * 研发负责人（登录账号）
+     * @nullable
+     */
   rd?: string | null;
   /** 缺省 open；program=继承上级项目集（仅 project 型） */
   acl: ProjectCreateRequestAcl;
@@ -86,14 +109,20 @@ export interface ProjectCreateRequest {
      * @nullable
      */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
   /**
      * 仅执行型（type=stage）有效，缺省 false
      * @nullable
      */
   isMilestone?: boolean | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: ProjectCreateRequestCustomFields;
   /**
      * 仅 POST /projects：项目必须关联产品（无产品项目不做，§1）；全量落 project_product

@@ -9,5 +9,6 @@
  */
 
 export interface AssignRunCaseRequest {
+  /** 处理人（登录账号，空=未指派） */
   assignee: string;
 }

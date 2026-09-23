@@ -10,7 +10,7 @@ import {
   submitEffort,
   submitTask,
 } from '../../features/task/api/task.api'
-import { db, resetMockData } from '../db'
+import { db, grantRolePrivileges, resetMockData } from '../db'
 import { handlers } from '../handlers'
 
 /**
@@ -129,7 +129,7 @@ describe('执行 ACL（task §7）', () => {
 
     // dev1：只读组（无 task-view 之外的码）→ 先补功能码，再断言数据权限 40302
     db.currentAccountId = 2
-    db.groups.find((group) => group.id === 2)?.privCodes.push('task-view')
+    grantRolePrivileges(2, ['task-view'])
     await expectApiError(fetchTask(task.id), 40302)
     await expectApiError(fetchTasks(executionId, {}), 40302)
   })

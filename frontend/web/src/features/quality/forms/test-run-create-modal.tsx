@@ -1,25 +1,59 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import type { TestRunView } from '@zentao/api-client/generated/model/testRunView'
-import { Form, Input, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { Form, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import {
+  applyServerFields,
+  DateField,
+  errorProps,
+  SelectField,
+  TextAreaField,
+  TextField,
+} from '../../../shared/form-fields'
 import { metaNumberOptions, metaOptions, useDomainMeta } from '../../../shared/meta-options'
 import { fetchBuilds } from '../../product'
 import { fetchExecutions } from '../../project'
 import { fetchAccountOptions, patchTestRun, submitTestRun } from '../api/quality.api'
 
-export type TestRunFormValues = {
-  name: string
-  executionId: number | null
-  priority: number
-  type: string | null
-  beginDate: string
-  endDate: string
-  owner: string | null
-  buildId: number | null
-  description: string | null
-  members: string[]
-  notifyAccounts: string[]
+export const testRunFormSchema = z.object({
+  name: z.string().min(1, 'common.message.required'),
+  executionId: z
+    .number()
+    .nullable()
+    .refine((value) => value !== null, 'common.message.required'),
+  priority: z.number(),
+  type: z.string().nullable(),
+  beginDate: z.string().min(1, 'common.message.required'),
+  endDate: z.string().min(1, 'common.message.required'),
+  owner: z.string().nullable(),
+  buildId: z.number().nullable(),
+  description: z.string().nullable(),
+  members: z.array(z.string()),
+  notifyAccounts: z.array(z.string()),
+})
+
+export type TestRunFormValues = z.input<typeof testRunFormSchema>
+
+function valuesOf(testRun: TestRunView | null): TestRunFormValues {
+  const today = new Date().toISOString().slice(0, 10)
+  return {
+    name: testRun?.name ?? '',
+    executionId: testRun?.executionId ?? null,
+    priority: testRun?.priority ?? 3,
+    type: testRun?.type ?? null,
+    beginDate: testRun?.beginDate ?? today,
+    endDate: testRun?.endDate ?? today,
+    owner: testRun?.owner ?? null,
+    buildId: testRun?.buildId ?? null,
+    description: testRun?.description ?? null,
+    members: testRun?.members ?? [],
+    notifyAccounts: testRun?.notifyAccounts ?? [],
+  }
 }
 
 /** 提交体（quality §3.4 ✓项）：productId/executionId 创建后不可改，改单走 PATCH 白名单（§5）。 */
@@ -63,11 +97,18 @@ export function TestRunFormModal({
   const message = useMessage()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [form] = Form.useForm<TestRunFormValues>()
   const editing = testRun != null
-  const today = new Date().toISOString().slice(0, 10)
   // 枚举字段选项唯一来源（03 §5）：priority/type 从 meta 取，前端不留清单。
   const runMeta = useDomainMeta('testRun')
+  const { control, handleSubmit, setError, reset } = useForm<TestRunFormValues>({
+    resolver: zodResolver(testRunFormSchema),
+    defaultValues: valuesOf(testRun ?? null),
+  })
+
+  // 切换新建/编辑对象时重置表单（defaultValues 只在首挂载生效）
+  useEffect(() => {
+    reset(valuesOf(testRun ?? null))
+  }, [testRun, reset])
 
   const executions = useQuery({
     queryKey: ['listExecutions', 'form'],
@@ -95,12 +136,15 @@ export function TestRunFormModal({
       }
       onClose()
     },
+    onError: (error) => applyServerFields(error, setError),
   })
 
   const accountOptions = (accounts.data ?? []).map((account) => ({
     value: account.account,
     label: `${account.realName}（${account.account}）`,
   }))
+
+  const submit = handleSubmit((values) => save.mutate(values))
 
   return (
     <Modal
@@ -112,106 +156,106 @@ export function TestRunFormModal({
       okText={t('common.action.submit')}
       cancelText={t('common.action.cancel')}
       confirmLoading={save.isPending}
-      onOk={() => void form.submit()}
+      onOk={() => void submit()}
     >
-      <Form
-        form={form}
-        key={testRun?.id ?? 'create'}
-        layout="vertical"
-        initialValues={{
-          name: testRun?.name ?? '',
-          executionId: testRun?.executionId ?? null,
-          priority: testRun?.priority ?? 3,
-          type: testRun?.type ?? null,
-          beginDate: testRun?.beginDate ?? today,
-          endDate: testRun?.endDate ?? today,
-          owner: testRun?.owner ?? null,
-          buildId: testRun?.buildId ?? null,
-          description: testRun?.description ?? null,
-          members: testRun?.members ?? [],
-          notifyAccounts: testRun?.notifyAccounts ?? [],
-        }}
-        onFinish={(values) => save.mutate(values)}
-      >
-        <Form.Item
+      <Form layout="vertical">
+        <TextField
+          control={control}
           name="name"
           label={t('testRun.field.name')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="test-run-name" maxLength={90} />
-        </Form.Item>
-        <Form.Item
+          maxLength={90}
+          aria-label="test-run-name"
+        />
+        <Controller
+          control={control}
           name="executionId"
-          label={t('testRun.field.execution')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Select
-            showSearch
-            optionFilterProp="label"
-            disabled={editing}
-            aria-label="test-run-execution"
-            options={(executions.data?.items ?? []).map((execution) => ({
-              value: execution.id,
-              label: execution.name,
-            }))}
-          />
-        </Form.Item>
-        <Form.Item name="priority" label={t('testRun.field.priority')}>
-          <Select aria-label="test-run-priority" options={metaNumberOptions(runMeta.data, 'priority', t)} />
-        </Form.Item>
-        <Form.Item name="type" label={t('testRun.field.type')}>
-          <Select allowClear aria-label="test-run-type" options={metaOptions(runMeta.data, 'type', t)} />
-        </Form.Item>
-        <Form.Item
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('testRun.field.execution')} {...errorProps(fieldState.error, t)}>
+              <Select
+                showSearch
+                optionFilterProp="label"
+                disabled={editing}
+                aria-label="test-run-execution"
+                options={(executions.data?.items ?? []).map((execution) => ({
+                  value: execution.id,
+                  label: execution.name,
+                }))}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <Controller
+          control={control}
+          name="priority"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('testRun.field.priority')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="test-run-priority"
+                options={metaNumberOptions(runMeta.data, 'priority', t)}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <SelectField
+          control={control}
+          name="type"
+          label={t('testRun.field.type')}
+          options={metaOptions(runMeta.data, 'type', t)}
+          aria-label="test-run-type"
+        />
+        <DateField
+          control={control}
           name="beginDate"
           label={t('testRun.field.beginDate')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="test-run-begin-date" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item
-          name="endDate"
-          label={t('testRun.field.endDate')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="test-run-end-date" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item name="owner" label={t('testRun.field.owner')}>
-          <Select allowClear showSearch optionFilterProp="label" aria-label="test-run-owner" options={accountOptions} />
-        </Form.Item>
-        <Form.Item name="buildId" label={t('testRun.field.build')}>
-          <Select
-            allowClear
-            aria-label="test-run-build"
-            options={[
-              { value: 0, label: t('common.field.none') },
-              ...(builds.data?.items ?? []).map((build) => ({ value: build.id, label: build.name })),
-            ]}
-          />
-        </Form.Item>
-        <Form.Item name="members" label={t('testRun.field.members')}>
-          <Select
-            mode="multiple"
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="test-run-members"
-            options={accountOptions}
-          />
-        </Form.Item>
-        <Form.Item name="notifyAccounts" label={t('testRun.field.notify')}>
-          <Select
-            mode="multiple"
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="test-run-notify"
-            options={accountOptions}
-          />
-        </Form.Item>
-        <Form.Item name="description" label={t('testRun.field.description')}>
-          <Input.TextArea aria-label="test-run-description" rows={3} />
-        </Form.Item>
+          aria-label="test-run-begin-date"
+        />
+        <DateField control={control} name="endDate" label={t('testRun.field.endDate')} aria-label="test-run-end-date" />
+        <SelectField
+          control={control}
+          name="owner"
+          label={t('testRun.field.owner')}
+          options={accountOptions}
+          aria-label="test-run-owner"
+        />
+        <SelectField
+          control={control}
+          name="buildId"
+          label={t('testRun.field.build')}
+          options={[
+            { value: 0, label: t('common.field.none') },
+            ...(builds.data?.items ?? []).map((build) => ({ value: build.id, label: build.name })),
+          ]}
+          aria-label="test-run-build"
+        />
+        <SelectField
+          control={control}
+          name="members"
+          label={t('testRun.field.members')}
+          options={accountOptions}
+          multiple
+          aria-label="test-run-members"
+        />
+        <SelectField
+          control={control}
+          name="notifyAccounts"
+          label={t('testRun.field.notify')}
+          options={accountOptions}
+          multiple
+          aria-label="test-run-notify"
+        />
+        <TextAreaField
+          control={control}
+          name="description"
+          label={t('testRun.field.description')}
+          rows={3}
+          aria-label="test-run-description"
+        />
         {save.error ? (
           <Typography.Paragraph type="danger">{errorText(save.error, t, 'common.message.failed')}</Typography.Paragraph>
         ) : null}

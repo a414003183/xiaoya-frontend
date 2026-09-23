@@ -13,7 +13,9 @@ import type { StakeholderCreateRequestType } from './stakeholderCreateRequestTyp
  * 添加干系人（objectType/objectId 由端点定；同对象重复 account → 42201）
  */
 export interface StakeholderCreateRequest {
+  /** 登录账号 */
   account: string;
+  /** 类型 */
   type: StakeholderCreateRequestType;
   /**
      * 缺省 false
@@ -21,6 +23,7 @@ export interface StakeholderCreateRequest {
      */
   isKey?: boolean | null;
   /**
+     * 来源备注（自由文本，≤30 字）
      * @maxLength 30
      * @nullable
      */

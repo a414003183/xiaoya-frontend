@@ -13,10 +13,18 @@ import type { TaskChildSummaryStatus } from './taskChildSummaryStatus';
  * 子任务摘要（父任务详情的 children 数组元素，task 卡 §3）
  */
 export interface TaskChildSummary {
+  /** 主键 id */
   id: number;
-  /** @maxLength 255 */
+  /**
+     * 子任务标题
+     * @maxLength 255
+     */
   title: string;
+  /** 状态 */
   status: TaskChildSummaryStatus;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
 }

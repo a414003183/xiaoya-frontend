@@ -1,4 +1,5 @@
 /** @route /todos/batch-create @title workspace.title.todoBatchCreate @perm todo-create @hide @activeMenu /my/todos */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import { Button, Card, Input, PageContainer, PageHeader, Select, Space, Table, Typography } from '@zentao/design-system'
@@ -208,7 +209,7 @@ export default function TodoBatchCreatePage() {
               type="primary"
               loading={submit.isPending}
               disabled={filled.length === 0}
-              onClick={() => void submit.mutateAsync(rows)}
+              onClick={() => submit.mutate(rows)}
             >
               {t('common.action.submit')}
             </Button>

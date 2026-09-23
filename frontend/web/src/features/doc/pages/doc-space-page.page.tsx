@@ -256,7 +256,7 @@ export default function DocSpacePage() {
           />
           <ListCard<DocNode | DocView>
             columns={columns}
-            columnSettingKey="doc-files"
+            columnSettingKey="doc-space-files"
             actions={
               <>
                 <Button

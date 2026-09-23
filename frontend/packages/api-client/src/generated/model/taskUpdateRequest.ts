@@ -14,38 +14,61 @@ import type { TaskUpdateRequestType } from './taskUpdateRequestType';
  */
 export interface TaskUpdateRequest {
   /**
+     * 任务标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TaskUpdateRequestType;
   /**
-     * 1–4
+     * 优先级（1–4）
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
   /**
-     * ≥0，≤999.99；传 0 清零
+     * 预估工时（≥0，≤999.99）；传 0 清零
      * @nullable
      */
   estimateHours?: number | null;
-  /** @nullable */
+  /**
+     * 预计开始日期
+     * @nullable
+     */
   estStartedDate?: string | null;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
   /** 乐观锁版本（不符 → 40901） */
   lockVersion: number;

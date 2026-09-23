@@ -1,7 +1,7 @@
 import { ApiError } from '@zentao/api-client'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { db, resetMockData } from '../../../mocks/db'
+import { db, grantRolePrivileges, resetMockData } from '../../../mocks/db'
 import { handlers } from '../../../mocks/handlers'
 import {
   fetchLibraries,
@@ -46,7 +46,7 @@ async function expectApiError(promise: Promise<unknown>, code: number): Promise<
 /** dev1 只读组：补功能码后仅剩数据权限差异（product 1 为 public 产品）。 */
 function grantDev1(codes: string[]): void {
   db.currentAccountId = 2
-  db.groups.find((group) => group.id === 2)?.privCodes.push(...codes)
+  grantRolePrivileges(2, codes)
 }
 
 describe('套件行级规则（quality §7/§8）', () => {

@@ -31,6 +31,7 @@ export interface EffortCreateRequest {
      */
   leftHours?: number | null;
   /**
+     * 工时说明
      * @maxLength 255
      * @nullable
      */

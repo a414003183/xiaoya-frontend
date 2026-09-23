@@ -283,7 +283,11 @@ export default function TaskDetailPage() {
             {
               key: 'files',
               label: t('task.tab.files'),
-              children: <FileUploadField objectType="task" objectId={taskId} />,
+              children: (
+                <HasPerm perm="file-upload">
+                  <FileUploadField objectType="task" objectId={taskId} />
+                </HasPerm>
+              ),
             },
           ]}
         />

@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type TestCaseUpdateRequestType = typeof TestCaseUpdateRequestType[keyof typeof TestCaseUpdateRequestType] | null;

@@ -10,7 +10,11 @@
 import type { RecordResultRequestResult } from './recordResultRequestResult';
 
 export interface RecordResultRequest {
+  /** 执行结果 */
   result: RecordResultRequestResult;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

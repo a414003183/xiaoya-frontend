@@ -27,13 +27,19 @@ export interface TaskFinishRequest {
      * @nullable
      */
   startedAt?: string | null;
-  /** @nullable */
+  /**
+     * 完成时间
+     * @nullable
+     */
   finishedAt?: string | null;
   /**
      * 自动落 effort 的内容
      * @nullable
      */
   work?: string | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

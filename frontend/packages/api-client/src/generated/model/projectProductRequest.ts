@@ -12,5 +12,6 @@
  * 项目关联产品全量替换（POST /projects/{projectId}/products 的请求体与 200 响应同形，diff 落 project_product）
  */
 export interface ProjectProductRequest {
+  /** 关联产品 id 集合 */
   productIds: number[];
 }

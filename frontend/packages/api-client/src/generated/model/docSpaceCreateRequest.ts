@@ -16,24 +16,53 @@ import type { DocSpaceCreateRequestType } from './docSpaceCreateRequestType';
  * 创建文档库（doc 卡 §3.1 ✓ 列；mine 重复创建返回既有库）
  */
 export interface DocSpaceCreateRequest {
-  /** @maxLength 60 */
+  /**
+     * 库名称
+     * @maxLength 60
+     */
   name: string;
+  /** 类型 */
   type: DocSpaceCreateRequestType;
-  /** @nullable */
+  /**
+     * 产品 id
+     * @nullable
+     */
   productId?: number | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @nullable */
+  /**
+     * 执行 id
+     * @nullable
+     */
   executionId?: number | null;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
   acl?: DocSpaceCreateRequestAcl;
+  /** 白名单（自定义可见集） */
   whitelist?: DocAclPayload;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 库内默认排序
+     * @nullable
+     */
   docSort?: DocSpaceCreateRequestDocSort;
-  /** @nullable */
+  /**
+     * 是否默认
+     * @nullable
+     */
   isDefault?: boolean | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

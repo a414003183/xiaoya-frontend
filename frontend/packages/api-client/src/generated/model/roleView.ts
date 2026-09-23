@@ -7,31 +7,58 @@
  *
  * OpenAPI spec version: 0.2.0
  */
-import type { RoleViewLabels } from './roleViewLabels';
+import type { RoleAcl } from './roleAcl';
 
 /**
- * 账号角色字典项（org 卡 §3.4；内置角色 builtin=true，可改名不可删）
+ * 角色（统一实体）：一个角色 = 权限码 + 成员 + 数据权限。`builtin` 的角色不可删除 （超管角色 id=1 与迁移来的岗位角色）；`code` 是可选稳定标识，创建后不可改。
  */
 export interface RoleView {
+  /** 主键 id */
+  id: number;
   /**
-     * 角色码（账号 role 列存它，创建后不可改；上限 16 与 account.role 列同宽）
-     * @maxLength 16
+     * 可选稳定标识（小写字母/数字/连字符）；迁移来的岗位角色带码，新建角色可空
+     * @maxLength 32
+     * @nullable
      */
-  code: string;
-  /** 语言码 → 角色名（前端按当前语言取，缺省回退任一非空值；服务端不枚举语言） */
-  labels: RoleViewLabels;
+  code?: string | null;
+  /**
+     * 角色名称
+     * @maxLength 60
+     */
+  name: string;
+  /**
+     * 描述
+     * @maxLength 255
+     * @nullable
+     */
+  description?: string | null;
+  /** 访问控制（可见范围策略） */
+  acl: RoleAcl;
+  /** 成员账号数（实时统计） */
+  memberCount: number;
+  /** 权限码数（实时统计） */
+  privilegeCount: number;
+  /** 内置角色（不可删除） */
+  builtin: boolean;
   /** 升序展示位 */
   sort: number;
-  /** 内置角色（迁移自旧禅道 roleList，不可删除） */
-  builtin: boolean;
-  /** 仍在使用该角色的账号数（删除守卫） */
-  accountCount: number;
-  /** @nullable */
+  /**
+     * 创建人（登录账号）
+     * @nullable
+     */
   createdBy?: string | null;
-  createdAt?: string;
-  /** @nullable */
+  /** 创建时间 */
+  createdAt: string;
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

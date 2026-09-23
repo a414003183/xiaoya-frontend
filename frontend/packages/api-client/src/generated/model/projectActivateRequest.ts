@@ -12,8 +12,13 @@
  * 激活动作请求体（三型共用，§4 closed → doing；守卫 beginDate ≤ endDate，否则 42203）
  */
 export interface ProjectActivateRequest {
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

@@ -13,8 +13,10 @@ import type { BatchActionRequestParams } from './batchActionRequestParams';
  * 批量动作请求体（03 §1：ids + action + params；action=edit 时 params.rows=[{id,lockVersion,…}] 逐行应用——2026-09-19 A-03 定案）
  */
 export interface BatchActionRequest {
+  /** 目标对象 id 集合 */
   ids: number[];
-  /** product ∈ close|activate|edit；story ∈ close|activate|assign|edit；bug/testCase ∈ confirm|resolve|activate|close|assign|edit|review（testCase） */
+  /** 批量动作码（product ∈ close|activate|edit；story ∈ close|activate|assign|edit；bug/testCase ∈ confirm|resolve|activate|close|assign|edit|review（testCase）；各资源子集不同故不写 enum） */
   action: string;
+  /** 动作参数（action=edit 时 params.rows=[{id,lockVersion,…}] 逐行应用） */
   params?: BatchActionRequestParams;
 }

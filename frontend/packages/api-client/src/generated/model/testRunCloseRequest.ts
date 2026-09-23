@@ -9,7 +9,11 @@
  */
 
 export interface TestRunCloseRequest {
+  /** 实际完成时间 */
   realFinishedAt: string;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

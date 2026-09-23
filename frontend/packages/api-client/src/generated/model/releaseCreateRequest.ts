@@ -9,25 +9,56 @@
  */
 
 export interface ReleaseCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 构建 id
+     * @nullable
+     */
   buildId?: number | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @maxLength 90 */
+  /**
+     * 版本名称
+     * @maxLength 90
+     */
   name: string;
+  /** 计划发布日期 */
   releaseDate: string;
-  /** @nullable */
+  /**
+     * 发布时间
+     * @nullable
+     */
   publishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 是否里程碑
+     * @nullable
+     */
   isMilestone?: boolean | null;
-  /** @nullable */
+  /**
+     * 关联需求 id 集合
+     * @nullable
+     */
   storyIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 关联 Bug id 集合
+     * @nullable
+     */
   bugIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
 }

@@ -10,6 +10,8 @@
 import type { TodoView } from './todoView';
 
 export interface TodoList {
+  /** 列表项（当前页） */
   items: TodoView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

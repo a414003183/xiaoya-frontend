@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListTodosParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -27,30 +27,36 @@ limit?: LimitParameter;
  */
 sort?: string;
 /**
- * wait|doing|done|closed
+ * wait|doing|done|closed；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[status]'?: string;
 /**
- * custom|bug|task|story|epic|requirement|testRun
+ * custom|bug|task|story|epic|requirement|testRun；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[type]'?: string;
 /**
- * 1|2|3|4
+ * 1|2|3|4；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[priority]'?: string;
 /**
- * 日期或区间；@null 取待定日期
+ * 日期或区间；@null 取待定日期；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[date]'?: string;
 /**
- * 账号 / @me / @null
+ * 账号 / @me / @null；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[assignee]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdBy]'?: string;
 /**
- * 1/0
+ * 1/0；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[isPrivate]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[id]'?: string;
 /**
  * LIKE title

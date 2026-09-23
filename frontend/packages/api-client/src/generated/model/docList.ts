@@ -10,6 +10,8 @@
 import type { DocView } from './docView';
 
 export interface DocList {
+  /** 列表项（当前页） */
   items: DocView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

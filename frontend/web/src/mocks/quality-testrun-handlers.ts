@@ -71,7 +71,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -85,7 +85,7 @@ const now = () => new Date().toISOString()
 /** Report 可见性随冗余 productId（§7）；productId=0（未关联测试单）无产品可依，仅超管可见。 */
 function reportVisible(productId: number | undefined): boolean {
   if (!productId) {
-    return currentAccount()?.groupIds.includes(1) ?? false
+    return currentAccount()?.roleIds.includes(1) ?? false
   }
   return visibleProduct(productId) !== undefined
 }

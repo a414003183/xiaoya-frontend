@@ -14,24 +14,38 @@ import type { WeeklyReportViewWorkload } from './weeklyReportViewWorkload';
  * 周报视图（workspace 卡 §3.2；weekSN/weekEnd/analysis/三表为读取时现算）
  */
 export interface WeeklyReportView {
+  /** 主键 id */
   id: number;
+  /** 项目 id */
   projectId: number;
+  /** 周起始日 */
   weekStart: string;
   /** 第几周，由项目 beginDate 起算 */
   weekSN: number;
+  /** 周结束日 */
   weekEnd: string;
+  /** 计划价值 PV */
   pv: number;
+  /** 挣值 EV */
   ev: number;
+  /** 实际成本 AC（挣值口径） */
   ac: number;
+  /** 进度偏差 SV（挣值口径） */
   sv: number;
+  /** 成本偏差 CV（挣值口径） */
   cv: number;
+  /** 涉及人员数 */
   staff: number;
   /** 本周按任务类型分组的预计工时 map */
   workload: WeeklyReportViewWorkload;
   /** 按 sv/cv 阈值现算的纯文本结论，\n 分隔（前端禁 HTML 注入） */
   analysis: string;
+  /** 完成条数 */
   finished: TaskSummaryView[];
+  /** 延期条数 */
   postponed: TaskSummaryView[];
+  /** 下周计划 */
   nextWeek: TaskSummaryView[];
+  /** 更新时间 */
   updatedAt: string;
 }

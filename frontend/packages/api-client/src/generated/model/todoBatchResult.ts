@@ -10,5 +10,6 @@
 import type { TodoBatchResultItem } from './todoBatchResultItem';
 
 export interface TodoBatchResult {
+  /** 逐项结果 */
   results: TodoBatchResultItem[];
 }

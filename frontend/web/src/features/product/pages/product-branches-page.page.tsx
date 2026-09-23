@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
 import { ListFilterForm, selectField } from '../../../shared/list-filter'
 import { useMetaOptions } from '../../../shared/meta-options'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   activateBranchAction,
   type BranchView,
@@ -37,6 +38,7 @@ import { statusTone } from '../model'
 /** 分支管理（product 卡 §6 / T-7：列表 + 行内 set-default/关闭/激活；筛选值域来自 meta/branch）。 */
 export default function ProductBranchesPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const productId = Number(useParams().productId)
@@ -56,10 +58,15 @@ export default function ProductBranchesPage() {
     void queryClient.invalidateQueries({ queryKey: ['listBranches'] })
     void queryClient.invalidateQueries({ queryKey: ['listProductActivities'] })
   }
-  const close = useMutation({ mutationFn: (branchId: number) => closeBranchAction(branchId), onSuccess: invalidate })
+  const close = useMutation({
+    mutationFn: (branchId: number) => closeBranchAction(branchId),
+    onSuccess: invalidate,
+    onError: feedback.failed,
+  })
   const activate = useMutation({
     mutationFn: (branchId: number) => activateBranchAction(branchId),
     onSuccess: invalidate,
+    onError: feedback.failed,
   })
   const setDefault = useMutation({
     mutationFn: (branchId: number) => setDefaultBranchAction(branchId),
@@ -67,6 +74,7 @@ export default function ProductBranchesPage() {
       message.success(t('branch.message.defaultSet'))
       invalidate()
     },
+    onError: feedback.failed,
   })
   const remove = useMutation({
     mutationFn: (branchId: number) => deleteBranchAction(branchId),
@@ -102,34 +110,37 @@ export default function ProductBranchesPage() {
       key: 'actions',
       render: (_: unknown, record: BranchView) => (
         <Space>
-          <Button
-            size="small"
-            onClick={() => {
-              setEditing(record)
-              setModalOpen(true)
-            }}
-          >
-            {t('common.action.edit')}
-          </Button>
-          {record.status === 'active' ? (
-            <>
-              <Button
-                size="small"
-                disabled={record.isDefault}
-                loading={setDefault.isPending}
-                onClick={() => setDefault.mutate(record.id)}
-              >
-                {t('branch.action.setDefault')}
-              </Button>
-              <Button size="small" onClick={() => close.mutate(record.id)}>
-                {t('branch.action.close')}
-              </Button>
-            </>
-          ) : (
-            <Button size="small" onClick={() => activate.mutate(record.id)}>
-              {t('branch.action.activate')}
+          {/* T02：manage 四个动作同码 branch-manage（BranchController：create/patch/close/activate/set-default） */}
+          <HasPerm perm="branch-manage">
+            <Button
+              size="small"
+              onClick={() => {
+                setEditing(record)
+                setModalOpen(true)
+              }}
+            >
+              {t('common.action.edit')}
             </Button>
-          )}
+            {record.status === 'active' ? (
+              <>
+                <Button
+                  size="small"
+                  disabled={record.isDefault}
+                  loading={setDefault.isPending}
+                  onClick={() => setDefault.mutate(record.id)}
+                >
+                  {t('branch.action.setDefault')}
+                </Button>
+                <Button size="small" onClick={() => close.mutate(record.id)}>
+                  {t('branch.action.close')}
+                </Button>
+              </>
+            ) : (
+              <Button size="small" onClick={() => activate.mutate(record.id)}>
+                {t('branch.action.activate')}
+              </Button>
+            )}
+          </HasPerm>
           <HasPerm perm="branch-delete">
             <Popconfirm title={t('branch.message.deleteHint')} onConfirm={() => remove.mutate(record.id)}>
               <Button size="small" danger aria-label={`branch-delete-${record.id}`}>
@@ -158,15 +169,17 @@ export default function ProductBranchesPage() {
             {branches.error ? (
               <Typography.Text type="danger">{errorText(branches.error, t, 'common.message.failed')}</Typography.Text>
             ) : null}
-            <Button
-              type="primary"
-              onClick={() => {
-                setEditing(null)
-                setModalOpen(true)
-              }}
-            >
-              {t('branch.action.create')}
-            </Button>
+            <HasPerm perm="branch-manage">
+              <Button
+                type="primary"
+                onClick={() => {
+                  setEditing(null)
+                  setModalOpen(true)
+                }}
+              >
+                {t('branch.action.create')}
+              </Button>
+            </HasPerm>
           </>
         }
         rowKey="id"

@@ -13,36 +13,72 @@ import type { ProductViewStatus } from './productViewStatus';
 import type { ProductViewType } from './productViewType';
 
 export interface ProductView {
+  /** 主键 id */
   id: number;
+  /** 所属项目集 id（空=不挂项目集） */
   programId?: number;
-  /** @maxLength 90 */
+  /**
+     * 产品名称
+     * @maxLength 90
+     */
   name: string;
   /**
+     * 编码（业务唯一标识）
      * @maxLength 45
      * @nullable
      */
   code?: string | null;
+  /** 类型 */
   type: ProductViewType;
+  /** 状态 */
   status: ProductViewStatus;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 产品负责人（登录账号）
+     * @nullable
+     */
   po?: string | null;
-  /** @nullable */
+  /**
+     * 测试负责人（登录账号）
+     * @nullable
+     */
   qd?: string | null;
-  /** @nullable */
+  /**
+     * 研发负责人（登录账号）
+     * @nullable
+     */
   rd?: string | null;
+  /** 访问控制（可见范围策略） */
   acl: ProductViewAcl;
+  /** 白名单（acl=custom 时的可见账号集合） */
   whitelist: string[];
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 自定义字段（动态字段表） */
   customFields?: ProductViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

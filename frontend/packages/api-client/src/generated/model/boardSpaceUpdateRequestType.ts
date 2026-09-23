@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type BoardSpaceUpdateRequestType = typeof BoardSpaceUpdateRequestType[keyof typeof BoardSpaceUpdateRequestType] | null;

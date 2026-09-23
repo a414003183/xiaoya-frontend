@@ -54,6 +54,29 @@ function matchIn(value: unknown, filter: string | null): boolean {
   return filter.split(',').some((item) => item === String(value ?? ''))
 }
 
+/** 扁平键 → 参数行视图（T15；value 出 JSON 文本，与后端同形）。 */
+function toSettingEntry(key: string, value: unknown): { key: string; domain: string; itemKey: string; value: string } {
+  const dot = key.indexOf('.')
+  return { key, domain: key.slice(0, dot), itemKey: key.slice(dot + 1), value: JSON.stringify(value) }
+}
+
+/** 参数写入口的校验（键格式/键重复留给调用点，这里管形状与 JSON）：返回违规说明，null = 通过。 */
+function settingEntryViolation(key: string, jsonText: string | undefined): string | null {
+  const dot = key.indexOf('.')
+  if (dot <= 0 || dot === key.length - 1) {
+    return '键格式非法。'
+  }
+  if (jsonText === undefined || jsonText === '') {
+    return '缺少参数值。'
+  }
+  try {
+    JSON.parse(jsonText)
+  } catch {
+    return '参数值必须是合法 JSON。'
+  }
+  return null
+}
+
 /**
  * 日期区间 `a..b`（含当日；开区间 `a..` / `..b`），裸值退化为等值。
  * 行里存的是 ISO 时间戳、区间两半是 `YYYY-MM-DD`——比较前统一截到日，
@@ -75,6 +98,9 @@ function matchDayRange(value: unknown, filter: string | null): boolean {
 }
 
 /** 平台域 MSW handlers：通知/文件/搜索/meta/dicts/settings/lang-items/comments/audit-logs。 */
+
+/** 内置字典名（T16：DB 类型不得撞；与后端 DictRegistry 的注册名同集）。 */
+const BUILTIN_DICT_NAMES = ['accounts', 'departments', 'timezones', 'locales', 'privileges', 'bug-os', 'bug-browser']
 export const platformHandlers = [
   // ── 通知 ──
   http.get('*/api/v1/notifications', ({ request }) => {
@@ -144,7 +170,7 @@ export const platformHandlers = [
     }
     const account = currentAccount()
     // 权限码 file-upload 在 mock 中仅超管组拥有；普通账号 40301
-    if (!account?.groupIds.includes(1)) {
+    if (!account?.roleIds.includes(1)) {
       return HttpResponse.json(FORBIDDEN('file-upload'), { status: 403 })
     }
     const form = await request.formData()
@@ -210,7 +236,7 @@ export const platformHandlers = [
     if (!file) {
       return HttpResponse.json(NOT_FOUND, { status: 404 })
     }
-    const isSuperAdmin = account?.groupIds.includes(1) ?? false
+    const isSuperAdmin = account?.roleIds.includes(1) ?? false
     if (file.createdBy !== account?.account && !isSuperAdmin) {
       return HttpResponse.json(error(40302, '仅上传人或超管可删除。'), { status: 403 })
     }
@@ -244,11 +270,11 @@ export const platformHandlers = [
           { key: 'account', type: 'text', required: true, maxLength: 30, i18n: 'account.field.account' },
           { key: 'password', type: 'text', required: true, i18n: 'account.field.password' },
           { key: 'realName', type: 'text', required: true, maxLength: 100, i18n: 'account.field.realName' },
-          { key: 'role', type: 'select', source: 'roles', i18n: 'account.field.role' },
+          { key: 'roleId', type: 'select', source: 'roles', i18n: 'account.field.roles' },
           { key: 'departmentId', type: 'select', source: 'departments', i18n: 'account.field.department' },
           { key: 'status', type: 'select', i18n: 'org.account.field.status', options: ACCOUNT_STATUS_OPTIONS },
           { key: 'gender', type: 'select', i18n: 'org.account.field.gender', options: ACCOUNT_GENDER_OPTIONS },
-          { key: 'groupIds', type: 'multiselect', source: 'groups', multiple: true, i18n: 'account.field.groups' },
+          { key: 'roleIds', type: 'multiselect', source: 'roles', multiple: true, i18n: 'account.field.roles' },
         ],
         list: { defaultColumns: ['id', 'account', 'realName', 'status'], defaultSort: '-id' },
         actions: [
@@ -349,15 +375,27 @@ export const platformHandlers = [
       case 'privileges':
         return ok({ name: 'privileges', items: PRIVILEGE_CATALOG })
       case 'roles':
-        // 角色字典（org §3.4）：{code, labels, sort, builtin}——账号 meta 的 role 选项唯一来源
+        // 角色字典（T23）：{value: 角色 id, label: 角色名}——账号表单与筛选的选项唯一来源
         return ok({
           name: 'roles',
           items: [...db.roles]
-            .sort((a, b) => a.sort - b.sort || a.code.localeCompare(b.code))
-            .map((role) => ({ code: role.code, labels: role.labels, sort: role.sort, builtin: role.builtin })),
+            .sort((a, b) => a.sort - b.sort || a.id - b.id)
+            .map((role) => ({ value: role.id, label: role.name, code: role.code, sort: role.sort })),
         })
-      default:
-        return HttpResponse.json(NOT_FOUND, { status: 404 })
+      default: {
+        // DB 字典回落（T16）：与后端 DictRegistry 同口径——内置字典优先，没注册过的名去 dict_data 找
+        const type = db.dictTypes.find((row) => row.code === String(params.name) && row.status === 'active')
+        if (!type) {
+          return HttpResponse.json(NOT_FOUND, { status: 404 })
+        }
+        return ok({
+          name: type.code,
+          items: db.dictData
+            .filter((row) => row.typeCode === type.code && row.status === 'active')
+            .sort((a, b) => a.sortNo - b.sortNo)
+            .map((row) => ({ value: row.itemValue, label: row.itemLabel })),
+        })
+      }
     }
   }),
 
@@ -386,7 +424,7 @@ export const platformHandlers = [
     const account = currentAccount()
     const body = (await request.json()) as { settings: Record<string, unknown> }
     const systemKeys = Object.keys(body.settings).filter((key) => !isPersonalSetting(key))
-    const isSuperAdmin = account?.groupIds.includes(1) ?? false
+    const isSuperAdmin = account?.roleIds.includes(1) ?? false
     if (systemKeys.length > 0 && !isSuperAdmin) {
       return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
     }
@@ -398,54 +436,6 @@ export const platformHandlers = [
       }
     }
     return ok({ settings: body.settings })
-  }),
-
-  // ── lang-items ──
-  http.get('*/api/v1/lang-items/:domain/:field', ({ params }) => {
-    if (!requireSession()) {
-      return unauthorized()
-    }
-    const items: Record<string, string> = {}
-    let overridden = false
-    for (const [key, value] of db.langOverrides) {
-      const itemKey = key.split('/')[2]
-      if (key.startsWith(`${params.domain}/${params.field}/`) && itemKey !== undefined) {
-        items[itemKey] = value
-        overridden = true
-      }
-    }
-    return ok({ items, overridden })
-  }),
-
-  http.put('*/api/v1/lang-items/:domain/:field', async ({ request, params }) => {
-    if (!requireSession()) {
-      return unauthorized()
-    }
-    const account = currentAccount()
-    if (!account?.groupIds.includes(1)) {
-      return HttpResponse.json(FORBIDDEN('lang-manage'), { status: 403 })
-    }
-    const body = (await request.json()) as { items: Record<string, string> }
-    for (const [key, value] of Object.entries(body.items)) {
-      db.langOverrides.set(`${params.domain}/${params.field}/${key}`, value)
-    }
-    return ok({ items: body.items })
-  }),
-
-  http.delete('*/api/v1/lang-items/:domain/:field', ({ params }) => {
-    if (!requireSession()) {
-      return unauthorized()
-    }
-    const account = currentAccount()
-    if (!account?.groupIds.includes(1)) {
-      return HttpResponse.json(FORBIDDEN('lang-manage'), { status: 403 })
-    }
-    for (const key of [...db.langOverrides.keys()]) {
-      if (key.startsWith(`${params.domain}/${params.field}/`)) {
-        db.langOverrides.delete(key)
-      }
-    }
-    return ok({ items: {} })
   }),
 
   // ── 多语言上传（platform 卡 §3.12） ──
@@ -474,7 +464,7 @@ export const platformHandlers = [
       return unauthorized()
     }
     const account = currentAccount()
-    if (!account?.groupIds.includes(1)) {
+    if (!account?.roleIds.includes(1)) {
       return HttpResponse.json(FORBIDDEN('lang-manage'), { status: 403 })
     }
     // 文本体（而非 Blob）：mock 也要能在 jsdom/MSW 下跑（undici 不认 jsdom Blob），浏览器侧等价
@@ -491,7 +481,7 @@ export const platformHandlers = [
       return unauthorized()
     }
     const account = currentAccount()
-    if (!account?.groupIds.includes(1)) {
+    if (!account?.roleIds.includes(1)) {
       return HttpResponse.json(FORBIDDEN('lang-manage'), { status: 403 })
     }
     const form = await request.formData()
@@ -527,7 +517,7 @@ export const platformHandlers = [
       return unauthorized()
     }
     const account = currentAccount()
-    if (!account?.groupIds.includes(1)) {
+    if (!account?.roleIds.includes(1)) {
       return HttpResponse.json(FORBIDDEN('lang-manage'), { status: 403 })
     }
     const url = new URL(request.url)
@@ -609,6 +599,10 @@ export const platformHandlers = [
       .filter((row) => matchIn(row.action, url.searchParams.get('filters[action]')))
       .filter((row) => matchIn(row.objectType, url.searchParams.get('filters[objectType]')))
       .filter((row) => matchIn(row.objectId, url.searchParams.get('filters[objectId]')))
+      // T04：分类/结果/批次三个新过滤面
+      .filter((row) => matchIn(row.category, url.searchParams.get('filters[category]')))
+      .filter((row) => matchIn(row.result, url.searchParams.get('filters[result]')))
+      .filter((row) => matchIn(row.batchId, url.searchParams.get('filters[batchId]')))
       .filter((row) => matchDayRange(row.createdAt, url.searchParams.get('filters[createdAt]')))
     if (q !== '') {
       items = items.filter((row) => (row.account ?? '').includes(q) || row.action.includes(q))
@@ -619,5 +613,329 @@ export const platformHandlers = [
       (a, b) => (byId ? a.id - b.id : a.createdAt.localeCompare(b.createdAt)) * (sort.startsWith('-') ? -1 : 1),
     )
     return ok({ items: items.slice((page - 1) * limit, page * limit), total: items.length })
+  }),
+
+  // ── 服务监控（T17 P1-5：原始字节数，百分比在页面算） ──
+  http.get('*/api/v1/monitor/server', () => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('monitor-view')) {
+      return HttpResponse.json(FORBIDDEN('monitor-view'), { status: 403 })
+    }
+    const gib = 1024 ** 3
+    return ok({
+      cpuCores: 8,
+      cpuLoad: 0.42,
+      memoryTotalBytes: 16 * gib,
+      memoryUsedBytes: 8 * gib,
+      diskTotalBytes: 512 * gib,
+      diskUsedBytes: 128 * gib,
+      diskPath: '/srv/zentao',
+      jvmHeapUsedBytes: 512 * 1024 ** 2,
+      jvmHeapMaxBytes: 4 * gib,
+      uptimeSeconds: 90061,
+      sampledAt: '2026-09-21T06:00:00Z',
+    })
+  }),
+
+  // ── 字典管理（T16 P1-4：DB 字典只扩展内置字典；内置名不在这里） ──
+  http.get('*/api/v1/dict-types', ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    const q = url.searchParams.get('q') ?? ''
+    let items = db.dictTypes.filter((row) => matchIn(row.status, url.searchParams.get('filters[status]')))
+    if (q !== '') {
+      items = items.filter((row) => row.code.includes(q) || row.name.includes(q))
+    }
+    items = [...items].sort((a, b) => a.code.localeCompare(b.code))
+    return ok({ items: items.slice((page - 1) * limit, page * limit), total: items.length })
+  }),
+
+  http.post('*/api/v1/dict-types', async ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const body = (await request.json()) as { code?: string; name?: string }
+    const code = (body.code ?? '').trim()
+    if (!/^[a-z][a-z0-9-]*$/.test(code) || (body.name ?? '').trim() === '') {
+      return HttpResponse.json(error(42201, '字典名格式非法。'), { status: 422 })
+    }
+    // 内置字典名（handler 的 switch 里那批）+ 已有 DB 类型都不许撞
+    if (BUILTIN_DICT_NAMES.includes(code) || db.dictTypes.some((row) => row.code === code)) {
+      return HttpResponse.json(error(42201, '字典名重复。'), { status: 422 })
+    }
+    const row = { code, name: (body.name ?? '').trim(), status: 'active' }
+    db.dictTypes.push(row)
+    return ok(row)
+  }),
+
+  http.patch('*/api/v1/dict-types/:code', async ({ request, params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const row = db.dictTypes.find((type) => type.code === String(params.code))
+    if (!row) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as { name?: string; status?: string }
+    if (body.name !== undefined) {
+      row.name = body.name
+    }
+    if (body.status !== undefined) {
+      row.status = body.status
+    }
+    return ok(row)
+  }),
+
+  http.delete('*/api/v1/dict-types/:code', ({ params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const code = String(params.code)
+    const index = db.dictTypes.findIndex((type) => type.code === code)
+    if (index < 0) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    db.dictTypes.splice(index, 1)
+    // 级联：类型没了，数据项就是孤儿
+    db.dictData = db.dictData.filter((item) => item.typeCode !== code)
+    return ok(null)
+  }),
+
+  http.get('*/api/v1/dict-types/:code/items', ({ request, params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    let items = db.dictData
+      .filter((row) => row.typeCode === String(params.code))
+      .filter((row) => matchIn(row.status, url.searchParams.get('filters[status]')))
+      .sort((a, b) => a.sortNo - b.sortNo)
+    const total = items.length
+    items = items.slice((page - 1) * limit, page * limit)
+    return ok({ items, total })
+  }),
+
+  http.post('*/api/v1/dict-types/:code/items', async ({ request, params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const code = String(params.code)
+    if (!db.dictTypes.some((type) => type.code === code)) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as { itemLabel?: string; itemValue?: string; sortNo?: number }
+    const value = (body.itemValue ?? '').trim()
+    if ((body.itemLabel ?? '').trim() === '' || value === '') {
+      return HttpResponse.json(error(42201, '标签与值都要填。'), { status: 422 })
+    }
+    if (db.dictData.some((item) => item.typeCode === code && item.itemValue === value)) {
+      return HttpResponse.json(error(42201, '同类下值重复。'), { status: 422 })
+    }
+    const row = {
+      id: mockId(),
+      typeCode: code,
+      itemLabel: (body.itemLabel ?? '').trim(),
+      itemValue: value,
+      sortNo: body.sortNo ?? 0,
+      status: 'active',
+    }
+    db.dictData.push(row)
+    return ok(row)
+  }),
+
+  http.patch('*/api/v1/dict-items/:id', async ({ request, params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const row = db.dictData.find((item) => item.id === Number(params.id))
+    if (!row) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as {
+      itemLabel?: string
+      itemValue?: string
+      sortNo?: number
+      status?: string
+    }
+    if (
+      body.itemValue !== undefined &&
+      db.dictData.some(
+        (item) => item.typeCode === row.typeCode && item.itemValue === body.itemValue && item.id !== row.id,
+      )
+    ) {
+      return HttpResponse.json(error(42201, '同类下值重复。'), { status: 422 })
+    }
+    if (body.itemLabel !== undefined) {
+      row.itemLabel = body.itemLabel
+    }
+    if (body.itemValue !== undefined) {
+      row.itemValue = body.itemValue
+    }
+    if (body.sortNo !== undefined) {
+      row.sortNo = body.sortNo
+    }
+    if (body.status !== undefined) {
+      row.status = body.status
+    }
+    return ok(row)
+  }),
+
+  http.delete('*/api/v1/dict-items/:id', ({ params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const index = db.dictData.findIndex((item) => item.id === Number(params.id))
+    if (index < 0) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    db.dictData.splice(index, 1)
+    return ok(null)
+  }),
+
+  // ── 参数管理（T15 P1-3：setting 表系统行；带 `<账号>:` 前缀的是个人偏好，不进这个面） ──
+  http.get('*/api/v1/setting-entries', ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    const q = url.searchParams.get('q') ?? ''
+    let items = [...db.settings.entries()]
+      .filter(([key]) => !key.includes(':'))
+      .map(([key, value]) => toSettingEntry(key, value))
+      .filter((entry) => matchIn(entry.domain, url.searchParams.get('filters[domain]')))
+    if (q !== '') {
+      items = items.filter((entry) => entry.key.includes(q))
+    }
+    items = items.sort((a, b) => a.key.localeCompare(b.key))
+    return ok({ items: items.slice((page - 1) * limit, page * limit), total: items.length })
+  }),
+
+  http.post('*/api/v1/setting-entries', async ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const body = (await request.json()) as { key?: string; value?: string }
+    const key = (body.key ?? '').trim()
+    const violation = settingEntryViolation(key, body.value)
+    if (violation) {
+      return HttpResponse.json(error(42201, violation), { status: 422 })
+    }
+    if (db.settings.has(key)) {
+      return HttpResponse.json(error(42201, '键重复。'), { status: 422 })
+    }
+    const parsed = JSON.parse(body.value as string)
+    db.settings.set(key, parsed)
+    return ok(toSettingEntry(key, parsed))
+  }),
+
+  http.patch('*/api/v1/setting-entries/:key', async ({ request, params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const key = String(params.key)
+    const body = (await request.json()) as { value?: string }
+    const violation = settingEntryViolation(key, body.value)
+    if (violation) {
+      return HttpResponse.json(error(42201, violation), { status: 422 })
+    }
+    if (!db.settings.has(key)) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const parsed = JSON.parse(body.value as string)
+    db.settings.set(key, parsed)
+    return ok(toSettingEntry(key, parsed))
+  }),
+
+  http.delete('*/api/v1/setting-entries/:key', ({ params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('setting-manage')) {
+      return HttpResponse.json(FORBIDDEN('setting-manage'), { status: 403 })
+    }
+    const key = String(params.key)
+    if (!db.settings.has(key)) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    db.settings.delete(key)
+    return ok(null)
+  }),
+
+  // ── 在线用户（T13 P1-1：行 = session 表现存行，强退 = 删行） ──
+  http.get('*/api/v1/online-users', ({ request }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('online-user-view')) {
+      return HttpResponse.json(FORBIDDEN('online-user-view'), { status: 403 })
+    }
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    const sort = url.searchParams.get('sort') ?? '-lastSeenAt'
+    // current 按登录账号现算：种子里的 current 会随登录身份变化而失真
+    const items = db.onlineUsers
+      .filter((row) => matchIn(row.account, url.searchParams.get('filters[account]')))
+      .map((row) => ({ ...row, current: row.account === currentAccount()?.account }))
+      .sort((a, b) => (a.lastSeenAt ?? '').localeCompare(b.lastSeenAt ?? '') * (sort.startsWith('-') ? -1 : 1))
+    return ok({ items: items.slice((page - 1) * limit, page * limit), total: items.length })
+  }),
+
+  http.delete('*/api/v1/online-users/:sessionId', ({ params }) => {
+    if (!requireSession()) {
+      return unauthorized()
+    }
+    if (!privilegesOf(currentAccount()).includes('online-user-kick')) {
+      return HttpResponse.json(FORBIDDEN('online-user-kick'), { status: 403 })
+    }
+    // 幂等：行已消失也算成功（与后端同口径）
+    const index = db.onlineUsers.findIndex((row) => row.id === params.sessionId)
+    if (index >= 0) {
+      db.onlineUsers.splice(index, 1)
+    }
+    return ok(null)
   }),
 ]

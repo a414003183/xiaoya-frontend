@@ -1,4 +1,5 @@
 /** @route /products/batch-edit @title product.title.batchEdit @perm product-edit @hide @activeMenu /products */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
@@ -155,13 +156,13 @@ export default function ProductBatchEditPage() {
         backTo="/products"
         extra={
           <>
-            <Button loading={submit.isPending} onClick={() => void submit.mutateAsync({ action: 'close' })}>
+            <Button loading={submit.isPending} onClick={() => submit.mutate({ action: 'close' })}>
               {t('product.action.close')}
             </Button>
-            <Button loading={submit.isPending} onClick={() => void submit.mutateAsync({ action: 'activate' })}>
+            <Button loading={submit.isPending} onClick={() => submit.mutate({ action: 'activate' })}>
               {t('product.action.activate')}
             </Button>
-            <Button type="primary" loading={submit.isPending} onClick={() => void submit.mutateAsync({ rows })}>
+            <Button type="primary" loading={submit.isPending} onClick={() => submit.mutate({ rows })}>
               {t('common.action.submit')}
             </Button>
           </>

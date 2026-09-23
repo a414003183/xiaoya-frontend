@@ -9,6 +9,6 @@
  */
 
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  */
 export type LimitParameter = number;

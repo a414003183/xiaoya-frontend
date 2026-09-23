@@ -12,11 +12,19 @@
  * 评论（platform 卡 §3.3）
  */
 export interface CommentView {
+  /** 主键 id */
   id: number;
+  /** 绑定对象类型 */
   objectType: string;
+  /** 绑定对象 id */
   objectId: number;
-  /** @maxLength 10000 */
+  /**
+     * 评论内容
+     * @maxLength 10000
+     */
   content: string;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
 }

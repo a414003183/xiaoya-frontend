@@ -1,7 +1,7 @@
 # 禅道重写 · 前端
 
 pnpm monorepo：`web/`（应用与路由）、`packages/`（design-system / api-client / app-shell / i18n）。
-架构分层、命名与页面骨架规定见 `../docs/rewrite/01-architecture.md` 与 `../docs/rewrite/playbooks/`。
+架构分层、命名与页面骨架规定见 `../docs/plan/CONVENTIONS.md`（§2 后端 / §3 前端）与 `../docs/plan/architecture/`（ADR）。
 
 ## 命令（在 `frontend/` 下执行）
 

@@ -9,9 +9,11 @@
  */
 
 /**
- * 列表信封（03 §2）：items + total。游标分页时间线例外：items + hasMore。
+ * 列表信封基型（03 §2），三种形态——items+total = 默认（服务端分页，page/limit 翻页，total 为满足筛选的全量条数）；items+hasMore = 游标分页时间线（beforeId/limit 翻页，不给 total，全量 count 昂贵时用，见 ActivityList）；items = 小整树/全量快照（不分页不过滤，见 LangOverrideList）。新列表端点默认 items+total。
  */
 export interface ListEnvelope {
+  /** 列表项（当前页） */
   items: unknown[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

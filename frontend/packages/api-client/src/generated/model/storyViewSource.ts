@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 来源
+ */
 export type StoryViewSource = typeof StoryViewSource[keyof typeof StoryViewSource];
 
 

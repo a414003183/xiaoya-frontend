@@ -42,7 +42,9 @@ export function SessionGate() {
     return <Navigate to={`/login?redirect=${redirect}`} replace />
   }
   if (me.error) {
-    return <PageLoading tip={me.error.message} />
+    // 非 401 的取数失败（网络/超时/5xx）不能停在无限 loading（FE-09）：抛给路由级 errorElement
+    // （FE-P0-1 的 ErrorFallback，带「刷新页面」即重试）。此处不能显示 error.message——那是开发兜底文案。
+    throw me.error
   }
   if (mustChangePassword && location.pathname !== FORCE_PASSWORD_PATH) {
     return <Navigate to={FORCE_PASSWORD_PATH} replace />

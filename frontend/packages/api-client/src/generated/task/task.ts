@@ -2396,10 +2396,15 @@ export type deleteEffortResponse404 = {
   status: 404
 }
 
+export type deleteEffortResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type deleteEffortResponseSuccess = (deleteEffortResponse200) & {
   headers: Headers;
 };
-export type deleteEffortResponseError = (deleteEffortResponse401 | deleteEffortResponse403 | deleteEffortResponse404) & {
+export type deleteEffortResponseError = (deleteEffortResponse401 | deleteEffortResponse403 | deleteEffortResponse404 | deleteEffortResponse422) & {
   headers: Headers;
 };
 
@@ -2435,7 +2440,7 @@ export const deleteEffort = async (effortId: number, options?: Parameters<typeof
 
 export const getDeleteEffortMutationKey = () => ['deleteEffort'] as const;
 
-export const getDeleteEffortMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getDeleteEffortMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEffort>>, TError,DeleteEffortMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteEffort>>, TError,DeleteEffortMutationVariables, TContext> => {
 
@@ -2464,13 +2469,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type DeleteEffortMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEffort>>>
 
-    export type DeleteEffortMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type DeleteEffortMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type DeleteEffortMutationVariables = {effortId: number}
 
     /**
  * @summary 删除工时（软删 + 回算任务工时；仅本人或超管）
  */
-export const useDeleteEffort = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useDeleteEffort = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEffort>>, TError,DeleteEffortMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteEffort>>,

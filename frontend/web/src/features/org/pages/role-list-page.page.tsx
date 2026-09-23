@@ -4,180 +4,179 @@ import { errorText } from '@zentao/api-client'
 import {
   Button,
   ConfirmAction,
-  Flex,
   HasPerm,
-  hasPerm,
   ListCard,
   PageContainer,
   Space,
-  spacing,
   type TableColumnsType,
-  Tabs,
   Tag,
   Typography,
   useMessage,
-  usePrivileges,
 } from '@zentao/design-system'
-import { SUPPORTED_LANGUAGES } from '@zentao/i18n'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { keywordField, ListFilterForm } from '../../../shared/list-filter'
-import { withParams } from '../../../shared/url'
 import { deleteRole, type RoleView } from '../api/org.api'
-import { GroupListTab } from '../components/group-list-tab'
+import { RoleAclModal } from '../components/role-acl-modal'
+import { RoleCopyModal } from '../components/role-copy-modal'
 import { RoleFormModal } from '../components/role-form-modal'
-import { ROLES_QUERY_KEY, roleLabel, useRoles } from '../role-options'
+import { ROLES_QUERY_KEY, useRoles } from '../role-options'
 
 /**
- * 角色列表（org 卡 §6；2026-09-20 把原 /org/groups「角色管理」整页并入本页，两类角色同页两页签）：
- * - 「角色」页签 = 权限角色（`auth_group`：权限码矩阵 + 成员集 + 数据可见集），原 group-list-page 内容原样迁入
- *   `components/group-list-tab`，行内动作仍按 group-view/group-priv-edit/group-edit/group-copy/group-delete 显隐；
- *   此页签本身对无 `group-view` 者不可见（数据也不拉取）；
- * - 「岗位角色」页签 = 岗位角色字典（`account_role`，§3.4；旧禅道 后台→自定义→用户→角色列表），
- *   即账号资料上 role 列的选项集。
- * 页签在 URL（`?tab=roles|dict`，缺省 roles），刷新/深链保持所在页签。
- * 路由权限码 id 仍是 `role-view`（岗位角色字典读），故仅持 `group-view` 而无 `role-view` 的账号进不来本页——
- * 待裁决项，见 tmp/ws-c-doc-notes.md。
+ * 角色（T23 统一实体）：**一张表装全部角色**，每行都是「权限码 + 成员 + 数据权限」的同一套东西。
+ *
+ * 旧模型分「权限角色」（auth_group）与「岗位角色」（account_role 字典）两类，功能重复、账号上的角色
+ * 还有两套表达——T23 起一个角色就是一组权限码 + 一批成员 + 一份数据权限，账号与角色是成员关系，
+ * 故本页不再有类型列/类型筛选，行内动作对每一行都一样：
+ * 权限（菜单树勾选）/ 成员 / 数据权限 / 编辑 / 复制 / 删除。
+ *
+ * 内置角色（超管角色 id=1 与迁移来的岗位角色）不可删除（服务端 42203 同码守卫）；删除前提示成员与
+ * 权限码会一并清除。角色是配置级小列表（服务端全量返回），故不接分页。
  */
 export default function RoleListPage() {
   const message = useMessage()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [searchParams] = useSearchParams()
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<RoleView | null>(null)
-  const [searchParams, setSearchParams] = useSearchParams()
-  const privileges = usePrivileges()
-  const q = (searchParams.get('q') ?? '').toLowerCase()
+  const [copying, setCopying] = useState<RoleView | null>(null)
+  const [aclOf, setAclOf] = useState<RoleView | null>(null)
 
+  const keyword = (searchParams.get('q') ?? '').toLowerCase()
   const roles = useRoles()
+
   const remove = useMutation({
-    mutationFn: (code: string) => deleteRole(code),
+    mutationFn: (roleId: number) => deleteRole(roleId),
     onSuccess: () => {
       message.success(t('org.role.message.deleted'))
-      void queryClient.invalidateQueries({ queryKey: [ROLES_QUERY_KEY] })
+      void queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEY })
+      void queryClient.invalidateQueries({ queryKey: ['listAccounts'] })
     },
-    // 守卫失败（内置角色/仍被账号使用 → 42203）按错误码出文案：后端 message 只作开发兜底
+    // 守卫失败（内置角色 42203）按错误码出文案：后端 message 只作开发兜底
     onError: (error) => message.error(errorText(error, t)),
   })
 
-  const otherLanguages = SUPPORTED_LANGUAGES.filter((language) => language !== i18n.language)
-  const items = (roles.data?.items ?? []).filter(
-    (role) =>
-      q === '' ||
-      role.code.includes(q) ||
-      Object.values(role.labels ?? {}).some((label) => label.toLowerCase().includes(q)),
-  )
+  const rows = (roles.data?.items ?? []).filter((role) => {
+    if (keyword === '') {
+      return true
+    }
+    return (
+      role.name.toLowerCase().includes(keyword) ||
+      (role.code ?? '').toLowerCase().includes(keyword) ||
+      (role.description ?? '').toLowerCase().includes(keyword)
+    )
+  })
 
   const columns: TableColumnsType<RoleView> = [
-    { title: t('org.role.field.code'), dataIndex: 'code', width: 140 },
     {
       title: t('org.role.field.name'),
-      key: 'name',
-      render: (_: unknown, record: RoleView) => (
-        <Flex vertical>
-          <Typography.Text>{roleLabel(record, i18n.language)}</Typography.Text>
-          {/* 副行：其余语言的名字（字典不枚举语言，有几个显示几个） */}
-          {otherLanguages.map((language) =>
-            record.labels[language] ? (
-              <Typography.Text key={language} type="secondary">
-                {`${language}: ${record.labels[language]}`}
-              </Typography.Text>
-            ) : null,
-          )}
-        </Flex>
+      dataIndex: 'name',
+      render: (name: string, record: RoleView) => (
+        <Space size={6}>
+          <Typography.Text>{name}</Typography.Text>
+          {record.builtin ? <Tag color="blue">{t('org.role.field.builtin')}</Tag> : null}
+        </Space>
       ),
     },
-    { title: t('org.role.field.sort'), dataIndex: 'sort', width: 90 },
     {
-      title: t('org.role.field.builtin'),
-      dataIndex: 'builtin',
-      width: 100,
-      render: (builtin: boolean) => (builtin ? <Tag color="blue">{t('org.role.field.builtin')}</Tag> : null),
+      title: t('org.role.field.code'),
+      dataIndex: 'code',
+      width: 140,
+      render: (code: string | null) => (code === null ? '' : <Typography.Text code>{code}</Typography.Text>),
     },
-    { title: t('org.role.field.accountCount'), dataIndex: 'accountCount', width: 120 },
+    { title: t('org.role.field.description'), dataIndex: 'description' },
+    { title: t('org.role.field.memberCount'), dataIndex: 'memberCount', width: 100 },
+    {
+      title: t('org.role.field.privilegeCount'),
+      dataIndex: 'privilegeCount',
+      width: 110,
+      render: (count: number, record: RoleView) => (
+        <Button type="link" size="small" onClick={() => navigate(`/admin/roles/${record.id}/privileges`)}>
+          {count}
+        </Button>
+      ),
+    },
+    { title: t('org.role.field.sort'), dataIndex: 'sort', width: 80 },
     {
       title: t('common.action.manage'),
       key: 'actions',
-      width: 160,
+      width: 320,
       render: (_: unknown, record: RoleView) => (
         <Space wrap size={4}>
-          <HasPerm perm="role-manage">
+          {/* 入口按**目标动作**的权限码显隐：权限页 role-priv-edit、数据权限与编辑 role-edit、复制 role-copy；
+              成员页可读（写动作在页内再按 role-member-edit 拦） */}
+          <HasPerm perm="role-priv-edit">
+            <Button type="link" size="small" onClick={() => navigate(`/admin/roles/${record.id}/privileges`)}>
+              {t('org.role.action.privileges')}
+            </Button>
+          </HasPerm>
+          <Button type="link" size="small" onClick={() => navigate(`/admin/roles/${record.id}/members`)}>
+            {t('org.role.action.members')}
+          </Button>
+          <HasPerm perm="role-edit">
+            <Button type="link" size="small" onClick={() => setAclOf(record)}>
+              {t('org.role.action.acl')}
+            </Button>
+          </HasPerm>
+          <HasPerm perm="role-edit">
             <Button type="link" size="small" onClick={() => setEditing(record)}>
               {t('common.action.edit')}
             </Button>
           </HasPerm>
-          <HasPerm perm="role-manage">
-            {/* 守卫提示常驻（内置角色/仍被账号使用都删不掉），真守卫在服务端（42203 → 错误提示） */}
-            <ConfirmAction
-              title={t('org.role.deleteTitle', { name: roleLabel(record, i18n.language) })}
-              description={
-                <>
-                  <div>{t('org.role.guard.builtin')}</div>
-                  <div>{t('org.role.guard.inUse')}</div>
-                </>
-              }
-              onConfirm={() => remove.mutate(record.code)}
-            >
-              <Button type="link" size="small" danger>
-                {t('common.action.delete')}
-              </Button>
-            </ConfirmAction>
+          <HasPerm perm="role-copy">
+            <Button type="link" size="small" onClick={() => setCopying(record)}>
+              {t('org.role.action.copy')}
+            </Button>
           </HasPerm>
+          {record.builtin ? null : (
+            <HasPerm perm="role-delete">
+              <ConfirmAction
+                title={t('org.role.deleteTitle', { name: record.name })}
+                description={t('org.role.deleteHint')}
+                onConfirm={() => remove.mutate(record.id)}
+              >
+                <Button type="link" size="small" danger>
+                  {t('common.action.delete')}
+                </Button>
+              </ConfirmAction>
+            </HasPerm>
+          )}
         </Space>
       ),
     },
   ]
 
-  const closeForm = () => {
-    setCreating(false)
-    setEditing(null)
-  }
-
-  const dictTab = {
-    key: 'dict',
-    label: t('org.role.tab.dict'),
-    children: (
-      <Flex vertical gap={spacing.lg}>
-        <ListFilterForm fields={[keywordField(t('org.role.field.name'), t('common.action.search'))]} />
-        <ListCard
-          columns={columns}
-          columnSettingKey="org-roles"
-          actions={
-            <HasPerm perm="role-manage">
-              <Button type="primary" onClick={() => setCreating(true)}>
-                {t('org.role.action.create')}
-              </Button>
-            </HasPerm>
-          }
-          rowKey="code"
-          loading={roles.isPending}
-          dataSource={items}
-          pagination={false}
-        />
-        <RoleFormModal role={editing} open={creating || editing !== null} onClose={closeForm} />
-      </Flex>
-    ),
-  }
-  // 页签按权限码装配：权限角色页签要 group-view（无码即不挂载，组列表连请求都不发）
-  const tabs = [
-    ...(hasPerm(privileges, 'group-view')
-      ? [{ key: 'roles', label: t('org.role.tab.roles'), children: <GroupListTab /> }]
-      : []),
-    dictTab,
-  ]
-  const requested = searchParams.get('tab') ?? ''
-  // URL 写错或无权的页签一律回落：有「角色」页签即落它（缺省页签），否则落字典页签
-  const activeKey = tabs.find((tab) => tab.key === requested)?.key ?? tabs[0]?.key ?? dictTab.key
-
   return (
     <PageContainer>
-      <Tabs
-        activeKey={activeKey}
-        // 切页签一并清掉 q/page：两个列表同名参数的语义不同（服务端组筛选 vs 客户端字典过滤），不互相串
-        onChange={(key) => setSearchParams(withParams(searchParams, { tab: key, q: undefined, page: undefined }))}
-        items={tabs}
+      <ListFilterForm fields={[keywordField(t('org.role.field.name'), t('common.action.search'))]} />
+      <ListCard
+        columns={columns}
+        columnSettingKey="org-roles"
+        actions={
+          <HasPerm perm="role-create">
+            <Button type="primary" onClick={() => setCreating(true)}>
+              {t('org.role.action.create')}
+            </Button>
+          </HasPerm>
+        }
+        rowKey="id"
+        loading={roles.isPending}
+        dataSource={rows}
+        pagination={false}
       />
+      <RoleFormModal
+        role={editing}
+        open={creating || editing !== null}
+        onClose={() => {
+          setCreating(false)
+          setEditing(null)
+        }}
+      />
+      <RoleCopyModal role={copying} open={copying !== null} onClose={() => setCopying(null)} />
+      <RoleAclModal role={aclOf} open={aclOf !== null} onClose={() => setAclOf(null)} />
     </PageContainer>
   )
 }

@@ -10,29 +10,60 @@
 import type { ReleaseViewStatus } from './releaseViewStatus';
 
 export interface ReleaseView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
-  /** @nullable */
+  /**
+     * 构建 id
+     * @nullable
+     */
   buildId?: number | null;
+  /** 项目 id */
   projectId?: number;
-  /** @maxLength 90 */
+  /**
+     * 版本名称
+     * @maxLength 90
+     */
   name: string;
+  /** 状态 */
   status: ReleaseViewStatus;
+  /** 计划发布日期 */
   releaseDate: string;
-  /** @nullable */
+  /**
+     * 发布时间
+     * @nullable
+     */
   publishedAt?: string | null;
+  /** 是否里程碑 */
   isMilestone: boolean;
+  /** 关联需求 id 集合 */
   storyIds?: number[];
+  /** 关联 Bug id 集合 */
   bugIds?: number[];
+  /** 通知人（登录账号集合） */
   notifyAccounts?: string[];
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

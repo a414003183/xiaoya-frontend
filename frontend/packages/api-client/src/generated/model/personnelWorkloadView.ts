@@ -12,10 +12,16 @@
  * 工作量行（effort.workDate ∈ filters[date] 区间按 assignee 聚合）
  */
 export interface PersonnelWorkloadView {
+  /** 登录账号 */
   account: string;
+  /** 姓名 */
   realName: string;
-  /** @nullable */
+  /**
+     * 部门 id
+     * @nullable
+     */
   departmentId?: number | null;
+  /** 已消耗工时 */
   consumedHours: number;
   /** 区间内完成的任务数（finishedAt ∈ 区间） */
   finishedTaskCount: number;

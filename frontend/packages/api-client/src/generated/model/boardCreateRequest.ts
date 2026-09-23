@@ -13,20 +13,36 @@ import type { BoardCreateRequestAcl } from './boardCreateRequestAcl';
  * 创建看板（spaceId 取路径；acl 缺省 extend=继承空间）
  */
 export interface BoardCreateRequest {
-  /** @maxLength 90 */
+  /**
+     * 看板名称
+     * @maxLength 90
+     */
   name: string;
   /**
      * 缺省当前账号
      * @nullable
      */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 成员账号集合
+     * @nullable
+     */
   team?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 访问控制（可见范围策略） */
   acl: BoardCreateRequestAcl;
-  /** @nullable */
+  /**
+     * 白名单（自定义可见集）
+     * @nullable
+     */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

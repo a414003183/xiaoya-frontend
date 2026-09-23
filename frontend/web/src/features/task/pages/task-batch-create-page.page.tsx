@@ -1,4 +1,5 @@
 /** @route /executions/:executionId/tasks/batch-create @title task.title.batchCreate @perm task-create @hide @activeMenu /executions */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
@@ -216,7 +217,7 @@ export default function TaskBatchCreatePage() {
               type="primary"
               loading={submit.isPending}
               disabled={filled.length === 0}
-              onClick={() => void submit.mutateAsync(rows)}
+              onClick={() => submit.mutate(rows)}
             >
               {t('common.action.submit')}
             </Button>

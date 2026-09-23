@@ -22,7 +22,6 @@ import type { ActivityView } from '@zentao/api-client/generated/model/activityVi
 import type { BatchActionRequest } from '@zentao/api-client/generated/model/batchActionRequest'
 import type { ListStoriesParams } from '@zentao/api-client/generated/model/listStoriesParams'
 import type { StoryCloseRequest } from '@zentao/api-client/generated/model/storyCloseRequest'
-import type { StoryCreateRequest } from '@zentao/api-client/generated/model/storyCreateRequest'
 import type { StoryUpdateRequest } from '@zentao/api-client/generated/model/storyUpdateRequest'
 import type { StoryView } from '@zentao/api-client/generated/model/storyView'
 import { buildListParams, type ListDsl } from '../../../shared/list-dsl'
@@ -59,8 +58,9 @@ export async function fetchStory(storyId: number): Promise<StoryView> {
   return ok(await getStory(storyId)).data
 }
 
-export async function submitStory(productId: number, body: StoryCreateRequest): Promise<StoryView> {
-  return ok(await createStory(productId, body)).data
+/** 建需求（表单自由串在 api 边界收窄——doc.api.ts 的 submitDoc 同款形态）。 */
+export async function submitStory(productId: number, body: Record<string, unknown>): Promise<StoryView> {
+  return ok(await createStory(productId, body as never)).data
 }
 
 export async function patchStory(storyId: number, body: StoryUpdateRequest): Promise<StoryView> {
@@ -74,9 +74,9 @@ export async function deleteStoryAction(storyId: number): Promise<null> {
 
 export async function submitBatchCreateStories(
   productId: number,
-  items: StoryCreateRequest[],
+  items: Record<string, unknown>[],
 ): Promise<{ results: BatchCreateResultItem[] }> {
-  return ok(await batchCreateStories(productId, { items })).data
+  return ok(await batchCreateStories(productId, { items } as never)).data
 }
 
 export async function submitBatchStories(body: BatchActionRequest): Promise<{ results: BatchResultItem[] }> {

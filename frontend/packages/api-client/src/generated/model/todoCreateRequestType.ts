@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type TodoCreateRequestType = typeof TodoCreateRequestType[keyof typeof TodoCreateRequestType] | null;

@@ -36,7 +36,8 @@ afterEach(() => {
 })
 afterAll(() => server.close())
 
-const PRIVILEGES = ['bug-view', 'bug-edit', 'bug-delete']
+// T02：file-upload = 附件上传控件（FileUploadField）的显隐码
+const PRIVILEGES = ['bug-view', 'bug-edit', 'bug-delete', 'file-upload']
 
 function renderPage(page: ReactElement, path: string, entry: string, privileges: string[] = PRIVILEGES): void {
   render(

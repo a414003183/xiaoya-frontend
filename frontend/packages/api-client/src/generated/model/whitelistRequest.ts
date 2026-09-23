@@ -12,5 +12,6 @@
  * 白名单全量替换/读取的同一形状（acl_entry diff 单源；账号不存在 → 42201）
  */
 export interface WhitelistRequest {
+  /** 账号白名单（登录名集合） */
   accounts: string[];
 }

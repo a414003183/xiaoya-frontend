@@ -7,6 +7,7 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { StoryViewClosedReason } from './storyViewClosedReason';
 import type { StoryViewCustomFields } from './storyViewCustomFields';
 import type { StoryViewSource } from './storyViewSource';
 import type { StoryViewStage } from './storyViewStage';
@@ -14,57 +15,115 @@ import type { StoryViewStatus } from './storyViewStatus';
 import type { StoryViewType } from './storyViewType';
 
 export interface StoryView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 分类 id */
   categoryId?: number;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 需求标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
+  /** 类型 */
   type: StoryViewType;
+  /** 状态 */
   status: StoryViewStatus;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
-  /** @nullable */
+  /**
+     * 预估工时
+     * @nullable
+     */
   estimateHours?: number | null;
+  /** 来源 */
   source?: StoryViewSource;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 需求阶段 */
   stage: StoryViewStage;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 指派时间
+     * @nullable
+     */
   assignedAt?: string | null;
+  /** 评审人（登录账号集合） */
   reviewers?: string[];
+  /** 是否免评审 */
   needNotReview?: boolean;
+  /** 通知人（登录账号集合） */
   notifyAccounts?: string[];
+  /** 关联需求 id 集合 */
   linkedStoryIds?: number[];
-  /** @nullable */
+  /**
+     * 重复目标需求 id
+     * @nullable
+     */
   duplicateOfId?: number | null;
+  /** 版本 */
   version: number;
+  /** 自定义字段（动态字段表） */
   customFields?: StoryViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
-  /** @nullable */
-  closedReason?: string | null;
+  /**
+     * 关闭原因
+     * @nullable
+     */
+  closedReason?: StoryViewClosedReason;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

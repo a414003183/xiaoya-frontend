@@ -9,6 +9,7 @@
  */
 
 /**
+ * 解决结果
  * @nullable
  */
 export type BugViewResolution = typeof BugViewResolution[keyof typeof BugViewResolution] | null;

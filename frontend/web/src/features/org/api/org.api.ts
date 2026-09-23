@@ -2,10 +2,9 @@ import { ok } from '@zentao/api-client'
 import {
   batchCreateAccounts,
   changeAccountPassword,
-  copyGroup as copyGroupRequest,
+  copyRole as copyRoleRequest,
   createAccount,
   createDepartment,
-  createGroup,
   createRole,
   deleteAccount,
   deleteDepartment,
@@ -14,36 +13,36 @@ import {
   enableAccount,
   getAccount,
   getDepartmentTree,
-  getGroup,
-  getGroupMembers,
-  getGroupPrivileges,
+  getRole,
+  getRoleMembers,
+  getRolePrivileges,
   listAccountActivities,
   listAccounts,
   listDepartments,
-  listGroups,
+  listGrantableMenus,
   listPersonnelMembers,
   listPersonnelWorkload,
   listRoles,
   resetAccountPassword,
+  saveRoleMembers as saveRoleMembersRequest,
+  saveRolePrivileges as saveRolePrivilegesRequest,
   unlockAccount,
   updateAccount,
   updateDepartment as updateDepartmentRequest,
-  updateGroup as updateGroupRequest,
   updateRole as updateRoleRequest,
 } from '@zentao/api-client/generated'
 import type { AccountView } from '@zentao/api-client/generated/model/accountView'
 import type { ActivityView } from '@zentao/api-client/generated/model/activityView'
 import type { CommentView } from '@zentao/api-client/generated/model/commentView'
 import type { DepartmentNode } from '@zentao/api-client/generated/model/departmentNode'
-import type { GroupAcl } from '@zentao/api-client/generated/model/groupAcl'
-import type { GroupView } from '@zentao/api-client/generated/model/groupView'
 import type { ListAccountsParams } from '@zentao/api-client/generated/model/listAccountsParams'
 import type { ListDepartmentsParams } from '@zentao/api-client/generated/model/listDepartmentsParams'
-import type { ListGroupsParams } from '@zentao/api-client/generated/model/listGroupsParams'
 import type { ListPersonnelMembersParams } from '@zentao/api-client/generated/model/listPersonnelMembersParams'
 import type { ListPersonnelWorkloadParams } from '@zentao/api-client/generated/model/listPersonnelWorkloadParams'
+import type { MenuTree } from '@zentao/api-client/generated/model/menuTree'
 import type { PersonnelMemberView } from '@zentao/api-client/generated/model/personnelMemberView'
 import type { PersonnelWorkloadView } from '@zentao/api-client/generated/model/personnelWorkloadView'
+import type { RoleAcl } from '@zentao/api-client/generated/model/roleAcl'
 import type { RoleView } from '@zentao/api-client/generated/model/roleView'
 import { buildListParams, type ListDsl } from '../../../shared/list-dsl'
 
@@ -54,10 +53,9 @@ export type {
   ActivityView,
   CommentView,
   DepartmentNode,
-  GroupAcl,
-  GroupView,
   PersonnelMemberView,
   PersonnelWorkloadView,
+  RoleAcl,
   RoleView,
 }
 
@@ -105,7 +103,7 @@ export async function submitPasswordReset(accountId: number, newPassword: string
   return ok(await resetAccountPassword(accountId, { newPassword })).data
 }
 
-/** 软删账号（POST /accounts/{id}/delete 动作端点；守卫 ≠ 本人/内置 admin）。 */
+/** 软删账号（DELETE /accounts/{id}；守卫 ≠ 本人/内置 admin）。 */
 export async function submitAccountDelete(accountId: number): Promise<AccountView> {
   return ok(await deleteAccount(accountId)).data
 }
@@ -163,67 +161,70 @@ export async function fetchAccountActivities(
   return ok(await listAccountActivities(accountId, params)).data
 }
 
-/** 权限组列表（GET /groups：q 匹配 name/description，page/limit 服务端分页）。 */
-export async function fetchGroups(dsl: ListDsl<ListGroupsParams> = {}): Promise<{ items: GroupView[]; total: number }> {
-  return ok(await listGroups(buildListParams<ListGroupsParams>(dsl))).data
-}
-
-export async function fetchGroup(groupId: number): Promise<GroupView> {
-  return ok(await getGroup(groupId)).data
-}
-
-export async function fetchGroupMembers(groupId: number): Promise<{ items: AccountView[]; total: number }> {
-  return ok(await getGroupMembers(groupId)).data
-}
-
-export async function fetchGroupPrivileges(groupId: number): Promise<{ codes: string[] }> {
-  return ok(await getGroupPrivileges(groupId)).data
-}
-
-export async function submitGroup(body: Record<string, unknown>): Promise<GroupView> {
-  return ok(await createGroup(body as never)).data
-}
-
-/** 改名/改描述/数据权限 acl（PATCH /groups：acl 传对象=整体替换，null=不修改；带 lockVersion）。 */
-export async function updateGroup(groupId: number, body: Record<string, unknown>): Promise<GroupView> {
-  return ok(await updateGroupRequest(groupId, body as never)).data
-}
-
-/** 复制组（copyPrivileges/copyMembers 各自生效，源组不变）。 */
-export async function copyGroup(
-  groupId: number,
-  body: { name: string; description?: string | null; copyPrivileges: boolean; copyMembers: boolean },
-): Promise<GroupView> {
-  return ok(await copyGroupRequest(groupId, body)).data
-}
-
-// ── 账号角色字典（GET/POST/PATCH/DELETE /roles；org 卡 §3.4，选项唯一真源） ──
-
-/** 角色字典全量（字典级小列表，不分页、无过滤参数；按 sort 升序由服务端保证）。 */
+/** 角色列表（GET /roles：全量返回，按 sort 升序；角色是配置级小列表，不服务端分页）。 */
 export async function fetchRoles(): Promise<{ items: RoleView[]; total: number }> {
   return ok(await listRoles()).data
 }
 
-/** 新建角色（code 全库唯一且创建后不可改；sort 缺省 null = 排到末尾）。 */
+export async function fetchRole(roleId: number): Promise<RoleView> {
+  return ok(await getRole(roleId)).data
+}
+
+export async function fetchRoleMembers(roleId: number): Promise<{ items: AccountView[]; total: number }> {
+  return ok(await getRoleMembers(roleId)).data
+}
+
+export async function fetchRolePrivileges(roleId: number): Promise<{ codes: string[] }> {
+  return ok(await getRolePrivileges(roleId)).data
+}
+
+export async function saveRolePrivileges(roleId: number, codes: string[]): Promise<{ codes: string[] }> {
+  return ok(await saveRolePrivilegesRequest(roleId, { codes })).data
+}
+
+export async function saveRoleMembers(
+  roleId: number,
+  accountIds: number[],
+): Promise<{ items: AccountView[]; total: number }> {
+  return ok(await saveRoleMembersRequest(roleId, { accountIds })).data
+}
+
+/** 角色授权页的可勾选菜单树（T22）：与菜单管理同一棵树（含按钮节点），读码 role-priv-edit。 */
+export async function fetchGrantableMenus(): Promise<MenuTree> {
+  return ok(await listGrantableMenus()).data
+}
+
+/** 新建角色（name 必填且唯一；code 可选、给了要合法且唯一）。 */
 export async function submitRole(body: {
-  code: string
-  labels: Record<string, string>
-  sort?: number | null
+  name: string
+  code?: string | null
+  description?: string | null
 }): Promise<RoleView> {
-  return ok(await createRole(body)).data
+  return ok(
+    await createRole({
+      name: body.name,
+      ...(body.code === undefined || body.code === null || body.code === '' ? {} : { code: body.code }),
+      ...(body.description === undefined || body.description === null ? {} : { description: body.description }),
+    }),
+  ).data
 }
 
-/** 改名（按语言）/改排序（PATCH /roles/{code}：labels/sort 传 null = 不修改；lockVersion 必带）。 */
-export async function patchRole(
-  code: string,
-  body: { labels?: Record<string, string> | null; sort?: number | null; lockVersion: number },
+/** 改名/改描述/改排序/数据权限 acl（PATCH /roles/{id}：null = 不修改；lockVersion 必带）。 */
+export async function updateRole(roleId: number, body: Record<string, unknown>): Promise<RoleView> {
+  return ok(await updateRoleRequest(roleId, body as never)).data
+}
+
+/** 复制角色（copyPrivileges/copyMembers 各自生效，源角色不变）。 */
+export async function copyRole(
+  roleId: number,
+  body: { name: string; description?: string | null; copyPrivileges: boolean; copyMembers: boolean },
 ): Promise<RoleView> {
-  return ok(await updateRoleRequest(code, body)).data
+  return ok(await copyRoleRequest(roleId, body)).data
 }
 
-/** 删除角色（内置角色 42203；仍被账号使用 42203）。 */
-export async function deleteRole(code: string): Promise<null> {
-  return ok(await deleteRoleRequest(code)).data
+/** 删除角色（内置角色 42203；超管角色 42203）。 */
+export async function deleteRole(roleId: number): Promise<null> {
+  return ok(await deleteRoleRequest(roleId)).data
 }
 
 // ── 人员管理（org 卡 §5 Personnel 节：无表只读聚合，跨域计数由后端 TaskApi/BugApi 供给） ──

@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type DocCreateRequestType = typeof DocCreateRequestType[keyof typeof DocCreateRequestType] | null;

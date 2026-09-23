@@ -69,9 +69,10 @@ describe('无值筛选项显示「全部」', () => {
     })
   })
 
-  test('原生日期输入不吃 placeholder：区间控件不注入「全部」（空值即无筛选）', () => {
-    renderFilter([dateRangeField('deadline', '截止日期', { from: 'deadline-from', to: 'deadline-to' })])
-    expect(screen.getByLabelText('deadline-from')).not.toHaveAttribute('placeholder')
+  test('区间控件不注入「全部」（空值即无筛选），保留自己的两半 placeholder', () => {
+    renderFilter([dateRangeField('deadline', '截止日期')])
     expect(screen.queryByText('全部')).not.toBeInTheDocument()
+    expect(screen.getByPlaceholderText('开始日期')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('结束日期')).toBeInTheDocument()
   })
 })

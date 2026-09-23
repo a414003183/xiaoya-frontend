@@ -13,8 +13,14 @@ import type { TaskCloseRequestClosedReason } from './taskCloseRequestClosedReaso
  * 关闭任务（done/cancel 来源缺省回填 closedReason；父任务从任意非 closed 关闭时 closedReason 必填）
  */
 export interface TaskCloseRequest {
-  /** @nullable */
+  /**
+     * 关闭原因
+     * @nullable
+     */
   closedReason?: TaskCloseRequestClosedReason;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

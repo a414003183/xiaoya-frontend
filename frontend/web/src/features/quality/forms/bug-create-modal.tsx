@@ -1,9 +1,21 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import type { BugView } from '@zentao/api-client/generated/model/bugView'
 import type { StoryView } from '@zentao/api-client/generated/model/storyView'
-import { Form, Input, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { Form, HasPerm, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import {
+  applyServerFields,
+  DateField,
+  errorProps,
+  SelectField,
+  TextAreaField,
+  TextField,
+} from '../../../shared/form-fields'
 import { dictOptions, metaNumberOptions, metaOptions, useDomainMeta } from '../../../shared/meta-options'
 import { FileUploadField } from '../../platform'
 import { fetchStories } from '../../story'
@@ -18,24 +30,48 @@ import {
   submitBug,
 } from '../api/quality.api'
 
-export type BugFormValues = {
-  title: string
-  branchId: number
-  categoryId: number
-  planId: number | null
-  storyId: number | null
-  severity: number
-  priority: number
-  type: string
-  os: string | null
-  browser: string | null
-  steps: string | null
-  openedBuilds: string | null
-  keywords: string | null
-  assignee: string | null
-  deadline: string | null
-  relatedBugIds: number[]
-  notifyAccounts: string[]
+export const bugFormSchema = z.object({
+  title: z.string().min(1, 'common.message.required'),
+  branchId: z.number(),
+  categoryId: z.number(),
+  planId: z.number().nullable(),
+  storyId: z.number().nullable(),
+  severity: z.number(),
+  priority: z.number(),
+  type: z.string(),
+  os: z.string().nullable(),
+  browser: z.string().nullable(),
+  steps: z.string().nullable(),
+  openedBuilds: z.string().nullable(),
+  keywords: z.string().nullable(),
+  assignee: z.string().nullable(),
+  deadline: z.string().nullable(),
+  relatedBugIds: z.array(z.number()),
+  notifyAccounts: z.array(z.string()),
+})
+
+export type BugFormValues = z.input<typeof bugFormSchema>
+
+function valuesOf(bug: BugView | null): BugFormValues {
+  return {
+    title: bug?.title ?? '',
+    branchId: bug?.branchId ?? 0,
+    categoryId: bug?.categoryId ?? 0,
+    planId: bug?.planId ?? null,
+    storyId: bug?.storyId ?? null,
+    severity: bug?.severity ?? 3,
+    priority: bug?.priority ?? 3,
+    type: bug?.type ?? 'codeerror',
+    os: bug?.os ?? null,
+    browser: bug?.browser ?? null,
+    steps: bug?.steps ?? null,
+    openedBuilds: bug?.openedBuilds ?? null,
+    keywords: bug?.keywords ?? null,
+    assignee: bug?.assignee ?? null,
+    deadline: bug?.deadline ?? null,
+    relatedBugIds: bug?.relatedBugIds ?? [],
+    notifyAccounts: bug?.notifyAccounts ?? [],
+  }
 }
 
 /** Bug 创建/编辑共用表单壳（T-2；字段照 quality §3.1，PATCH 白名单内字段才上送；A-02 编辑态附件区、B-QUA-02 创建预填 testCaseId）。 */
@@ -58,10 +94,18 @@ export function BugFormModal({
   const message = useMessage()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [form] = Form.useForm<BugFormValues>()
   const editing = bug != null
   // 枚举字段选项唯一来源（03 §5）：severity/priority/type 从 meta 取，前端不留清单。
   const bugMeta = useDomainMeta('bug')
+  const { control, handleSubmit, setError, reset } = useForm<BugFormValues>({
+    resolver: zodResolver(bugFormSchema),
+    defaultValues: valuesOf(bug ?? null),
+  })
+
+  // 切换新建/编辑对象时重置表单（defaultValues 只在首挂载生效）
+  useEffect(() => {
+    reset(valuesOf(bug ?? null))
+  }, [bug, reset])
 
   const branches = useQuery({
     queryKey: ['listBranches', productId, 'form'],
@@ -104,12 +148,15 @@ export function BugFormModal({
       }
       onClose()
     },
+    onError: (error) => applyServerFields(error, setError),
   })
 
   const accountOptions = (accounts.data ?? []).map((account) => ({
     value: account.account,
     label: `${account.realName}(${account.account})`,
   }))
+
+  const submit = handleSubmit((values) => save.mutate(values))
 
   return (
     <Modal
@@ -120,137 +167,174 @@ export function BugFormModal({
       okText={t('common.action.submit')}
       cancelText={t('common.action.cancel')}
       confirmLoading={save.isPending}
-      onOk={() => void form.submit()}
+      onOk={() => void submit()}
     >
-      <Form
-        form={form}
-        key={bug?.id ?? 'create'}
-        layout="vertical"
-        initialValues={{
-          title: bug?.title ?? '',
-          branchId: bug?.branchId ?? 0,
-          categoryId: bug?.categoryId ?? 0,
-          planId: bug?.planId ?? null,
-          storyId: bug?.storyId ?? null,
-          severity: bug?.severity ?? 3,
-          priority: bug?.priority ?? 3,
-          type: bug?.type ?? 'codeerror',
-          os: bug?.os ?? null,
-          browser: bug?.browser ?? null,
-          steps: bug?.steps ?? null,
-          openedBuilds: bug?.openedBuilds ?? null,
-          keywords: bug?.keywords ?? null,
-          assignee: bug?.assignee ?? null,
-          deadline: bug?.deadline ?? null,
-          relatedBugIds: bug?.relatedBugIds ?? [],
-          notifyAccounts: bug?.notifyAccounts ?? [],
-        }}
-        onFinish={(values) => save.mutate(values)}
-      >
-        <Form.Item
-          name="title"
-          label={t('bug.field.title')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="bug-title" maxLength={255} />
-        </Form.Item>
-        <Form.Item name="severity" label={t('bug.field.severity')}>
-          <Select aria-label="bug-severity" options={metaNumberOptions(bugMeta.data, 'severity', t)} />
-        </Form.Item>
-        <Form.Item name="priority" label={t('bug.field.priority')}>
-          <Select aria-label="bug-priority" options={metaNumberOptions(bugMeta.data, 'priority', t)} />
-        </Form.Item>
-        <Form.Item name="type" label={t('bug.field.type')}>
-          <Select aria-label="bug-type" options={metaOptions(bugMeta.data, 'type', t)} />
-        </Form.Item>
-        <Form.Item name="os" label={t('bug.field.os')}>
-          <Select allowClear aria-label="bug-os" options={dictOptions(osDict.data, t)} />
-        </Form.Item>
-        <Form.Item name="browser" label={t('bug.field.browser')}>
-          <Select allowClear aria-label="bug-browser" options={dictOptions(browserDict.data, t)} />
-        </Form.Item>
-        <Form.Item name="branchId" label={t('bug.field.branch')}>
-          <Select
-            aria-label="bug-branch"
-            options={[
-              { value: 0, label: t('common.field.none') },
-              ...(branches.data?.items ?? []).map((branch) => ({ value: branch.id, label: branch.name })),
-            ]}
-          />
-        </Form.Item>
-        <Form.Item name="categoryId" label={t('bug.field.category')}>
-          <Select
-            aria-label="bug-category"
-            options={[
-              { value: 0, label: t('common.field.none') },
-              ...(categories.data?.items ?? []).map((category) => ({ value: category.id, label: category.name })),
-            ]}
-          />
-        </Form.Item>
-        <Form.Item name="planId" label={t('bug.field.plan')}>
-          <Select
-            allowClear
-            aria-label="bug-plan"
-            options={(plans.data?.items ?? []).map((plan) => ({ value: plan.id, label: plan.title }))}
-          />
-        </Form.Item>
-        <Form.Item name="storyId" label={t('bug.field.story')}>
-          <Select
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="bug-story"
-            options={(stories.data?.items ?? []).map((story: StoryView) => ({
-              value: story.id,
-              label: `#${story.id} ${story.title}`,
-            }))}
-          />
-        </Form.Item>
-        <Form.Item name="openedBuilds" label={t('bug.field.openedBuilds')}>
-          <Input aria-label="bug-opened-builds" maxLength={255} />
-        </Form.Item>
+      <Form layout="vertical">
+        <TextField control={control} name="title" label={t('bug.field.title')} maxLength={255} aria-label="bug-title" />
+        <Controller
+          control={control}
+          name="severity"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('bug.field.severity')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="bug-severity"
+                options={metaNumberOptions(bugMeta.data, 'severity', t)}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <Controller
+          control={control}
+          name="priority"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('bug.field.priority')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="bug-priority"
+                options={metaNumberOptions(bugMeta.data, 'priority', t)}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <Controller
+          control={control}
+          name="type"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('bug.field.type')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="bug-type"
+                options={metaOptions(bugMeta.data, 'type', t)}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <SelectField
+          control={control}
+          name="os"
+          label={t('bug.field.os')}
+          options={dictOptions(osDict.data, t)}
+          aria-label="bug-os"
+        />
+        <SelectField
+          control={control}
+          name="browser"
+          label={t('bug.field.browser')}
+          options={dictOptions(browserDict.data, t)}
+          aria-label="bug-browser"
+        />
+        <Controller
+          control={control}
+          name="branchId"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('bug.field.branch')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="bug-branch"
+                options={[
+                  { value: 0, label: t('common.field.none') },
+                  ...(branches.data?.items ?? []).map((branch) => ({ value: branch.id, label: branch.name })),
+                ]}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <Controller
+          control={control}
+          name="categoryId"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('bug.field.category')} {...errorProps(fieldState.error, t)}>
+              <Select
+                aria-label="bug-category"
+                options={[
+                  { value: 0, label: t('common.field.none') },
+                  ...(categories.data?.items ?? []).map((category) => ({ value: category.id, label: category.name })),
+                ]}
+                value={field.value}
+                onChange={(value) => field.onChange(value)}
+                onBlur={field.onBlur}
+              />
+            </Form.Item>
+          )}
+        />
+        <SelectField
+          control={control}
+          name="planId"
+          label={t('bug.field.plan')}
+          options={(plans.data?.items ?? []).map((plan) => ({ value: plan.id, label: plan.title }))}
+          aria-label="bug-plan"
+        />
+        <SelectField
+          control={control}
+          name="storyId"
+          label={t('bug.field.story')}
+          options={(stories.data?.items ?? []).map((story: StoryView) => ({
+            value: story.id,
+            label: `#${story.id} ${story.title}`,
+          }))}
+          aria-label="bug-story"
+        />
+        <TextField
+          control={control}
+          name="openedBuilds"
+          label={t('bug.field.openedBuilds')}
+          maxLength={255}
+          aria-label="bug-opened-builds"
+        />
         {!editing && testCaseId ? (
           <Form.Item label={t('bug.field.testCase')}>
             <Typography.Text aria-label="bug-test-case-prefill">{`#${testCaseId}`}</Typography.Text>
           </Form.Item>
         ) : null}
-        <Form.Item name="assignee" label={t('bug.field.assignee')}>
-          <Select allowClear showSearch optionFilterProp="label" aria-label="bug-assignee" options={accountOptions} />
-        </Form.Item>
-        <Form.Item name="deadline" label={t('bug.field.deadline')}>
-          <Input aria-label="bug-deadline" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item name="relatedBugIds" label={t('bug.field.relatedBugs')}>
-          <Select
-            mode="multiple"
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="bug-related"
-            options={(candidates.data?.items ?? [])
-              .filter((item) => item.id !== bug?.id)
-              .map((item) => ({ value: item.id, label: `#${item.id} ${item.title}` }))}
-          />
-        </Form.Item>
-        <Form.Item name="notifyAccounts" label={t('bug.field.notify')}>
-          <Select
-            mode="multiple"
-            allowClear
-            aria-label="bug-notify"
-            optionFilterProp="label"
-            options={accountOptions}
-          />
-        </Form.Item>
-        <Form.Item name="keywords" label={t('bug.field.keywords')}>
-          <Input aria-label="bug-keywords" maxLength={255} />
-        </Form.Item>
-        <Form.Item name="steps" label={t('bug.field.steps')}>
-          <Input.TextArea aria-label="bug-steps" rows={4} />
-        </Form.Item>
+        <SelectField
+          control={control}
+          name="assignee"
+          label={t('bug.field.assignee')}
+          options={accountOptions}
+          aria-label="bug-assignee"
+        />
+        <DateField control={control} name="deadline" label={t('bug.field.deadline')} aria-label="bug-deadline" />
+        <SelectField
+          control={control}
+          name="relatedBugIds"
+          label={t('bug.field.relatedBugs')}
+          options={(candidates.data?.items ?? [])
+            .filter((item) => item.id !== bug?.id)
+            .map((item) => ({ value: item.id, label: `#${item.id} ${item.title}` }))}
+          multiple
+          aria-label="bug-related"
+        />
+        <SelectField
+          control={control}
+          name="notifyAccounts"
+          label={t('bug.field.notify')}
+          options={accountOptions}
+          multiple
+          aria-label="bug-notify"
+        />
+        <TextField
+          control={control}
+          name="keywords"
+          label={t('bug.field.keywords')}
+          maxLength={255}
+          aria-label="bug-keywords"
+        />
+        <TextAreaField control={control} name="steps" label={t('bug.field.steps')} aria-label="bug-steps" />
         {editing && bug ? (
           // A-02：编辑态附件区（objectType=bug + 已有 objectId）；创建态无 objectId 不加
           <Form.Item label={t('bug.field.files')}>
-            <FileUploadField objectType="bug" objectId={bug.id} />
+            <HasPerm perm="file-upload">
+              <FileUploadField objectType="bug" objectId={bug.id} />
+            </HasPerm>
           </Form.Item>
         ) : null}
         {save.error ? (

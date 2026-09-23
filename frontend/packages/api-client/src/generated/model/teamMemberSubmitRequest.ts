@@ -13,5 +13,6 @@ import type { TeamMemberInput } from './teamMemberInput';
  * 成员表全量提交（旧 manageMembers 语义：diff 增删改，逐项校验，幂等）
  */
 export interface TeamMemberSubmitRequest {
+  /** 整体替换的目标成员集合 */
   members: TeamMemberInput[];
 }

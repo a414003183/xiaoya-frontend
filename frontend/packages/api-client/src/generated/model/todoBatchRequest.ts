@@ -7,22 +7,10 @@
  *
  * OpenAPI spec version: 0.2.0
  */
-import type { TodoBatchRequestParams } from './todoBatchRequestParams';
-import type { TodoCreateRequest } from './todoCreateRequest';
+import type { TodoBatchActionRequest } from './todoBatchActionRequest';
+import type { TodoBatchCreateRequest } from './todoBatchCreateRequest';
 
 /**
- * 批量创建（items ≤50）或批量动作（ids+action+params）；两种形态二选一
+ * 批量创建（items ≤50）或批量动作（ids+action+params）；两种形态二选一（oneOf 收窄）
  */
-export interface TodoBatchRequest {
-  /** @nullable */
-  items?: TodoCreateRequest[] | null;
-  /** @nullable */
-  ids?: number[] | null;
-  /**
-     * start|finish|activate|close|assign
-     * @nullable
-     */
-  action?: string | null;
-  /** @nullable */
-  params?: TodoBatchRequestParams;
-}
+export type TodoBatchRequest = TodoBatchCreateRequest | TodoBatchActionRequest;

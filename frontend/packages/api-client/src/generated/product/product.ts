@@ -2500,10 +2500,15 @@ export type deleteCategoryResponse404 = {
   status: 404
 }
 
+export type deleteCategoryResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type deleteCategoryResponseSuccess = (deleteCategoryResponse200) & {
   headers: Headers;
 };
-export type deleteCategoryResponseError = (deleteCategoryResponse401 | deleteCategoryResponse403 | deleteCategoryResponse404) & {
+export type deleteCategoryResponseError = (deleteCategoryResponse401 | deleteCategoryResponse403 | deleteCategoryResponse404 | deleteCategoryResponse422) & {
   headers: Headers;
 };
 
@@ -2537,7 +2542,7 @@ export const deleteCategory = async (categoryId: number, options?: Parameters<ty
 
 export const getDeleteCategoryMutationKey = () => ['deleteCategory'] as const;
 
-export const getDeleteCategoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getDeleteCategoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,DeleteCategoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,DeleteCategoryMutationVariables, TContext> => {
 
@@ -2566,13 +2571,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type DeleteCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCategory>>>
 
-    export type DeleteCategoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type DeleteCategoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type DeleteCategoryMutationVariables = {categoryId: number}
 
     /**
  * @summary 删除分类节点（级联软删子树）
  */
-export const useDeleteCategory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useDeleteCategory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,DeleteCategoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteCategory>>,

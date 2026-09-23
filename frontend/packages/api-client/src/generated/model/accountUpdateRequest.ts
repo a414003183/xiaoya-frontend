@@ -14,50 +14,65 @@ import type { AccountUpdateRequestGender } from './accountUpdateRequestGender';
  */
 export interface AccountUpdateRequest {
   /**
+     * 姓名
      * @maxLength 100
      * @nullable
      */
   realName?: string | null;
   /**
+     * 昵称
      * @maxLength 60
      * @nullable
      */
   nickname?: string | null;
   /**
-     * 账号角色码，必须存在于角色列表（GET /roles）；未设置为 null
-     * @maxLength 16
+     * 部门 id
      * @nullable
      */
-  role?: string | null;
-  /** @nullable */
   departmentId?: number | null;
   /**
+     * 邮箱
      * @maxLength 90
      * @nullable
      */
   email?: string | null;
   /**
+     * 手机号
      * @maxLength 20
      * @nullable
      */
   mobile?: string | null;
   /**
+     * 电话
      * @maxLength 20
      * @nullable
      */
   phone?: string | null;
-  /** @nullable */
-  gender?: AccountUpdateRequestGender;
-  /** @nullable */
-  birthday?: string | null;
-  /** @nullable */
-  joinedAt?: string | null;
-  /** @nullable */
-  avatarFileId?: number | null;
   /**
-     * 全量替换组集合
+     * 性别
      * @nullable
      */
-  groupIds?: number[] | null;
-  lockVersion?: number;
+  gender?: AccountUpdateRequestGender;
+  /**
+     * 生日
+     * @nullable
+     */
+  birthday?: string | null;
+  /**
+     * 入职日期
+     * @nullable
+     */
+  joinedAt?: string | null;
+  /**
+     * 头像文件 id
+     * @nullable
+     */
+  avatarFileId?: number | null;
+  /**
+     * 全量替换的角色 id 集合（null=不修改；不存在的 id → 42201）
+     * @nullable
+     */
+  roleIds?: number[] | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
+  lockVersion: number;
 }

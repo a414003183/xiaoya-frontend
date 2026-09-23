@@ -10,6 +10,8 @@
 import type { BranchView } from './branchView';
 
 export interface BranchList {
+  /** 列表项（当前页） */
   items: BranchView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

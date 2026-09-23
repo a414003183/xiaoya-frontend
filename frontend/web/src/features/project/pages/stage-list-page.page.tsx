@@ -8,7 +8,6 @@ import {
   InputNumber,
   ListCard,
   PageContainer,
-  PageHeader,
   Popconfirm,
   Select,
   Space,
@@ -19,6 +18,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { metaOptions, useDomainMeta } from '../../../shared/meta-options'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { deleteStageAction, fetchStages, patchStage, qk, type StageView, submitStage } from '../../board'
 
 /** 阶段类型字典（T-7 / project §6 L 范式：行内编辑 name/percent/type/sort，percent 累计超 100 → 42201 标红）。 */
@@ -35,6 +35,7 @@ function draftOf(stage: StageView): StageDraft {
 
 export default function StageListPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [drafts, setDrafts] = useState<Record<number, StageDraft>>({})
@@ -90,6 +91,7 @@ export default function StageListPage() {
       message.success(t('common.message.deleted'))
       void queryClient.invalidateQueries({ queryKey: ['listStages'] })
     },
+    onError: feedback.failed,
   })
 
   const setDraft = (stage: StageView, patch: Partial<StageDraft>) => {
@@ -204,7 +206,6 @@ export default function StageListPage() {
 
   return (
     <PageContainer>
-      <PageHeader title={t('stage.title.list')} />
       <ListCard
         columns={columns}
         columnSettingKey="project-stages"

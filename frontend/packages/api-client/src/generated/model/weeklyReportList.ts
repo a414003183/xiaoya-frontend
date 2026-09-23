@@ -10,6 +10,8 @@
 import type { WeeklyReportView } from './weeklyReportView';
 
 export interface WeeklyReportList {
+  /** 列表项（当前页） */
   items: WeeklyReportView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

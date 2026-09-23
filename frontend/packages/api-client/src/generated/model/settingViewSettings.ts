@@ -8,4 +8,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 配置表（键 → 值）
+ */
 export type SettingViewSettings = { [key: string]: unknown };

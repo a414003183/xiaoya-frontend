@@ -10,6 +10,8 @@
 import type { ReleaseView } from './releaseView';
 
 export interface ReleaseList {
+  /** 列表项（当前页） */
   items: ReleaseView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

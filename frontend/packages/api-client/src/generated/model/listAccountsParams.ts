@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListAccountsParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -26,15 +26,33 @@ limit?: LimitParameter;
  * 排序，白名单 id/account/realName/status/createdAt/lastActiveAt
  */
 sort?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[status]'?: string;
-'filters[role]'?: string;
+/**
+ * 角色 id（账号的角色是成员关系，服务端展开为「属于该角色」的账号集）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
+ */
+'filters[roleId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[gender]'?: string;
 /**
- * 部门 id / 逗号 IN / @myDepartment（展开本部门及全部后代）
+ * 部门 id / 逗号 IN / @myDepartment（展开本部门及全部后代）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[departmentId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdBy]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[createdAt]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[id]'?: string;
 /**
  * LIKE account/realName/nickname/email

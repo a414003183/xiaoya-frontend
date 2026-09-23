@@ -3,9 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
   Button,
-  filterInputWidth,
   HasPerm,
-  Input,
   ListCard,
   PageContainer,
   Popconfirm,
@@ -17,7 +15,7 @@ import {
 } from '@zentao/design-system'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
-import { keywordField, ListFilterForm, selectField } from '../../../shared/list-filter'
+import { dateRangeField, keywordField, ListFilterForm, selectField } from '../../../shared/list-filter'
 import { useMetaOptions } from '../../../shared/meta-options'
 import { RowNameLink } from '../../../shared/row-name-link'
 import { withParam } from '../../../shared/url'
@@ -39,10 +37,8 @@ export default function ExecutionListPage() {
   const priority = searchParams.get('priority') ?? ''
   const model = searchParams.get('model') ?? ''
   const acl = searchParams.get('acl') ?? ''
-  /* 开始日期按区间筛（project 卡 §3：beginDate filterable(区间)）——from/to 两端合成 DSL 的 `a..b`（03 §3） */
-  const beginFrom = searchParams.get('beginFrom') ?? ''
-  const beginTo = searchParams.get('beginTo') ?? ''
-  const beginDate = beginFrom || beginTo ? `${beginFrom}..${beginTo}` : ''
+  /* 开始日期按区间筛（project 卡 §3：beginDate filterable(区间)）：URL 与 DSL 同为 `a..b`（03 §3） */
+  const beginDate = searchParams.get('filters[beginDate]') ?? ''
   const q = searchParams.get('q') ?? ''
   const page = Number(searchParams.get('page') ?? 1)
 
@@ -124,17 +120,7 @@ export default function ExecutionListPage() {
           selectField('type', t('common.field.type'), executionMeta.options('type')),
           selectField('status', t('common.field.status'), executionMeta.options('status')),
           selectField('priority', t('common.field.priority'), executionMeta.options('priority')),
-          {
-            name: 'beginFrom',
-            label: t('project.field.beginDate'),
-            control: <Input type="date" style={{ width: filterInputWidth }} aria-label="execution-filter-begin-from" />,
-          },
-          {
-            name: 'beginTo',
-            label: '~',
-            colon: false,
-            control: <Input type="date" style={{ width: filterInputWidth }} aria-label="execution-filter-begin-to" />,
-          },
+          dateRangeField('filters[beginDate]', t('project.field.beginDate')),
           selectField('model', t('project.field.model'), executionMeta.options('model')),
           selectField('acl', t('project.field.acl'), executionMeta.options('acl')),
         ]}

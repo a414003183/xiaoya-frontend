@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 状态
+ */
 export type LangImportViewStatus = typeof LangImportViewStatus[keyof typeof LangImportViewStatus];
 
 

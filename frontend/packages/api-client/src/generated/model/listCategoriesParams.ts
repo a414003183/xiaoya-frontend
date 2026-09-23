@@ -10,12 +10,24 @@
 
 export type ListCategoriesParams = {
 /**
- * story|bug|case，必填（整树响应，不分页）
+ * story|bug|case，必填（整树响应，不分页）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[type]': string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[branchId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[parentId]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[owner]'?: string;
+/**
+ * 过滤（多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制）
+ */
 'filters[id]'?: string;
 /**
  * LIKE name

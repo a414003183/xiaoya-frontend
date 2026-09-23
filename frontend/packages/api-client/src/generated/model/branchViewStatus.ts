@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 状态
+ */
 export type BranchViewStatus = typeof BranchViewStatus[keyof typeof BranchViewStatus];
 
 

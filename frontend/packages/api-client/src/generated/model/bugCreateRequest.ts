@@ -11,48 +11,90 @@ import type { BugCreateRequestCustomFields } from './bugCreateRequestCustomField
 import type { BugCreateRequestType } from './bugCreateRequestType';
 
 export interface BugCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 项目 id
+     * @nullable
+     */
   projectId?: number | null;
-  /** @nullable */
+  /**
+     * 执行 id
+     * @nullable
+     */
   executionId?: number | null;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
-  /** @nullable */
+  /**
+     * 任务 id
+     * @nullable
+     */
   taskId?: number | null;
-  /** @nullable */
+  /**
+     * 用例 id
+     * @nullable
+     */
   testCaseId?: number | null;
-  /** @nullable */
+  /**
+     * 测试单 id
+     * @nullable
+     */
   testRunId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * Bug 标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 严重级别
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   severity?: number | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: BugCreateRequestType;
-  /** @nullable */
+  /**
+     * 操作系统（Bug 环境）
+     * @nullable
+     */
   os?: string | null;
-  /** @nullable */
+  /**
+     * 浏览器（Bug 环境）
+     * @nullable
+     */
   browser?: string | null;
   /**
      * 重现步骤（Markdown 长文本）
@@ -65,14 +107,29 @@ export interface BugCreateRequest {
      * @nullable
      */
   openedBuilds?: string | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
-  /** @nullable */
+  /**
+     * 相关 Bug id 集合
+     * @nullable
+     */
   relatedBugIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: BugCreateRequestCustomFields;
 }

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
-import { Form, Modal, Typography, useMessage } from '@zentao/design-system'
+import { Form, HasPerm, Modal, Typography, useMessage } from '@zentao/design-system'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -215,7 +215,9 @@ export function TaskEditModal({
         // A-02 附件区：仅编辑态（创建无 objectId）且弹窗打开时挂载（forceRender 预渲染会白跑一次列表请求）
         <div className="tw:mt-4 tw:flex tw:flex-col tw:gap-2">
           <Typography.Text type="secondary">{t('task.field.files')}</Typography.Text>
-          <FileUploadField objectType="task" objectId={task.id} />
+          <HasPerm perm="file-upload">
+            <FileUploadField objectType="task" objectId={task.id} />
+          </HasPerm>
         </div>
       ) : null}
     </Modal>

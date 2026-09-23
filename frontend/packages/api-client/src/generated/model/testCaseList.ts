@@ -10,6 +10,8 @@
 import type { TestCaseView } from './testCaseView';
 
 export interface TestCaseList {
+  /** 列表项（当前页） */
   items: TestCaseView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

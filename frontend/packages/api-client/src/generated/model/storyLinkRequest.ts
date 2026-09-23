@@ -12,5 +12,6 @@
  * 项目/执行关联需求请求体（project_story，幂等：重复关联不增行）
  */
 export interface StoryLinkRequest {
+  /** 关联需求 id 集合 */
   storyIds: number[];
 }

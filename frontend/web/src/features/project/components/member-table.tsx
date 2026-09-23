@@ -1,3 +1,4 @@
+// list-standard: exempt (sub-table) — 详情/表单内的结构性子表，非列表页
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import { Button, Input, InputNumber, Select, Space, Table, Typography, useMessage } from '@zentao/design-system'

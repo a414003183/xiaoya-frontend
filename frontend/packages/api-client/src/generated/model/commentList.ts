@@ -10,6 +10,8 @@
 import type { CommentView } from './commentView';
 
 export interface CommentList {
+  /** 列表项（当前页） */
   items: CommentView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

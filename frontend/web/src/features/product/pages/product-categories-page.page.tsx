@@ -5,22 +5,25 @@ import {
   Button,
   Card,
   EmptyState,
-  Flex,
+  HasPerm,
+  hasPerm,
+  ListCardHeader,
   PageContainer,
   PageHeader,
   Popconfirm,
   Space,
   Spin,
-  spacing,
   Tree,
   Typography,
   useMessage,
+  usePrivileges,
 } from '@zentao/design-system'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
 import { ListFilterForm, selectField } from '../../../shared/list-filter'
 import { useMetaOptions } from '../../../shared/meta-options'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { type CategoryView, fetchCategories, fetchProduct, patchCategory, qk, removeCategory } from '../api/product.api'
 import { CategoryNodeModal } from '../components/category-node-modal'
 import { buildCategoryTree, type CategoryNode } from '../model'
@@ -31,6 +34,7 @@ type TreeRow = { key: number; title: ReactNode; children: TreeRow[] }
  * 三树类型选项来自 meta/category。 */
 export default function ProductCategoriesPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const productId = Number(useParams().productId)
@@ -39,6 +43,8 @@ export default function ProductCategoriesPage() {
   const [editing, setEditing] = useState<CategoryView | null>(null)
   const [parentId, setParentId] = useState(0)
   const categoryMeta = useMetaOptions('category')
+  // T02：分类增删改（含拖拽改 parentId）同码 category-manage（CategoryController 三个写端点）
+  const canManage = hasPerm(usePrivileges(), 'category-manage')
 
   const type = searchParams.get('type') ?? 'story'
   const product = useQuery({ queryKey: qk.product.detail(productId), queryFn: () => fetchProduct(productId) })
@@ -55,6 +61,7 @@ export default function ProductCategoriesPage() {
         lockVersion: input.lockVersion,
       }),
     onSuccess: invalidate,
+    onError: feedback.failed,
   })
   const remove = useMutation({
     mutationFn: (categoryId: number) => removeCategory(categoryId),
@@ -62,6 +69,7 @@ export default function ProductCategoriesPage() {
       message.success(t('common.message.deleted'))
       invalidate()
     },
+    onError: feedback.failed,
   })
 
   const nodes = categories.data?.items ?? []
@@ -76,19 +84,21 @@ export default function ProductCategoriesPage() {
     setModalOpen(true)
   }
   const rowAction = (node: CategoryNode, parent: number) => (
-    <Space size={4}>
-      <Button size="small" type="link" onClick={() => openCreate(node)}>
-        {t('category.action.addChild')}
-      </Button>
-      <Button size="small" type="link" onClick={() => openEdit(node, parent)}>
-        {t('common.action.edit')}
-      </Button>
-      <Popconfirm title={t('category.message.deleteCascade')} onConfirm={() => remove.mutate(node.id)}>
-        <Button size="small" type="link" danger>
-          {t('common.action.delete')}
+    <HasPerm perm="category-manage">
+      <Space size={4}>
+        <Button size="small" type="link" onClick={() => openCreate(node)}>
+          {t('category.action.addChild')}
         </Button>
-      </Popconfirm>
-    </Space>
+        <Button size="small" type="link" onClick={() => openEdit(node, parent)}>
+          {t('common.action.edit')}
+        </Button>
+        <Popconfirm title={t('category.message.deleteCascade')} onConfirm={() => remove.mutate(node.id)}>
+          <Button size="small" type="link" danger>
+            {t('common.action.delete')}
+          </Button>
+        </Popconfirm>
+      </Space>
+    </HasPerm>
   )
   const treeData = buildCategoryTree(nodes).map((node) => toTreeRow(node, rowAction, 0))
 
@@ -101,11 +111,16 @@ export default function ProductCategoriesPage() {
       <ListFilterForm fields={[selectField('type', t('common.field.type'), categoryMeta.options('type'))]} />
       {/* 分类树不是表格：列设置/ListCard 用不上，功能按钮照新骨架落在这张卡的卡头（贴内容顶上左） */}
       <Card>
-        <Flex align="center" gap={spacing.sm} wrap style={{ marginBottom: spacing.lg }}>
-          <Button type="primary" onClick={() => openCreate(null)}>
-            {t('category.action.create')}
-          </Button>
-        </Flex>
+        {/* 卡头走标准件（T72/FE-12）：与 ListCard 同一个「左功能按钮 / 右工具栏」头 */}
+        <ListCardHeader
+          actions={
+            <HasPerm perm="category-manage">
+              <Button type="primary" onClick={() => openCreate(null)}>
+                {t('category.action.create')}
+              </Button>
+            </HasPerm>
+          }
+        />
         {categories.error ? (
           <Typography.Paragraph type="danger">
             {errorText(categories.error, t, 'common.message.failed')}
@@ -118,7 +133,7 @@ export default function ProductCategoriesPage() {
         ) : (
           <Tree
             blockNode
-            draggable
+            draggable={canManage}
             defaultExpandAll
             treeData={treeData}
             onDrop={(info) => {

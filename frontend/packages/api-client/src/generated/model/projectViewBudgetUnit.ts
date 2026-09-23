@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 预算单位
+ */
 export type ProjectViewBudgetUnit = typeof ProjectViewBudgetUnit[keyof typeof ProjectViewBudgetUnit];
 
 

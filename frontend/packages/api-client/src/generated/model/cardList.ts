@@ -10,6 +10,8 @@
 import type { CardView } from './cardView';
 
 export interface CardList {
+  /** 列表项（当前页） */
   items: CardView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

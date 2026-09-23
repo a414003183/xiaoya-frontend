@@ -9,6 +9,7 @@
  */
 
 /**
+ * 关闭原因
  * @nullable
  */
 export type TaskViewClosedReason = typeof TaskViewClosedReason[keyof typeof TaskViewClosedReason] | null;

@@ -13,5 +13,6 @@ import type { BatchCreateResultItem } from './batchCreateResultItem';
  * 批量创建通用结果（bug/testCase 共用；product 族沿用各自 Batch*Result 同构形状）
  */
 export interface BatchCreateResult {
+  /** 逐项结果 */
   results: BatchCreateResultItem[];
 }

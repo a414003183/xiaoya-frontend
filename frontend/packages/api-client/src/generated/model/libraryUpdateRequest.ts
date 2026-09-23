@@ -10,11 +10,16 @@
 
 export interface LibraryUpdateRequest {
   /**
+     * 用例库名称
      * @maxLength 255
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

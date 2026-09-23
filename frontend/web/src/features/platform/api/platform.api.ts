@@ -2,35 +2,79 @@ import { useQueryClient } from '@tanstack/react-query'
 import { API_BASE, ApiError, ok } from '@zentao/api-client'
 import {
   createComment,
+  createDictItem,
+  createDictType,
   createLangImport,
-  deleteLangItems,
+  createMenu,
+  createSettingEntry,
+  deleteDictItem,
+  deleteDictType,
+  deleteMenu,
+  deleteSettingEntry,
   getDict,
   getDownloadFileUrl,
   getExportLangItemsUrl,
-  getLangItems,
   getNotificationUnreadCount,
+  getServerMetrics,
   getSettings,
+  kickOnlineUser,
   listAccountActivities,
   listAuditLogs,
   listComments,
+  listDictItems,
+  listDictTypes,
   listLangImports,
+  listMenuPageRegistry,
+  listMenuRoutes,
+  listMenus,
+  listMyMenus,
   listNotifications,
+  listOnlineUsers,
+  listSettingEntries,
   markNotificationRead,
-  putLangItems,
   putSettings,
+  updateDictItem,
+  updateDictType,
+  updateMenu,
+  updateSettingEntry,
 } from '@zentao/api-client/generated'
 import type { ActivityView } from '@zentao/api-client/generated/model/activityView'
 import type { AuditLogView } from '@zentao/api-client/generated/model/auditLogView'
 import type { CommentView } from '@zentao/api-client/generated/model/commentView'
+import type { DictDataView } from '@zentao/api-client/generated/model/dictDataView'
+import type { DictTypeView } from '@zentao/api-client/generated/model/dictTypeView'
 import type { LangImportView } from '@zentao/api-client/generated/model/langImportView'
 import type { ListAuditLogsParams } from '@zentao/api-client/generated/model/listAuditLogsParams'
+import type { ListDictItemsParams } from '@zentao/api-client/generated/model/listDictItemsParams'
+import type { ListDictTypesParams } from '@zentao/api-client/generated/model/listDictTypesParams'
 import type { ListLangImportsParams } from '@zentao/api-client/generated/model/listLangImportsParams'
+import type { ListOnlineUsersParams } from '@zentao/api-client/generated/model/listOnlineUsersParams'
+import type { ListSettingEntriesParams } from '@zentao/api-client/generated/model/listSettingEntriesParams'
+import type { MenuNode } from '@zentao/api-client/generated/model/menuNode'
+import type { MenuRequest } from '@zentao/api-client/generated/model/menuRequest'
+import type { MenuTree } from '@zentao/api-client/generated/model/menuTree'
+import type { MenuUpdateRequest } from '@zentao/api-client/generated/model/menuUpdateRequest'
 import type { NotificationView } from '@zentao/api-client/generated/model/notificationView'
+import type { OnlineUserView } from '@zentao/api-client/generated/model/onlineUserView'
+import type { PageRegistry } from '@zentao/api-client/generated/model/pageRegistry'
+import type { RouteTable } from '@zentao/api-client/generated/model/routeTable'
+import type { ServerMetricsView } from '@zentao/api-client/generated/model/serverMetricsView'
+import type { SettingEntryView } from '@zentao/api-client/generated/model/settingEntryView'
 import { buildListParams, type ListDsl } from '../../../shared/list-dsl'
 
 /** platform 域数据入口（01 §3.2：域内唯一数据入口，类型 + orval 封装）。 */
 
-export type { ActivityView, AuditLogView, CommentView, NotificationView }
+export type {
+  ActivityView,
+  AuditLogView,
+  CommentView,
+  DictDataView,
+  DictTypeView,
+  NotificationView,
+  OnlineUserView,
+  ServerMetricsView,
+  SettingEntryView,
+}
 
 // ── 评论 / 动态流 ──
 
@@ -102,28 +146,7 @@ export async function saveSettings(settings: Record<string, unknown>): Promise<R
   return ok(await putSettings({ settings })).data.settings
 }
 
-// ── 文案覆盖 / 字典 ──
-
-export type LangItemValues = { items: Record<string, string>; overridden?: boolean }
-
-/** 文案覆盖读取（platform 卡 §3.8；lang 缺省 zh-cn）。 */
-export async function fetchLangItems(lang: string, domain: string, field: string): Promise<LangItemValues> {
-  return ok(await getLangItems(domain, field, { lang })).data
-}
-
-// PUT/DELETE 的 lang 查询参 2026-09-20 已补进契约（C-16 X-01/X-02 回收），故走生成函数，不再手拼 URL。
-export async function saveLangItems(
-  lang: string,
-  domain: string,
-  field: string,
-  items: Record<string, string>,
-): Promise<LangItemValues> {
-  return ok(await putLangItems(domain, field, { items }, lang === '' ? undefined : { lang })).data
-}
-
-export async function restoreLangItems(lang: string, domain: string, field: string): Promise<LangItemValues> {
-  return ok(await deleteLangItems(domain, field, lang === '' ? undefined : { lang })).data
-}
+// ── 字典 ──
 
 // ── 多语言上传（platform 卡 §3.12） ──
 
@@ -134,9 +157,9 @@ export async function fetchLangImports(
   return ok(await listLangImports(buildListParams<ListLangImportsParams>(dsl))).data
 }
 
-/** 上传语言包 Excel（multipart；校验失败由服务端抛 42201，fields 为 `row:<n>`/`file` → 原因码）。 */
-export async function uploadLangImport(file: File, lang: string): Promise<LangImportView> {
-  return ok(await createLangImport({ file, lang })).data
+/** 上传语言包 Excel（multipart 只收 file：单文件全语言，语言由列头决定；校验失败 42201，fields 为 `row:<n>`/`file` → 原因码）。 */
+export async function uploadLangImport(file: File): Promise<LangImportView> {
+  return ok(await createLangImport({ file })).data
 }
 
 /**
@@ -163,16 +186,12 @@ export async function downloadLangPack(): Promise<void> {
   URL.revokeObjectURL(url)
 }
 
-/** 权限码目录按域去重（lang-item 页左侧域树数据源；GET /dicts/privileges，B-PLT-12）。 */
-export async function fetchPrivilegeDomains(): Promise<string[]> {
+/** 权限码选项（菜单管理的 perm 字段数据源）：label 是 i18n 键 `priv.<code>`，调用点用 t() 渲染。 */
+export async function fetchPrivilegeOptions(): Promise<{ value: string; label: string }[]> {
   const data = ok(await getDict('privileges')).data
-  const domains = new Set<string>()
-  for (const item of data.items) {
-    if (typeof item.domain === 'string' && item.domain !== '') {
-      domains.add(item.domain)
-    }
-  }
-  return [...domains].sort()
+  return data.items
+    .map((item) => ({ value: String(item.code ?? ''), label: String(item.i18n ?? item.code ?? '') }))
+    .filter((item) => item.value !== '')
 }
 
 /** 时区选项（GET /dicts/timezones；系统设置页数据源，值域与译文都在后端）。 */
@@ -205,8 +224,153 @@ export async function fetchAuditLogs(
   return ok(await listAuditLogs(buildListParams<ListAuditLogsParams>(dsl))).data
 }
 
+// ── 在线用户（T13 P1-1：session 表现存行 = 在线集，强退即删行） ──
+
+/**
+ * 在线会话列表。行 id 是 token 的摘要（不是 cookie 值），强退端点收的就是它。
+ * filters 值域只有 account（等值或逗号 IN）——行数天然等于在线会话数，不值得更多条件。
+ */
+export async function fetchOnlineUsers(
+  dsl: ListDsl<ListOnlineUsersParams> = {},
+): Promise<{ items: OnlineUserView[]; total: number }> {
+  return ok(await listOnlineUsers(buildListParams<ListOnlineUsersParams>(dsl))).data
+}
+
+/** 强退（幂等：对方刚登出/已过期也算成功）。成功后该 cookie 的下一次请求 40101。 */
+export async function kickOnlineUserAction(sessionId: string): Promise<null> {
+  return ok(await kickOnlineUser(sessionId)).data
+}
+
+// ── 参数管理（T15 P1-3：setting 表系统行；个人偏好行不进这个面） ──
+
+/**
+ * 系统参数列表。作用域恒为 owner=system（服务端注入），filters 只有 domain（等值或逗号 IN）。
+ * value 是 JSON 文本原样（字符串带引号），页面按文本编辑、按文本提交。
+ */
+export async function fetchSettingEntries(
+  dsl: ListDsl<ListSettingEntriesParams> = {},
+): Promise<{ items: SettingEntryView[]; total: number }> {
+  return ok(await listSettingEntries(buildListParams<ListSettingEntriesParams>(dsl))).data
+}
+
+/** 新建系统参数（键重复/格式非法/值非 JSON → 42201）。 */
+export async function createSettingEntryAction(body: { key: string; value: string }): Promise<SettingEntryView> {
+  return ok(await createSettingEntry(body)).data
+}
+
+/** 改某个系统参数的值（键不可改；行不存在 → 40401）。 */
+export async function updateSettingEntryAction(key: string, body: { value: string }): Promise<SettingEntryView> {
+  return ok(await updateSettingEntry(key, body)).data
+}
+
+/** 删系统参数（行不存在 → 40401：页面上的行已过期，该提示而不是假装成功）。 */
+export async function deleteSettingEntryAction(key: string): Promise<null> {
+  return ok(await deleteSettingEntry(key)).data
+}
+
+// ── 服务监控（T17 P1-5：单机负载快照，不直暴露 actuator） ──
+
+/** 负载快照（原始字节数；百分比在页面算，-1 = 该指标不可用）。 */
+export async function fetchServerMetrics(): Promise<ServerMetricsView> {
+  return ok(await getServerMetrics()).data
+}
+
+// ── 字典管理（T16 P1-4：DB 字典只扩展代码注册的内置字典） ──
+
+/** 字典类型列表（dict_type 表；内置字典不在这里）。 */
+export async function fetchDictTypes(
+  dsl: ListDsl<ListDictTypesParams> = {},
+): Promise<{ items: DictTypeView[]; total: number }> {
+  return ok(await listDictTypes(buildListParams<ListDictTypesParams>(dsl))).data
+}
+
+/** 某类型的数据项（作用域恒为 type code，按 sortNo 升序）。 */
+export async function fetchDictItems(
+  typeCode: string,
+  dsl: ListDsl<ListDictItemsParams> = {},
+): Promise<{ items: DictDataView[]; total: number }> {
+  return ok(await listDictItems(typeCode, buildListParams<ListDictItemsParams>(dsl))).data
+}
+
+export async function createDictTypeAction(body: { code: string; name: string }): Promise<DictTypeView> {
+  return ok(await createDictType(body)).data
+}
+
+export async function updateDictTypeAction(
+  code: string,
+  body: { name?: string; status?: 'active' | 'disabled' },
+): Promise<DictTypeView> {
+  return ok(await updateDictType(code, body)).data
+}
+
+/** 删类型：级联删其数据项（页面确认框里写明）。 */
+export async function deleteDictTypeAction(code: string): Promise<null> {
+  return ok(await deleteDictType(code)).data
+}
+
+export async function createDictItemAction(
+  typeCode: string,
+  body: { itemLabel: string; itemValue: string; sortNo?: number },
+): Promise<DictDataView> {
+  return ok(await createDictItem(typeCode, body)).data
+}
+
+export async function updateDictItemAction(
+  id: number,
+  body: { itemLabel?: string; itemValue?: string; sortNo?: number; status?: 'active' | 'disabled' },
+): Promise<DictDataView> {
+  return ok(await updateDictItem(id, body)).data
+}
+
+export async function deleteDictItemAction(id: number): Promise<null> {
+  return ok(await deleteDictItem(id)).data
+}
+
+// ── 菜单管理（T19 P2-1 / T03 纯 DB 化）──
+
+/** 管理视图：`menu` 表整棵树（**不按权限过滤**，端点要 menu-manage）。 */
+export async function fetchMenuTree(): Promise<MenuTree> {
+  return ok(await listMenus()).data
+}
+
+/** 前端路由表（T26）：全部页面（含隐藏页）的 path/component/perm；动态路由的数据源。 */
+export async function fetchMenuRoutes(): Promise<RouteTable> {
+  return ok(await listMenuRoutes()).data
+}
+
+/** 页面注册表（T03）：path → component 的代码侧清单；菜单表单按 path 自动匹配组件。 */
+export async function fetchMenuPageRegistry(): Promise<PageRegistry> {
+  return ok(await listMenuPageRegistry()).data
+}
+
+/** 侧栏视图：当前账号可见菜单（登录即可访问；服务端按状态与权限码过滤后下发）。 */
+export async function fetchMyMenus(): Promise<MenuTree> {
+  return ok(await listMyMenus()).data
+}
+
+export async function createMenuAction(body: MenuRequest): Promise<MenuNode> {
+  return ok(await createMenu(body)).data
+}
+
+/** 改菜单行：身份是 nodeKey（页面 key 含 `/`、按钮 key 含 `#`，只能走查询参数）。 */
+export async function updateMenuAction(nodeKey: string, body: MenuUpdateRequest): Promise<MenuNode> {
+  return ok(await updateMenu(body, { nodeKey })).data
+}
+
+export async function deleteMenuAction(nodeKey: string): Promise<null> {
+  return ok(await deleteMenu({ nodeKey })).data
+}
+
 // ── query key 约定 ──
 
+export const MENU_TREE_KEY = ['listMenus'] as const
+/** 侧栏菜单树（app-shell 数据源）：登录后取一次，改菜单后由管理页失效重取。 */
+export const MY_MENUS_KEY = ['listMyMenus'] as const
+
+/** 路由表（动态路由用一份缓存）。 */
+export const MENU_ROUTES_KEY = ['listMenuRoutes'] as const
+/** 页面注册表（菜单表单的「页面」选择器；只在弹窗打开时取）。 */
+export const MENU_PAGE_REGISTRY_KEY = ['listMenuPageRegistry'] as const
 export const UNREAD_COUNT_KEY = ['getNotificationUnreadCount'] as const
 export const NOTIFICATION_LIST_KEY = ['listNotifications'] as const
 

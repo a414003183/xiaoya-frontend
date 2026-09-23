@@ -7,8 +7,11 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { BugCountByStatusStatus } from './bugCountByStatusStatus';
 
 export interface BugCountByStatus {
-  status: string;
+  /** 状态 */
+  status: BugCountByStatusStatus;
+  /** 条数 */
   count: number;
 }

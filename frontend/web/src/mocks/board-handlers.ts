@@ -56,7 +56,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -87,7 +87,7 @@ function canSeeSpace(space: BoardSpaceView): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1) || space.acl === 'open') {
+  if (account.roleIds.includes(1) || space.acl === 'open') {
     return true
   }
   const me = account.account
@@ -99,7 +99,7 @@ function canSeeBoard(board: BoardView): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1) || board.acl === 'open') {
+  if (account.roleIds.includes(1) || board.acl === 'open') {
     return true
   }
   const me = account.account

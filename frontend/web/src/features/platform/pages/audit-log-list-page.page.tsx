@@ -1,5 +1,5 @@
 /** @route /admin/audit-logs @title platform.auditLog.title @perm audit-log-view @menu admin/audit @order 1 */
-import { PageContainer, PageHeader } from '@zentao/design-system'
+import { PageContainer } from '@zentao/design-system'
 import { useTranslation } from 'react-i18next'
 import { dateRangeField, keywordField, ListFilterForm } from '../../../shared/list-filter'
 import { AuditLogTable } from '../components/audit-log-table'
@@ -12,7 +12,6 @@ export default function AuditLogListPage() {
   const { t } = useTranslation()
   return (
     <PageContainer>
-      <PageHeader title={t('platform.auditLog.title')} />
       <ListFilterForm
         fields={[
           keywordField(t('platform.auditLog.filter.account'), t('common.action.search')),

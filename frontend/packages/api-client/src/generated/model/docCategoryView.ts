@@ -12,10 +12,17 @@
  * 库内目录节点（doc 卡 §2 doc_category；真实删除）
  */
 export interface DocCategoryView {
+  /** 主键 id */
   id: number;
+  /** 文档库 id */
   docSpaceId: number;
+  /** 父节点 id（0 或空=顶级） */
   parentId: number;
-  /** @maxLength 60 */
+  /**
+     * 目录名称
+     * @maxLength 60
+     */
   name: string;
+  /** 排序值（升序，越小越前） */
   sort: number;
 }

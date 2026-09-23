@@ -13,5 +13,6 @@ import type { AccountBatchCreateResultResultsItem } from './accountBatchCreateRe
  * 批量创建逐项结果（org 卡 §5）
  */
 export interface AccountBatchCreateResult {
+  /** 逐项结果 */
   results: AccountBatchCreateResultResultsItem[];
 }

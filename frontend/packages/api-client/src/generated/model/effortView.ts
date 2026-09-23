@@ -12,6 +12,7 @@
  * 工时流水视图（task 卡 §3b；account 恒等于 createdBy，工时不设 lockVersion，流水按 id 定位）
  */
 export interface EffortView {
+  /** 主键 id */
   id: number;
   /** 强关联任务（仅挂任务） */
   taskId: number;
@@ -31,13 +32,19 @@ export interface EffortView {
      */
   leftHours?: number | null;
   /**
+     * 工时说明
      * @maxLength 255
      * @nullable
      */
   work?: string | null;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
   /**
      * 软删标记

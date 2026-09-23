@@ -16,30 +16,58 @@ import type { BoardView } from './boardView';
  * 看板空间（私人空间仅 owner/team/白名单可见，§7）；boards 仅空间详情端点填充，列表端点恒空数组
  */
 export interface BoardSpaceView {
+  /** 主键 id */
   id: number;
-  /** @maxLength 90 */
+  /**
+     * 空间名称
+     * @maxLength 90
+     */
   name: string;
+  /** 类型 */
   type: BoardSpaceViewType;
+  /** 负责人（登录账号） */
   owner?: string;
+  /** 成员账号集合 */
   team?: string[];
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 访问控制（可见范围策略） */
   acl: BoardSpaceViewAcl;
   /** acl=private 时生效（acl_entry 承载） */
   whitelist: string[];
+  /** 状态 */
   status: BoardSpaceViewStatus;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
   /** 空间下看板（GET /board-spaces/{boardSpaceId} 填充；列表端点恒空） */
   boards: BoardView[];
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

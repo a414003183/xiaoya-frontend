@@ -32,6 +32,8 @@ import type {
   BatchActionRequest,
   BatchActionResult,
   CommentRequest,
+  DeleteDocParams,
+  DeleteDocSpaceParams,
   DocCategoryCreateRequest,
   DocCategoryTree,
   DocCategoryUpdateRequest,
@@ -630,40 +632,34 @@ export type deleteDocSpaceResponseError = (deleteDocSpaceResponse401 | deleteDoc
 
 export type deleteDocSpaceResponse = (deleteDocSpaceResponseSuccess | deleteDocSpaceResponseError)
 
-export const getDeleteDocSpaceUrl = (docSpaceId: number,) => {
+export const getDeleteDocSpaceUrl = (docSpaceId: number,
+    params?: DeleteDocSpaceParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/v1/doc-spaces/${docSpaceId}/delete`
+  return stringifiedParams.length > 0 ? `/api/v1/doc-spaces/${docSpaceId}?${stringifiedParams}` : `/api/v1/doc-spaces/${docSpaceId}`
 }
 
 /**
  * @summary 删除库（库内无未删文档，否则 42203）
  */
 export const deleteDocSpace = async (docSpaceId: number,
-    commentRequest?: CommentRequest, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDocSpaceResponse> => {
+    params?: DeleteDocSpaceParams, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDocSpaceResponse> => {
 
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<deleteDocSpaceResponse>(getDeleteDocSpaceUrl(docSpaceId),
+  return httpFetch<deleteDocSpaceResponse>(getDeleteDocSpaceUrl(docSpaceId,params),
   {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(commentRequest)
+    method: 'DELETE'
+
+
   }
 );}
 
@@ -688,9 +684,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocSpace>>, DeleteDocSpaceMutationVariables> = (props) => {
-          const {docSpaceId,data} = props ?? {};
+          const {docSpaceId,params} = props ?? {};
 
-          return  deleteDocSpace(docSpaceId,data,requestOptions)
+          return  deleteDocSpace(docSpaceId,params,requestOptions)
         }
 
 
@@ -701,9 +697,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type DeleteDocSpaceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDocSpace>>>
-    export type DeleteDocSpaceMutationBody = CommentRequest | undefined
+
     export type DeleteDocSpaceMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
-    export type DeleteDocSpaceMutationVariables = {docSpaceId: number;data?: CommentRequest}
+    export type DeleteDocSpaceMutationVariables = {docSpaceId: number;params?: DeleteDocSpaceParams}
 
     /**
  * @summary 删除库（库内无未删文档，否则 42203）
@@ -1629,10 +1625,15 @@ export type batchDocsResponse403 = {
   status: 403
 }
 
+export type batchDocsResponse422 = {
+  data: ValidationResponse
+  status: 422
+}
+
 export type batchDocsResponseSuccess = (batchDocsResponse200) & {
   headers: Headers;
 };
-export type batchDocsResponseError = (batchDocsResponse400 | batchDocsResponse401 | batchDocsResponse403) & {
+export type batchDocsResponseError = (batchDocsResponse400 | batchDocsResponse401 | batchDocsResponse403 | batchDocsResponse422) & {
   headers: Headers;
 };
 
@@ -1680,7 +1681,7 @@ return httpFetch<batchDocsResponse>(getBatchDocsUrl(),
 
 export const getBatchDocsMutationKey = () => ['batchDocs'] as const;
 
-export const getBatchDocsMutationOptions = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse,
+export const getBatchDocsMutationOptions = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof batchDocs>>, TError,BatchDocsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof batchDocs>>, TError,BatchDocsMutationVariables, TContext> => {
 
@@ -1709,13 +1710,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type BatchDocsMutationResult = NonNullable<Awaited<ReturnType<typeof batchDocs>>>
     export type BatchDocsMutationBody = BatchActionRequest
-    export type BatchDocsMutationError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse
+    export type BatchDocsMutationError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse
     export type BatchDocsMutationVariables = {data: BatchActionRequest}
 
     /**
  * @summary 批量动作（action ∈ delete|move，≤50 条，逐项部分成功）
  */
-export const useBatchDocs = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse,
+export const useBatchDocs = <TError = BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | ValidationResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof batchDocs>>, TError,BatchDocsMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof batchDocs>>,
@@ -1980,6 +1981,122 @@ export const useUpdateDoc = <TError = UnauthorizedResponse | ForbiddenResponse |
         TContext
       > => {
       return useMutation(getUpdateDocMutationOptions(options), queryClient);
+    }
+    export type deleteDocResponse200 = {
+  data: null
+  status: 200
+}
+
+export type deleteDocResponse401 = {
+  data: UnauthorizedResponse
+  status: 401
+}
+
+export type deleteDocResponse403 = {
+  data: ForbiddenResponse
+  status: 403
+}
+
+export type deleteDocResponse404 = {
+  data: NotFoundResponse
+  status: 404
+}
+
+export type deleteDocResponse422 = {
+  data: StateConflictResponse
+  status: 422
+}
+
+export type deleteDocResponseSuccess = (deleteDocResponse200) & {
+  headers: Headers;
+};
+export type deleteDocResponseError = (deleteDocResponse401 | deleteDocResponse403 | deleteDocResponse404 | deleteDocResponse422) & {
+  headers: Headers;
+};
+
+export type deleteDocResponse = (deleteDocResponseSuccess | deleteDocResponseError)
+
+export const getDeleteDocUrl = (docId: number,
+    params?: DeleteDocParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/docs/${docId}?${stringifiedParams}` : `/api/v1/docs/${docId}`
+}
+
+/**
+ * @summary 软删文档（子文档一并软删）
+ */
+export const deleteDoc = async (docId: number,
+    params?: DeleteDocParams, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDocResponse> => {
+
+  return httpFetch<deleteDocResponse>(getDeleteDocUrl(docId,params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDocMutationKey = () => ['deleteDoc'] as const;
+
+export const getDeleteDocMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | StateConflictResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext> => {
+
+const mutationKey = getDeleteDocMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDoc>>, DeleteDocMutationVariables> = (props) => {
+          const {docId,params} = props ?? {};
+
+          return  deleteDoc(docId,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDocMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDoc>>>
+
+    export type DeleteDocMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | StateConflictResponse
+    export type DeleteDocMutationVariables = {docId: number;params?: DeleteDocParams}
+
+    /**
+ * @summary 软删文档（子文档一并软删）
+ */
+export const useDeleteDoc = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | StateConflictResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDoc>>,
+        TError,
+        DeleteDocMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteDocMutationOptions(options), queryClient);
     }
     export type saveDocDraftResponse200 = {
   data: DocView
@@ -2351,123 +2468,6 @@ export const useMoveDoc = <TError = UnauthorizedResponse | ForbiddenResponse | N
         TContext
       > => {
       return useMutation(getMoveDocMutationOptions(options), queryClient);
-    }
-    export type deleteDocResponse200 = {
-  data: null
-  status: 200
-}
-
-export type deleteDocResponse401 = {
-  data: UnauthorizedResponse
-  status: 401
-}
-
-export type deleteDocResponse403 = {
-  data: ForbiddenResponse
-  status: 403
-}
-
-export type deleteDocResponse404 = {
-  data: NotFoundResponse
-  status: 404
-}
-
-export type deleteDocResponseSuccess = (deleteDocResponse200) & {
-  headers: Headers;
-};
-export type deleteDocResponseError = (deleteDocResponse401 | deleteDocResponse403 | deleteDocResponse404) & {
-  headers: Headers;
-};
-
-export type deleteDocResponse = (deleteDocResponseSuccess | deleteDocResponseError)
-
-export const getDeleteDocUrl = (docId: number,) => {
-
-
-
-
-  return `/api/v1/docs/${docId}/delete`
-}
-
-/**
- * @summary 软删文档（子文档一并软删）
- */
-export const deleteDoc = async (docId: number,
-    commentRequest?: CommentRequest, options?: Parameters<typeof httpFetch>[1]): Promise<deleteDocResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<deleteDocResponse>(getDeleteDocUrl(docId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(commentRequest)
-  }
-);}
-
-
-
-
-
-export const getDeleteDocMutationKey = () => ['deleteDoc'] as const;
-
-export const getDeleteDocMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext> => {
-
-const mutationKey = getDeleteDocMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDoc>>, DeleteDocMutationVariables> = (props) => {
-          const {docId,data} = props ?? {};
-
-          return  deleteDoc(docId,data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDocMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDoc>>>
-    export type DeleteDocMutationBody = CommentRequest | undefined
-    export type DeleteDocMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
-    export type DeleteDocMutationVariables = {docId: number;data?: CommentRequest}
-
-    /**
- * @summary 软删文档（子文档一并软删）
- */
-export const useDeleteDoc = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDoc>>, TError,DeleteDocMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDoc>>,
-        TError,
-        DeleteDocMutationVariables,
-        TContext
-      > => {
-      return useMutation(getDeleteDocMutationOptions(options), queryClient);
     }
     export type listDocVersionsResponse200 = {
   data: DocVersionList

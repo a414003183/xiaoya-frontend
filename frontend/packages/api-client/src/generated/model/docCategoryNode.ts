@@ -12,11 +12,19 @@
  * 目录树节点（嵌套 children）
  */
 export interface DocCategoryNode {
+  /** 主键 id */
   id: number;
+  /** 文档库 id */
   docSpaceId: number;
+  /** 父节点 id（0 或空=顶级） */
   parentId: number;
-  /** @maxLength 60 */
+  /**
+     * 目录名称
+     * @maxLength 60
+     */
   name: string;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 子节点 */
   children: DocCategoryNode[];
 }

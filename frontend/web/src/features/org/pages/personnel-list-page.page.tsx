@@ -26,7 +26,7 @@ import {
   type PersonnelMemberView,
 } from '../api/org.api'
 import { departmentKeyId, departmentNames, departmentTreeData } from '../model'
-import { useRoleLabel } from '../role-options'
+import { useRoleLabels } from '../role-options'
 
 const PAGE_SIZE = DEFAULT_PAGE_SIZE
 
@@ -58,8 +58,8 @@ export default function PersonnelListPage() {
         ...(q ? { q } : {}),
       }),
   })
-  // role 列存的是角色码，展示名来自角色字典（org §3.4）——hook 必须在提前 return 之前调用
-  const roleLabelOf = useRoleLabel()
+  // 角色的展示名来自角色表（T23）——hook 必须在提前 return 之前调用
+  const roleLabelsOf = useRoleLabels()
 
   if (members.isPending || departments.isPending) {
     return (
@@ -89,9 +89,9 @@ export default function PersonnelListPage() {
     },
     {
       title: t('personnel.field.role'),
-      dataIndex: 'role',
-      // 账号 role 列存角色码，展示名来自角色字典（org §3.4；空值显示 -）
-      render: (value: string | null | undefined) => roleLabelOf(value),
+      key: 'roles',
+      // 账号的角色是成员关系（T23）：展示名来自角色表（空值显示 -）
+      render: (_: unknown, record: { roleIds?: readonly number[] }) => roleLabelsOf(record.roleIds),
     },
     { title: t('personnel.field.openTaskCount'), dataIndex: 'openTaskCount', width: 120 },
     { title: t('personnel.field.unresolvedBugCount'), dataIndex: 'unresolvedBugCount', width: 140 },

@@ -14,15 +14,24 @@ import type { StageCreateRequestType } from './stageCreateRequestType';
  * 新建阶段类型（percent 同 projectModel 下累计 ≤100）
  */
 export interface StageCreateRequest {
-  /** @maxLength 255 */
+  /**
+     * 阶段名称
+     * @maxLength 255
+     */
   name: string;
   /**
+     * 完成百分比（0~100）
      * @minimum 0
      * @maximum 100
      */
   percent: number;
+  /** 类型 */
   type: StageCreateRequestType;
+  /** 项目模型（waterfall） */
   projectModel: StageCreateRequestProjectModel;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

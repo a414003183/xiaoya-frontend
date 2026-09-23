@@ -18,7 +18,9 @@ import type { ProjectViewType } from './projectViewType';
  * 项目集/项目/执行的统一视图（一表三义，type 判别：program=项目集；project=项目；sprint|stage|kanban=执行）
  */
 export interface ProjectView {
+  /** 主键 id */
   id: number;
+  /** 类型 */
   type: ProjectViewType;
   /** program→上级 program 或 0；project→所属 program 或 0；execution→所属 project */
   parentId: number;
@@ -26,24 +28,36 @@ export interface ProjectView {
   path?: string;
   /** 层级深度，顶级=1 */
   grade?: number;
-  /** @maxLength 90 */
+  /**
+     * 项目名称
+     * @maxLength 90
+     */
   name: string;
   /**
+     * 编码（业务唯一标识）
      * @maxLength 45
      * @nullable
      */
   code?: string | null;
   /** 仅 project 型有效（execution 随所属项目；program 恒 scrum） */
   model?: ProjectViewModel;
+  /** 状态 */
   status: ProjectViewStatus;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
   /**
      * 首次计划完成日，延期比对
@@ -63,31 +77,58 @@ export interface ProjectView {
   /** 可用工作日，0–3650 */
   days?: number;
   /**
+     * 预算
      * @minimum 0
      * @nullable
      */
   budget?: number | null;
+  /** 预算单位 */
   budgetUnit?: ProjectViewBudgetUnit;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 项目经理（登录账号）
+     * @nullable
+     */
   pm?: string | null;
-  /** @nullable */
+  /**
+     * 产品负责人（登录账号）
+     * @nullable
+     */
   po?: string | null;
-  /** @nullable */
+  /**
+     * 测试负责人（登录账号）
+     * @nullable
+     */
   qd?: string | null;
-  /** @nullable */
+  /**
+     * 研发负责人（登录账号）
+     * @nullable
+     */
   rd?: string | null;
   /**
+     * 进度（0~100）
      * @minimum 0
      * @maximum 100
      */
   progress?: number;
-  /** @minimum 0 */
+  /**
+     * 预估工时
+     * @minimum 0
+     */
   estimateHours?: number;
-  /** @minimum 0 */
+  /**
+     * 已消耗工时
+     * @minimum 0
+     */
   consumedHours?: number;
-  /** @minimum 0 */
+  /**
+     * 剩余工时
+     * @minimum 0
+     */
   leftHours?: number;
   /** 仅 type=stage 有效 */
   isMilestone?: boolean;
@@ -95,17 +136,33 @@ export interface ProjectView {
   acl: ProjectViewAcl;
   /** acl=private 时生效（acl_entry 承载） */
   whitelist: string[];
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 自定义字段（动态字段表） */
   customFields?: ProjectViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
   /** 写路径 If-Match 语义 */
   lockVersion: number;

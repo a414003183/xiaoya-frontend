@@ -14,18 +14,26 @@ import type { StageUpdateRequestType } from './stageUpdateRequestType';
  */
 export interface StageUpdateRequest {
   /**
+     * 阶段名称
      * @maxLength 255
      * @nullable
      */
   name?: string | null;
   /**
+     * 完成百分比（0~100）
      * @minimum 0
      * @maximum 100
      * @nullable
      */
   percent?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: StageUpdateRequestType;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

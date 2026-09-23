@@ -78,7 +78,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -292,7 +292,7 @@ function todoReadable(todo: TodoRow): boolean {
   if (!account || todo.deletedAt) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const me = account.account
@@ -308,7 +308,7 @@ function todoWritable(todo: TodoRow): boolean {
   if (!account || todo.deletedAt) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const me = account.account

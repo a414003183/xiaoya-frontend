@@ -237,7 +237,9 @@ export default function DocDetailPage() {
       </Card>
       {/* 附件区（B-DOC-03/10）：platform File，objectType=doc；上传即挂当前文档，可删除；快照文件 id 保留下载链接 */}
       <Card title={t('doc.field.files')}>
-        <FileUploadField objectType="doc" objectId={docId} />
+        <HasPerm perm="file-upload">
+          <FileUploadField objectType="doc" objectId={docId} />
+        </HasPerm>
         {files.length > 0 ? (
           <Space wrap className="tw:mt-2">
             <Typography.Text type="secondary">{t('doc.message.snapshotFiles')}：</Typography.Text>

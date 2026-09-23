@@ -13,6 +13,7 @@ import type { AccountView } from './accountView';
  * 当前会话快照（03 §7）：前端权限显隐只认 privileges，真鉴权永远在后端；dictionaries 字段 2026-09-19 移除（恒空无消费者，C3 冻结登记）
  */
 export interface MeView {
+  /** 登录账号 */
   account: AccountView;
   /** 权限码数组（`<资源单数>-<动作>`，platform 卡 §7.1） */
   privileges: string[];

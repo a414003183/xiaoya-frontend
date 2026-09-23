@@ -14,10 +14,16 @@ import type { TodoViewType } from './todoViewType';
  * 待办视图（workspace 卡 §3.1 + 现算 objectTitle；旧库 name 列 → title）
  */
 export interface TodoView {
+  /** 主键 id */
   id: number;
-  /** @maxLength 150 */
+  /**
+     * 待办标题
+     * @maxLength 150
+     */
   title: string;
+  /** 类型 */
   type: TodoViewType;
+  /** 绑定对象 id */
   objectId: number;
   /**
      * 现算只读：type≠custom 时关联对象标题，对象已删 → null（不回写 title）
@@ -34,31 +40,68 @@ export interface TodoView {
      * @nullable
      */
   beginTime?: string | null;
-  /** @nullable */
+  /**
+     * 结束时间
+     * @nullable
+     */
   endTime?: string | null;
+  /** 优先级 */
   priority: number;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 状态 */
   status: TodoViewStatus;
+  /** 是否私密 */
   isPrivate: boolean;
+  /** 处理人（登录账号，空=未指派） */
   assignee: string;
-  /** @nullable */
+  /**
+     * 指派人（登录账号）
+     * @nullable
+     */
   assignedBy?: string | null;
-  /** @nullable */
+  /**
+     * 指派时间
+     * @nullable
+     */
   assignedAt?: string | null;
-  /** @nullable */
+  /**
+     * 完成人（登录账号）
+     * @nullable
+     */
   finishedBy?: string | null;
-  /** @nullable */
+  /**
+     * 完成时间
+     * @nullable
+     */
   finishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

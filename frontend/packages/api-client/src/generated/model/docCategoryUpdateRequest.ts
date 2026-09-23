@@ -13,12 +13,19 @@
  */
 export interface DocCategoryUpdateRequest {
   /**
+     * 目录名称
      * @maxLength 60
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

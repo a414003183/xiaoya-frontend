@@ -9,6 +9,7 @@
  */
 
 /**
+ * 项目模型（scrum/waterfall/kanban）
  * @nullable
  */
 export type ProjectUpdateRequestModel = typeof ProjectUpdateRequestModel[keyof typeof ProjectUpdateRequestModel] | null;

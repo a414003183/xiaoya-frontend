@@ -9,6 +9,7 @@
  */
 
 /**
+ * 库内默认排序
  * @nullable
  */
 export type DocSpaceCreateRequestDocSort = typeof DocSpaceCreateRequestDocSort[keyof typeof DocSpaceCreateRequestDocSort] | null;

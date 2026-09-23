@@ -9,14 +9,28 @@
  */
 
 export interface ReportCreateRequest {
-  /** @maxLength 255 */
+  /**
+     * 标题
+     * @maxLength 255
+     */
   title: string;
-  /** @nullable */
+  /**
+     * 测试单 id 集合
+     * @nullable
+     */
   testRunIds?: number[] | null;
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 报告正文
+     * @nullable
+     */
   content?: string | null;
 }

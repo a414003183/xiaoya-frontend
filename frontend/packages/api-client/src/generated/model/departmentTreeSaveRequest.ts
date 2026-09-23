@@ -10,5 +10,6 @@
 import type { DepartmentTreeSaveRequestNodesItem } from './departmentTreeSaveRequestNodesItem';
 
 export interface DepartmentTreeSaveRequest {
+  /** 节点列表（整树保存） */
   nodes: DepartmentTreeSaveRequestNodesItem[];
 }

@@ -7,7 +7,7 @@ import {
   type MockAccount,
   mockId,
   NOT_FOUND,
-  type RoleRow,
+  privilegesOf,
   toAccountView,
   toRoleView,
   UNAUTHENTICATED,
@@ -21,13 +21,8 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
-    return true
-  }
-  return db.groups
-    .filter((group) => account.groupIds.includes(group.id))
-    .flatMap((group) => group.privCodes)
-    .some((code) => codes.includes(code))
+  // 权限码判定与后端 PrivilegeChecker 同构：超管角色（id=1）全过，否则所属角色权限码并集命中
+  return privilegesOf(account).some((code) => codes.includes(code))
 }
 
 function findAccount(id: number): MockAccount | undefined {
@@ -161,8 +156,8 @@ export const orgHandlers = [
         ;(account as unknown as Record<string, unknown>)[key] = body[key]
       }
     }
-    if (Array.isArray(body.groupIds)) {
-      account.groupIds = body.groupIds as number[]
+    if (Array.isArray(body.roleIds)) {
+      account.roleIds = body.roleIds as number[]
     }
     account.updatedAt = new Date().toISOString()
     return ok(toAccountView(account))
@@ -310,7 +305,7 @@ export const orgHandlers = [
     return ok(toAccountView(account))
   }),
 
-  http.post('*/api/v1/accounts/:accountId/delete', async ({ params, request }) => {
+  http.delete('*/api/v1/accounts/:accountId', ({ params, request }) => {
     if (!requireSessionOr401()) {
       return unauthorized()
     }
@@ -324,9 +319,9 @@ export const orgHandlers = [
     if (account.id === db.currentAccountId || account.account === 'admin') {
       return HttpResponse.json(error(42203, '不可删除本人或内置 admin 账号。'), { status: 422 })
     }
-    const body = (await request.json().catch(() => ({}))) as { comment?: string | null } | null
+    const comment = new URL(request.url).searchParams.get('comment')
     account.deletedAt = new Date().toISOString()
-    pushActivity(account.id, 'deleted', body?.comment ?? null)
+    pushActivity(account.id, 'deleted', comment)
     return ok(toAccountView(account))
   }),
 
@@ -516,248 +511,7 @@ export const orgHandlers = [
     return ok(null)
   }),
 
-  // ── 权限组 ──
-  http.get('*/api/v1/groups', () => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-view'])) {
-      return HttpResponse.json(FORBIDDEN('group-view'), { status: 403 })
-    }
-    return ok({ items: db.groups.map(toGroupView), total: db.groups.length })
-  }),
-
-  http.post('*/api/v1/groups', async ({ request }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-create'])) {
-      return HttpResponse.json(FORBIDDEN('group-create'), { status: 403 })
-    }
-    const body = (await request.json()) as { name: string; description?: string | null }
-    if (db.groups.some((group) => group.name === body.name)) {
-      return HttpResponse.json(
-        { error: { code: 42201, message: '组名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
-        { status: 422 },
-      )
-    }
-    const group = {
-      id: mockId(),
-      name: body.name,
-      description: body.description ?? null,
-      memberCount: 0,
-      privilegeCount: 0,
-      createdBy: currentAccount()?.account ?? null,
-      createdAt: new Date().toISOString(),
-      updatedBy: null,
-      updatedAt: null,
-      lockVersion: 0,
-      memberIds: [],
-      privCodes: [],
-    }
-    db.groups.push(group)
-    return ok(toGroupView(group))
-  }),
-
-  http.get('*/api/v1/groups/:groupId', ({ params }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-view'])) {
-      return HttpResponse.json(FORBIDDEN('group-view'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    return ok(toGroupView(group))
-  }),
-
-  http.patch('*/api/v1/groups/:groupId', async ({ params, request }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-edit'])) {
-      return HttpResponse.json(FORBIDDEN('group-edit'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    const body = (await request.json()) as {
-      name?: string | null
-      description?: string | null
-      acl?: Record<string, number[]> | null
-      lockVersion?: number
-    }
-    if (typeof body.lockVersion === 'number' && body.lockVersion !== group.lockVersion) {
-      return HttpResponse.json(error(40901, '数据已被他人修改，请刷新后重试。'), { status: 409 })
-    }
-    if (body.name && body.name !== group.name) {
-      if (db.groups.some((item) => item.name === body.name)) {
-        return HttpResponse.json(
-          { error: { code: 42201, message: '组名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
-          { status: 422 },
-        )
-      }
-      group.name = body.name
-    }
-    if (body.description !== undefined) {
-      group.description = body.description
-    }
-    // A-08 补口：acl 传对象=整体替换（五键 id 数组），null=不修改
-    if (body.acl !== undefined && body.acl !== null) {
-      group.acl = { ...(group.acl ?? {}), ...body.acl }
-    }
-    group.lockVersion += 1
-    group.updatedAt = new Date().toISOString()
-    group.updatedBy = currentAccount()?.account ?? null
-    return ok(toGroupView(group))
-  }),
-
-  http.delete('*/api/v1/groups/:groupId', ({ params }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-delete'])) {
-      return HttpResponse.json(FORBIDDEN('group-delete'), { status: 403 })
-    }
-    const id = Number(params.groupId)
-    if (id === 1) {
-      return HttpResponse.json(error(42203, '内置超管组不可删除。'), { status: 422 })
-    }
-    const group = db.groups.find((item) => item.id === id)
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    db.groups = db.groups.filter((item) => item.id !== id)
-    for (const account of db.accounts) {
-      account.groupIds = account.groupIds.filter((groupId) => groupId !== id)
-    }
-    return ok(null)
-  }),
-
-  http.post('*/api/v1/groups/:groupId/copy', async ({ params, request }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-copy'])) {
-      return HttpResponse.json(FORBIDDEN('group-copy'), { status: 403 })
-    }
-    const source = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!source) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    const body = (await request.json()) as {
-      name: string
-      description?: string | null
-      copyPrivileges: boolean
-      copyMembers: boolean
-    }
-    if (db.groups.some((group) => group.name === body.name)) {
-      return HttpResponse.json(
-        { error: { code: 42201, message: '组名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
-        { status: 422 },
-      )
-    }
-    const group = {
-      id: mockId(),
-      name: body.name,
-      description: body.description ?? null,
-      memberCount: body.copyMembers ? source.memberCount : 0,
-      privilegeCount: body.copyPrivileges ? source.privilegeCount : 0,
-      createdBy: currentAccount()?.account ?? null,
-      createdAt: new Date().toISOString(),
-      updatedBy: null,
-      updatedAt: null,
-      lockVersion: 0,
-      acl: {},
-      memberIds: body.copyMembers ? [...source.memberIds] : [],
-      privCodes: body.copyPrivileges ? [...source.privCodes] : [],
-    }
-    db.groups.push(group)
-    return ok(toGroupView(group))
-  }),
-
-  http.get('*/api/v1/groups/:groupId/privileges', ({ params }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-view'])) {
-      return HttpResponse.json(FORBIDDEN('group-view'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    return ok({ codes: group.privCodes })
-  }),
-
-  http.put('*/api/v1/groups/:groupId/privileges', async ({ params, request }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-priv-edit'])) {
-      return HttpResponse.json(FORBIDDEN('group-priv-edit'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    const body = (await request.json()) as { codes: string[] }
-    group.privCodes = [...body.codes]
-    group.privilegeCount = body.codes.length
-    return ok({ codes: group.privCodes })
-  }),
-
-  http.get('*/api/v1/groups/:groupId/members', ({ params }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-view'])) {
-      return HttpResponse.json(FORBIDDEN('group-view'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    const members = db.accounts.filter((account) => group.memberIds.includes(account.id) && account.deletedAt === null)
-    return ok({ items: members.map(toAccountView), total: members.length })
-  }),
-
-  http.put('*/api/v1/groups/:groupId/members', async ({ params, request }) => {
-    if (!requireSessionOr401()) {
-      return unauthorized()
-    }
-    if (!hasPerm(['group-member-edit'])) {
-      return HttpResponse.json(FORBIDDEN('group-member-edit'), { status: 403 })
-    }
-    const group = db.groups.find((item) => item.id === Number(params.groupId))
-    if (!group) {
-      return HttpResponse.json(NOT_FOUND, { status: 404 })
-    }
-    const body = (await request.json()) as { accountIds: number[] }
-    const unique = [...new Set(body.accountIds)]
-    if (unique.some((id) => !findAccount(id))) {
-      return HttpResponse.json(error(42201, '存在无效账号。'), { status: 422 })
-    }
-    group.memberIds = unique
-    group.memberCount = unique.length
-    for (const account of db.accounts) {
-      const inGroup = unique.includes(account.id)
-      if (inGroup && !account.groupIds.includes(group.id)) {
-        account.groupIds.push(group.id)
-      }
-      if (!inGroup && account.groupIds.includes(group.id)) {
-        account.groupIds = account.groupIds.filter((id) => id !== group.id)
-      }
-    }
-    const members = db.accounts.filter((account) => unique.includes(account.id))
-    return ok({ items: members.map(toAccountView), total: members.length })
-  }),
-
-  // ── 账号角色字典（GET/POST/PATCH/DELETE /roles；org §3.4，与 RoleController 同码同守卫） ──
-
+  // ── 角色（T23 统一实体：权限码 + 成员 + 数据权限一套；与 RoleController 同码同守卫）──
   http.get('*/api/v1/roles', () => {
     if (!requireSessionOr401()) {
       return unauthorized()
@@ -765,7 +519,7 @@ export const orgHandlers = [
     if (!hasPerm(['role-view'])) {
       return HttpResponse.json(FORBIDDEN('role-view'), { status: 403 })
     }
-    const items = [...db.roles].sort((a, b) => a.sort - b.sort || a.code.localeCompare(b.code)).map(toRoleView)
+    const items = [...db.roles].sort((a, b) => a.sort - b.sort || a.id - b.id).map(toRoleView)
     return ok({ items, total: items.length })
   }),
 
@@ -773,37 +527,30 @@ export const orgHandlers = [
     if (!requireSessionOr401()) {
       return unauthorized()
     }
-    if (!hasPerm(['role-manage'])) {
-      return HttpResponse.json(FORBIDDEN('role-manage'), { status: 403 })
+    if (!hasPerm(['role-create'])) {
+      return HttpResponse.json(FORBIDDEN('role-create'), { status: 403 })
     }
-    const body = (await request.json()) as { code: string; labels?: Record<string, string>; sort?: number | null }
-    if (!/^[a-z][a-z0-9-]{1,15}$/.test(body.code ?? '')) {
+    const body = (await request.json()) as { name: string; code?: string | null; description?: string | null }
+    if (db.roles.some((role) => role.name === body.name)) {
       return HttpResponse.json(
-        { error: { code: 42201, message: '角色码格式不合法。', fields: { code: 'pattern' }, traceId: 'mock' } },
+        { error: { code: 42201, message: '角色名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
         { status: 422 },
       )
     }
-    if (db.roles.some((role) => role.code === body.code)) {
+    if (body.code != null && body.code !== '' && db.roles.some((role) => role.code === body.code)) {
       return HttpResponse.json(
         { error: { code: 42201, message: '角色码已存在。', fields: { code: 'duplicate' }, traceId: 'mock' } },
         { status: 422 },
       )
     }
-    const labels = normalizeLabels(body.labels)
-    if (Object.keys(labels).length === 0) {
-      return HttpResponse.json(
-        {
-          error: { code: 42201, message: '至少填写一种语言的名称。', fields: { labels: 'required' }, traceId: 'mock' },
-        },
-        { status: 422 },
-      )
-    }
-    const role: RoleRow = {
-      code: body.code,
-      labels,
-      // 缺省排到末尾（后端 repository.nextSort：末位 + 10）
-      sort: body.sort ?? db.roles.reduce((max, item) => Math.max(max, item.sort), 0) + 10,
+    const role = {
+      id: mockId(),
+      code: body.code === undefined || body.code === '' ? null : body.code,
+      name: body.name,
+      description: body.description ?? null,
+      acl: {},
       builtin: false,
+      sort: db.roles.reduce((max, item) => Math.max(max, item.sort), 0) + 10,
       createdBy: currentAccount()?.account ?? null,
       createdAt: new Date().toISOString(),
       updatedBy: null,
@@ -814,66 +561,221 @@ export const orgHandlers = [
     return ok(toRoleView(role))
   }),
 
-  http.patch('*/api/v1/roles/:code', async ({ params, request }) => {
+  http.get('*/api/v1/roles/:roleId', ({ params }) => {
     if (!requireSessionOr401()) {
       return unauthorized()
     }
-    if (!hasPerm(['role-manage'])) {
-      return HttpResponse.json(FORBIDDEN('role-manage'), { status: 403 })
+    if (!hasPerm(['role-view'])) {
+      return HttpResponse.json(FORBIDDEN('role-view'), { status: 403 })
     }
-    const role = db.roles.find((item) => item.code === params.code)
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!role) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    return ok(toRoleView(role))
+  }),
+
+  http.patch('*/api/v1/roles/:roleId', async ({ params, request }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-edit'])) {
+      return HttpResponse.json(FORBIDDEN('role-edit'), { status: 403 })
+    }
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
     if (!role) {
       return HttpResponse.json(NOT_FOUND, { status: 404 })
     }
     const body = (await request.json()) as {
-      labels?: Record<string, string> | null
+      name?: string | null
+      description?: string | null
+      acl?: Record<string, number[]> | null
       sort?: number | null
       lockVersion?: number
     }
-    if (typeof body.lockVersion !== 'number' || body.lockVersion !== role.lockVersion) {
+    if (typeof body.lockVersion === 'number' && body.lockVersion !== role.lockVersion) {
       return HttpResponse.json(error(40901, '数据已被他人修改，请刷新后重试。'), { status: 409 })
     }
-    if (body.labels !== undefined && body.labels !== null) {
-      const labels = normalizeLabels(body.labels)
-      if (Object.keys(labels).length === 0) {
-        return HttpResponse.json(error(42201, '至少填写一种语言的名称。'), { status: 422 })
+    if (body.name && body.name !== role.name) {
+      if (db.roles.some((item) => item.name === body.name)) {
+        return HttpResponse.json(
+          { error: { code: 42201, message: '角色名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
+          { status: 422 },
+        )
       }
-      role.labels = labels
+      role.name = body.name
     }
-    if (body.sort !== undefined && body.sort !== null) {
-      if (body.sort < 0) {
-        return HttpResponse.json(error(42201, '排序不得为负。'), { status: 422 })
-      }
+    if (body.description !== undefined) {
+      role.description = body.description
+    }
+    if (typeof body.sort === 'number') {
       role.sort = body.sort
     }
+    // acl 传对象=整体替换（五键 id 数组），null=不修改
+    if (body.acl !== undefined && body.acl !== null) {
+      role.acl = { ...(role.acl ?? {}), ...body.acl }
+    }
     role.lockVersion += 1
-    role.updatedBy = currentAccount()?.account ?? null
     role.updatedAt = new Date().toISOString()
+    role.updatedBy = currentAccount()?.account ?? null
     return ok(toRoleView(role))
   }),
 
-  http.delete('*/api/v1/roles/:code', ({ params }) => {
+  http.delete('*/api/v1/roles/:roleId', ({ params }) => {
     if (!requireSessionOr401()) {
       return unauthorized()
     }
-    if (!hasPerm(['role-manage'])) {
-      return HttpResponse.json(FORBIDDEN('role-manage'), { status: 403 })
+    if (!hasPerm(['role-delete'])) {
+      return HttpResponse.json(FORBIDDEN('role-delete'), { status: 403 })
     }
-    const role = db.roles.find((item) => item.code === params.code)
+    const id = Number(params.roleId)
+    const role = db.roles.find((item) => item.id === id)
     if (!role) {
       return HttpResponse.json(NOT_FOUND, { status: 404 })
     }
     if (role.builtin) {
-      return HttpResponse.json(error(42203, '内置角色不可删除，可改名或调整排序。'), { status: 422 })
+      return HttpResponse.json(error(42203, '内置角色不可删除。'), { status: 422 })
     }
-    const inUse = toRoleView(role).accountCount
-    if (inUse > 0) {
-      return HttpResponse.json(error(42203, `该角色仍有 ${inUse} 个账号在使用，请先调整这些账号的角色。`), {
-        status: 422,
-      })
+    db.roles = db.roles.filter((item) => item.id !== id)
+    db.rolePrivs = db.rolePrivs.filter((item) => item.roleId !== id)
+    db.userRoles = db.userRoles.filter((item) => item.roleId !== id)
+    for (const account of db.accounts) {
+      account.roleIds = account.roleIds.filter((roleId) => roleId !== id)
     }
-    db.roles = db.roles.filter((item) => item.code !== role.code)
     return ok(null)
+  }),
+
+  http.post('*/api/v1/roles/:roleId/copy', async ({ params, request }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-copy'])) {
+      return HttpResponse.json(FORBIDDEN('role-copy'), { status: 403 })
+    }
+    const source = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!source) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as {
+      name: string
+      description?: string | null
+      copyPrivileges: boolean
+      copyMembers: boolean
+    }
+    if (db.roles.some((role) => role.name === body.name)) {
+      return HttpResponse.json(
+        { error: { code: 42201, message: '角色名已存在。', fields: { name: 'duplicate' }, traceId: 'mock' } },
+        { status: 422 },
+      )
+    }
+    const role = {
+      id: mockId(),
+      code: null,
+      name: body.name,
+      description: body.description ?? null,
+      acl: {},
+      builtin: false,
+      sort: source.sort,
+      createdBy: currentAccount()?.account ?? null,
+      createdAt: new Date().toISOString(),
+      updatedBy: null,
+      updatedAt: null,
+      lockVersion: 0,
+    }
+    db.roles.push(role)
+    if (body.copyPrivileges) {
+      for (const item of db.rolePrivs.filter((entry) => entry.roleId === source.id)) {
+        db.rolePrivs.push({ roleId: role.id, code: item.code })
+      }
+    }
+    if (body.copyMembers) {
+      for (const item of db.userRoles.filter((entry) => entry.roleId === source.id)) {
+        db.userRoles.push({ accountId: item.accountId, roleId: role.id })
+        const account = db.accounts.find((entry) => entry.id === item.accountId)
+        account?.roleIds.push(role.id)
+      }
+    }
+    return ok(toRoleView(role))
+  }),
+
+  http.get('*/api/v1/roles/:roleId/privileges', ({ params }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-view'])) {
+      return HttpResponse.json(FORBIDDEN('role-view'), { status: 403 })
+    }
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!role) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    return ok({ codes: db.rolePrivs.filter((item) => item.roleId === role.id).map((item) => item.code) })
+  }),
+
+  http.put('*/api/v1/roles/:roleId/privileges', async ({ params, request }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-priv-edit'])) {
+      return HttpResponse.json(FORBIDDEN('role-priv-edit'), { status: 403 })
+    }
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!role) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as { codes: string[] }
+    db.rolePrivs = db.rolePrivs.filter((item) => item.roleId !== role.id)
+    for (const code of body.codes) {
+      db.rolePrivs.push({ roleId: role.id, code })
+    }
+    return ok({ codes: body.codes })
+  }),
+
+  http.get('*/api/v1/roles/:roleId/members', ({ params }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-view'])) {
+      return HttpResponse.json(FORBIDDEN('role-view'), { status: 403 })
+    }
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!role) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const memberIds = db.userRoles.filter((item) => item.roleId === role.id).map((item) => item.accountId)
+    const members = db.accounts.filter((account) => memberIds.includes(account.id) && account.deletedAt === null)
+    return ok({ items: members.map(toAccountView), total: members.length })
+  }),
+
+  http.put('*/api/v1/roles/:roleId/members', async ({ params, request }) => {
+    if (!requireSessionOr401()) {
+      return unauthorized()
+    }
+    if (!hasPerm(['role-member-edit'])) {
+      return HttpResponse.json(FORBIDDEN('role-member-edit'), { status: 403 })
+    }
+    const role = db.roles.find((item) => item.id === Number(params.roleId))
+    if (!role) {
+      return HttpResponse.json(NOT_FOUND, { status: 404 })
+    }
+    const body = (await request.json()) as { accountIds: number[] }
+    const unique = [...new Set(body.accountIds)]
+    if (unique.some((id) => !findAccount(id))) {
+      return HttpResponse.json(error(42201, '存在无效账号。'), { status: 422 })
+    }
+    db.userRoles = db.userRoles.filter((item) => item.roleId !== role.id)
+    for (const accountId of unique) {
+      db.userRoles.push({ accountId, roleId: role.id })
+    }
+    for (const account of db.accounts) {
+      const isMember = unique.includes(account.id)
+      account.roleIds = account.roleIds.filter((roleId) => roleId !== role.id)
+      if (isMember) {
+        account.roleIds.push(role.id)
+      }
+    }
+    const members = db.accounts.filter((account) => unique.includes(account.id))
+    return ok({ items: members.map(toAccountView), total: members.length })
   }),
 
   // ── 人员管理（P5 · T-14：无表只读聚合，personnel-view；org 卡 §5 Personnel 节） ──
@@ -908,7 +810,7 @@ export const orgHandlers = [
       account: account.account,
       realName: account.realName,
       departmentId: account.departmentId ?? null,
-      role: account.role ?? null,
+      roleIds: account.roleIds,
       // 在办口径：assignee 且 status ∉ done/closed/cancel
       openTaskCount: db.tasks.filter(
         (task) => task.assignee === account.account && !['done', 'closed', 'cancel'].includes(task.status),
@@ -994,17 +896,6 @@ function pushActivity(accountId: number, action: string, remark: string | null =
 }
 
 /** 角色名规整（AccountRole.normalize 同口径）：去空白、丢空值；全空返回空对象（调用方判非法）。 */
-function normalizeLabels(labels: Record<string, string> | undefined): Record<string, string> {
-  const result: Record<string, string> = {}
-  for (const [language, name] of Object.entries(labels ?? {})) {
-    const key = language.trim()
-    const value = (name ?? '').trim()
-    if (key !== '' && key.length <= 16 && value !== '' && value.length <= 60) {
-      result[key] = value
-    }
-  }
-  return result
-}
 
 /** 部门后代展开（path 前缀匹配，org §7 @myDepartment 同口径）。 */ function departmentTreeIds(
   id: number,
@@ -1028,7 +919,6 @@ function createMockAccount(body: Record<string, unknown> & { account: string }):
     account: body.account,
     realName: String(body.realName ?? body.account),
     nickname: (body.nickname as string | null) ?? null,
-    role: (body.role as MockAccount['role']) ?? null,
     departmentId: (body.departmentId as number | null) ?? null,
     email: (body.email as string | null) ?? null,
     mobile: (body.mobile as string | null) ?? null,
@@ -1038,7 +928,7 @@ function createMockAccount(body: Record<string, unknown> & { account: string }):
     joinedAt: (body.joinedAt as string | null) ?? null,
     avatarFileId: (body.avatarFileId as number | null) ?? null,
     status: 'active',
-    groupIds: (body.groupIds as number[]) ?? [],
+    roleIds: (body.roleIds as number[]) ?? [],
     fails: 0,
     lockedAt: null,
     lastActiveAt: null,
@@ -1128,9 +1018,4 @@ function recomputePaths(): void {
   for (const root of db.departments.filter((department) => department.parentId === null)) {
     visit(root)
   }
-}
-
-function toGroupView(group: (typeof db.groups)[number]): unknown {
-  const { memberIds: _memberIds, privCodes: _privCodes, ...view } = group
-  return view
 }

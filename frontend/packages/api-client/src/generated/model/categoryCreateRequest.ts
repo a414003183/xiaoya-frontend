@@ -10,15 +10,31 @@
 import type { CategoryCreateRequestType } from './categoryCreateRequestType';
 
 export interface CategoryCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
+  /** 类型 */
   type: CategoryCreateRequestType;
-  /** @maxLength 60 */
+  /**
+     * 分类名称
+     * @maxLength 60
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

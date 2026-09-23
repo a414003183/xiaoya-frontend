@@ -14,57 +14,73 @@ import type { AccountCreateRequestGender } from './accountCreateRequestGender';
  */
 export interface AccountCreateRequest {
   /**
+     * 登录账号
      * @minLength 3
      * @maxLength 30
      * @pattern ^[a-zA-Z0-9._-]+$
      */
   account: string;
   /**
+     * 口令
      * @minLength 6
      * @maxLength 64
      */
   password: string;
   /**
+     * 姓名
      * @minLength 1
      * @maxLength 100
      */
   realName: string;
   /**
+     * 昵称
      * @maxLength 60
      * @nullable
      */
   nickname?: string | null;
   /**
-     * 账号角色码，必须存在于角色列表（GET /roles）；未设置为 null
-     * @maxLength 16
+     * 部门 id
      * @nullable
      */
-  role?: string | null;
-  /** @nullable */
   departmentId?: number | null;
   /**
+     * 邮箱
      * @maxLength 90
      * @nullable
      */
   email?: string | null;
   /**
+     * 手机号
      * @maxLength 20
      * @nullable
      */
   mobile?: string | null;
   /**
+     * 电话
      * @maxLength 20
      * @nullable
      */
   phone?: string | null;
-  /** @nullable */
+  /**
+     * 性别
+     * @nullable
+     */
   gender?: AccountCreateRequestGender;
-  /** @nullable */
+  /**
+     * 生日
+     * @nullable
+     */
   birthday?: string | null;
-  /** @nullable */
+  /**
+     * 入职日期
+     * @nullable
+     */
   joinedAt?: string | null;
-  /** @nullable */
+  /**
+     * 头像文件 id
+     * @nullable
+     */
   avatarFileId?: number | null;
-  /** 初始权限组 */
-  groupIds?: number[];
+  /** 初始角色 id 集合（不存在的 id → 42201） */
+  roleIds?: number[];
 }

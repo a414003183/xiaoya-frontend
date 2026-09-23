@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, EmptyState, Input, Space, Typography } from '@zentao/design-system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { fetchComments, submitComment } from '../api/platform.api'
 
 /** 评论面板（platform 卡 §6：嵌入各域详情页；列表 + 输入框）。 */
 export function CommentPanel({ objectType, objectId }: { objectType: string; objectId: number }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const feedback = useMutationFeedback()
   const [content, setContent] = useState('')
   const queryKey = ['listComments', objectType, objectId] as const
   const comments = useQuery({
@@ -20,6 +22,7 @@ export function CommentPanel({ objectType, objectId }: { objectType: string; obj
       setContent('')
       void queryClient.invalidateQueries({ queryKey })
     },
+    onError: feedback.failed,
   })
 
   const items = comments.data?.items ?? []

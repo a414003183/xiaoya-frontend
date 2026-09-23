@@ -7,22 +7,39 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { TaskSummaryViewStatus } from './taskSummaryViewStatus';
 
 /**
  * 任务摘要行（task 卡 §5；周报三表用，经 TaskApi 只读取数）
  */
 export interface TaskSummaryView {
+  /** 主键 id */
   id: number;
+  /** 标题 */
   title: string;
-  status: string;
+  /** 状态 */
+  status: TaskSummaryViewStatus;
+  /** 优先级 */
   priority: number;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
+  /** 预估工时 */
   estimateHours: number;
+  /** 已消耗工时 */
   consumedHours: number;
+  /** 剩余工时 */
   leftHours: number;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
 }

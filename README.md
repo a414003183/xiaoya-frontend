@@ -28,7 +28,7 @@ pnpm test         # vitest 行为测试（MSW，零快照）
 pnpm routes       # 由页面注解重新生成路由表
 pnpm codegen      # 由 contract/openapi.yaml 重新生成 api-client
 pnpm build        # 产物在 web/dist
-pnpm test:e2e     # Playwright 真链路 E2E（需后端仓库并排克隆 + Docker/MySQL，见 web/playwright.config.ts）
+pnpm test:e2e     # Playwright 真链路 E2E（需把后端仓库克隆到本仓 backend/，或设 E2E_BACKEND_DIR 指向别处；另需 Docker/MySQL）
 ```
 
 ## 目录

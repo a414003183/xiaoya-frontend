@@ -13,18 +13,27 @@
  */
 export interface DepartmentUpdateRequest {
   /**
+     * 部门名称
      * @maxLength 60
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
   /**
+     * 排序值（升序，越小越前）
      * @minimum 0
      * @nullable
      */
   sort?: number | null;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   manager?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion?: number;
 }

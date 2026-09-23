@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { SelectField, TextField } from '../../../shared/form-fields'
-import { fetchDepartmentTree, fetchGroups, submitAccount } from '../api/org.api'
+import { fetchDepartmentTree, submitAccount } from '../api/org.api'
 import { departmentOptions, randomPassword } from '../model'
 import { useRoleOptions } from '../role-options'
 
@@ -32,10 +32,9 @@ export const accountCreateSchema = z.object({
     .regex(/^[a-zA-Z0-9._-]+$/, 'org.account.message.accountPattern'),
   password: accountPasswordSchema,
   realName: z.string().trim().min(1, 'common.message.required').max(100, 'common.message.required'),
-  role: z.string().nullable(),
   departmentId: z.number().nullable(),
   email: accountEmailSchema,
-  groupIds: z.array(z.number()),
+  roleIds: z.array(z.number()),
 })
 
 export type AccountCreateValues = z.input<typeof accountCreateSchema>
@@ -45,10 +44,9 @@ export function accountCreateBody(values: AccountCreateValues): Record<string, u
     account: values.account,
     password: values.password,
     realName: values.realName,
-    role: values.role ?? null,
     departmentId: values.departmentId ?? null,
     email: values.email === '' ? null : values.email,
-    groupIds: values.groupIds,
+    roleIds: values.roleIds,
   }
 }
 
@@ -58,10 +56,9 @@ export function AccountCreateModal({ open, onClose }: { open: boolean; onClose: 
   const queryClient = useQueryClient()
   const roleOptions = useRoleOptions()
   const departments = useQuery({ queryKey: ['getDepartmentTree'], queryFn: fetchDepartmentTree })
-  const groups = useQuery({ queryKey: ['listGroups'], queryFn: () => fetchGroups() })
   const { control, handleSubmit, reset } = useForm<AccountCreateValues>({
     resolver: zodResolver(accountCreateSchema),
-    defaultValues: { account: '', password: '', realName: '', role: null, departmentId: null, email: '', groupIds: [] },
+    defaultValues: { account: '', password: '', realName: '', departmentId: null, email: '', roleIds: [] },
   })
 
   const create = useMutation({
@@ -118,10 +115,11 @@ export function AccountCreateModal({ open, onClose }: { open: boolean; onClose: 
         />
         <SelectField
           control={control}
-          name="role"
-          label={t('org.account.field.role')}
+          name="roleIds"
+          label={t('org.account.field.roles')}
           options={roleOptions}
-          aria-label="account-create-role"
+          multiple
+          aria-label="account-create-roles"
         />
         <SelectField
           control={control}
@@ -136,14 +134,6 @@ export function AccountCreateModal({ open, onClose }: { open: boolean; onClose: 
           label={t('org.account.field.email')}
           maxLength={90}
           aria-label="account-create-email"
-        />
-        <SelectField
-          control={control}
-          name="groupIds"
-          label={t('org.account.field.groups')}
-          options={(groups.data?.items ?? []).map((group) => ({ value: group.id, label: group.name }))}
-          multiple
-          aria-label="account-create-groups"
         />
         {create.error ? (
           <Typography.Paragraph type="danger">

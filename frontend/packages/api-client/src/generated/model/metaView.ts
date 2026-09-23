@@ -16,10 +16,12 @@ import type { MetaViewStatusVisuals } from './metaViewStatusVisuals';
  * 域元数据（03 §5）
  */
 export interface MetaView {
+  /** meta 域（story/bug/task 等） */
   domain: string;
+  /** 字段定义（meta 域字段表） */
   fields: MetaViewFieldsItem[];
   /**
-     * {defaultColumns, defaultSort}
+     * 列表默认配置（defaultColumns 与 defaultSort）
      * @nullable
      */
   list?: MetaViewList;
@@ -28,6 +30,9 @@ export interface MetaView {
      * @nullable
      */
   actions?: MetaViewActionsItem[] | null;
-  /** @nullable */
+  /**
+     * 状态视觉配置（色码表）
+     * @nullable
+     */
   statusVisuals?: MetaViewStatusVisuals;
 }

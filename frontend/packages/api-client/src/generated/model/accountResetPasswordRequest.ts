@@ -10,6 +10,7 @@
 
 export interface AccountResetPasswordRequest {
   /**
+     * 新口令
      * @minLength 6
      * @maxLength 64
      */

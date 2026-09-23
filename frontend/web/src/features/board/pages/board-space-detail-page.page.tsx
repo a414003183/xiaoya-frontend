@@ -20,6 +20,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   activateBoardSpaceAction,
   BOARD_QUERY_ROOTS,
@@ -36,6 +37,7 @@ import { boardStatusTone } from '../model'
 /** 看板空间详情（T-7 / project §6 D 范式：空间概况 + 空间下看板列表）。 */
 export default function BoardSpaceDetailPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -52,6 +54,7 @@ export default function BoardSpaceDetailPage() {
     mutationFn: (status: string) =>
       status === 'closed' ? activateBoardSpaceAction(boardSpaceId) : closeBoardSpaceAction(boardSpaceId),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['getBoardSpace'] }),
+    onError: feedback.failed,
   })
   const removeBoard = useMutation({
     mutationFn: (boardId: number) => deleteBoardAction(boardId),

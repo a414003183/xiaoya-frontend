@@ -10,7 +10,11 @@
 import type { TestCaseReviewRequestResult } from './testCaseReviewRequestResult';
 
 export interface TestCaseReviewRequest {
+  /** 评审结果（pass=通过 / clarify=需澄清） */
   result: TestCaseReviewRequestResult;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

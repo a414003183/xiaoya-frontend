@@ -12,11 +12,19 @@
  * 用例通过率（passRate 分母 total−na 为 0 时 null）
  */
 export interface CasePassRateReport {
+  /** 总条数（满足筛选的全量） */
   total: number;
+  /** 通过条数 */
   passed: number;
+  /** 失败条数 */
   failed: number;
+  /** 阻塞条数 */
   blocked: number;
+  /** 不适用条数 */
   na: number;
-  /** @nullable */
+  /**
+     * 通过率（百分比）
+     * @nullable
+     */
   passRate: number | null;
 }

@@ -16,31 +16,46 @@ import type { DocViewType } from './docViewType';
  * 文档视图（doc 卡 §3.2；列表响应不携带 content 与 files，仅详情/快照端点返回）
  */
 export interface DocView {
+  /** 主键 id */
   id: number;
+  /** 文档库 id */
   docSpaceId: number;
+  /** 产品 id */
   productId: number;
+  /** 项目 id */
   projectId: number;
+  /** 执行 id */
   executionId: number;
+  /** 分类 id */
   categoryId: number;
+  /** 父节点 id（0 或空=顶级） */
   parentId: number;
   /** 物化章节路径（,1,12, 格式），由 parentId 链生成，不直接写入 */
   path: string;
-  /** @maxLength 255 */
+  /**
+     * 文档标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /** 新建仅 markdown；html 仅迁移存量（编辑保存后转 markdown） */
   type: DocViewType;
+  /** 状态 */
   status: DocViewStatus;
   /** open 时 editors/readers 强制清空 */
   acl: DocViewAcl;
+  /** 可编辑白名单（账号与用户组） */
   editors: DocAclPayload;
+  /** 只读白名单（账号与用户组） */
   readers: DocAclPayload;
   /** publish 时站内通知的账号（≤50；不受 ACL 放行） */
   notifyAccounts: string[];
+  /** 浏览次数（status=published 时读取 +1） */
   views: number;
   /** 最新发布版本号；0=从未发布 */
   version: number;
@@ -57,16 +72,27 @@ export interface DocView {
      */
   content?: string | null;
   /**
+     * 摘要（内容截断）
      * @maxLength 255
      * @nullable
      */
   digest?: string | null;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

@@ -13,7 +13,8 @@ import { platformHandlers } from '../../../mocks/platform-handlers'
 import LangUploadPage from '../pages/lang-upload-page.page'
 
 /**
- * 多语言上传页（platform 卡 §3.12）：导出下载、Excel 上传（含失败行面板）、上传记录列表与筛选。
+ * 多语言上传页（platform 卡 §3.12；T21 收敛为**一页**：记录列表 + 上传按钮，无页签、无在线改文案）：
+ * 导出下载、Excel 上传（回执/失败明细在结果弹窗）、上传记录列表与筛选、上传后覆盖层缓存失效。
  *
  * 上传那一支只 mock 生成的 `createLangImport`（断言「传了哪些字段 + 结果怎么渲染」）：
  * vitest 5 + jsdom 30 的 FormData 兼容层无法序列化 jsdom File（`_buffer` 缺失），multipart 出不了网，
@@ -49,11 +50,11 @@ afterEach(() => {
 })
 afterAll(() => server.close())
 
-function renderPage(entry = '/admin/lang-upload') {
+function renderPage(entry = '/admin/lang-upload', client = createQueryClient()) {
   return render(
     <ConfigProvider theme={createTheme()}>
       <AppProvider>
-        <QueryClientProvider client={createQueryClient()}>
+        <QueryClientProvider client={client}>
           <MemoryRouter initialEntries={[entry]}>
             <LangUploadPage />
           </MemoryRouter>
@@ -92,12 +93,12 @@ describe('LangUploadPage · 上传', () => {
     expect(String(calls.mock.calls[0]?.[0])).toContain('/api/v1/lang-items/export')
   })
 
-  test('选择 Excel 后发上传（file + lang）并渲染成功计数', async () => {
+  test('选择 Excel 后发上传（只传 file）并渲染成功计数', async () => {
     const user = userEvent.setup()
     createLangImportMock.mockResolvedValue({
       data: {
         id: 7,
-        lang: 'zh-cn',
+        lang: 'all',
         fileName: 'lang-ok.xlsx',
         totalRows: 3,
         appliedRows: 3,
@@ -115,23 +116,45 @@ describe('LangUploadPage · 上传', () => {
     await waitFor(() => {
       expect(createLangImportMock).toHaveBeenCalledTimes(1)
     })
-    const body = createLangImportMock.mock.calls[0]?.[0] as { file: File; lang: string }
-    expect(body.lang).toBe('zh-cn')
+    // T05 单文件全语言：multipart 只收 file（语言由列头决定，表单不再声明）
+    const body = createLangImportMock.mock.calls[0]?.[0] as { file: File; lang?: string }
+    expect(body.lang).toBeUndefined()
     expect(body.file.name).toBe('lang-ok.xlsx')
     // 上传后记录列表失效重取（页面展示最新一条上传记录）
     expect(await screen.findByText(/上传成功/)).toHaveTextContent('共 3 行、成功 3 行')
   })
 
+  test('页面无语言选择器；记录列表把 lang=all 渲染成「全语言」', async () => {
+    db.langImports.push({
+      id: 31,
+      lang: 'all',
+      fileName: 'lang-all.xlsx',
+      totalRows: 1,
+      appliedRows: 1,
+      failedRows: 0,
+      status: 'success',
+      message: null,
+      createdBy: 'admin',
+      createdAt: '2026-09-20T12:00:00+08:00',
+    })
+    renderPage()
+
+    expect(await screen.findByText('lang-all.xlsx')).toBeInTheDocument()
+    expect(screen.getByText('全语言')).toBeInTheDocument()
+    // 上传语言选择器随 ADR-005 删除（筛选条里的「语言」下拉仍在下一条用例里看护）
+    expect(screen.queryByRole('combobox', { name: '上传语言' })).not.toBeInTheDocument()
+  })
+
   test('校验失败（42201 fields）渲染行号 + 按码映射的原因', async () => {
     const user = userEvent.setup()
     createLangImportMock.mockRejectedValue(
-      new ApiError(42201, '字段校验失败。', { 'row:2': 'unknown-key', 'row:5': 'empty-row' }),
+      new ApiError(42201, '字段校验失败。', { 'row:2': 'unknown-key', 'row:5': 'value-too-long' }),
     )
     const { container } = renderPage()
     await user.upload(fileInput(container), new File(['x'], 'lang-bad.xlsx', { type: XLSX }))
 
     expect(await screen.findByText('键不在语言包目录内')).toBeInTheDocument()
-    expect(screen.getByText('该行没有填任何语言')).toBeInTheDocument()
+    expect(screen.getByText('文案超过 2000 字')).toBeInTheDocument()
     // 行号原样呈现（2 / 5 是 Excel 行号），失败摘要按错误码映射（不透后端中文明文）
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.getByText('5')).toBeInTheDocument()
@@ -139,9 +162,58 @@ describe('LangUploadPage · 上传', () => {
   })
 })
 
+describe('LangUploadPage · 单页形态（T21）', () => {
+  test('无页签：记录列表即页面本体，上传三件套挂在列表卡工具栏，编辑器入口已删', async () => {
+    db.langImports.push({
+      id: 21,
+      lang: 'zh-cn',
+      fileName: 'lang-page.xlsx',
+      totalRows: 1,
+      appliedRows: 1,
+      failedRows: 0,
+      status: 'success',
+      message: null,
+      createdBy: 'admin',
+      createdAt: '2026-09-20T11:00:00+08:00',
+    })
+    renderPage()
+    expect(await screen.findByText('lang-page.xlsx')).toBeInTheDocument()
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /下载语言包/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /选择 Excel 文件/ })).toBeInTheDocument()
+    // 在线逐键改文案的入口（原「文案覆盖」编辑器）已随 T21 删除
+    expect(screen.queryByRole('button', { name: /添加键/ })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('新键名')).not.toBeInTheDocument()
+  })
+
+  test('上传成功后失效覆盖层查询（一上传即生效：前端运行时合并会重取）', async () => {
+    const client = createQueryClient()
+    client.setQueryData(['listLangOverrides', 'zh-cn'], [])
+    createLangImportMock.mockResolvedValue({
+      data: {
+        id: 8,
+        lang: 'zh-cn',
+        fileName: 'lang-ok.xlsx',
+        totalRows: 1,
+        appliedRows: 1,
+        failedRows: 0,
+        status: 'success',
+        createdBy: 'admin',
+        createdAt: '2026-09-20T10:00:00+08:00',
+        message: null,
+      },
+      status: 200,
+    })
+    const { container } = renderPage('/admin/lang-upload', client)
+    await userEvent.setup().upload(fileInput(container), new File(['k'], 'lang-ok.xlsx', { type: XLSX }))
+    await waitFor(() => {
+      expect(client.getQueryState(['listLangOverrides', 'zh-cn'])?.isInvalidated).toBe(true)
+    })
+  })
+})
+
 describe('LangUploadPage · 上传记录', () => {
   test('列表按 URL 筛选下发（filters[status]/q）并只渲染命中行', async () => {
-    const user = userEvent.setup()
     db.langImports.push(
       {
         id: 11,
@@ -183,8 +255,8 @@ describe('LangUploadPage · 上传记录', () => {
     )
 
     // 筛选状态在 URL（01 §3.3）：页面从 URL 取值并随请求下发（表单→URL 一步由共用的 ListFilterForm 承担）
-    renderPage('/admin/lang-upload?status=failed&q=lang-')
-    await user.click(await screen.findByRole('tab', { name: '上传记录' }))
+    // T21 起记录列表就是页面本体（无页签）：直接按 URL 筛选渲染
+    renderPage('/admin/lang-upload?filters[status]=failed&q=lang-')
 
     expect(await screen.findByText('lang-b.xlsx')).toBeInTheDocument()
     expect(screen.queryByText('lang-a.xlsx')).not.toBeInTheDocument()

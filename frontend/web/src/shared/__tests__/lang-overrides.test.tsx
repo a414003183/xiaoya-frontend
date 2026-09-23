@@ -84,7 +84,7 @@ describe('LangOverrides', () => {
       ),
     )
     renderProbe()
-    expect(await screen.findByTestId('probe')).toHaveTextContent('多语言上传')
+    expect(await screen.findByTestId('probe')).toHaveTextContent('多语言')
   })
 
   test('覆盖层合并进当前语言资源包（addResourceBundle 收到展开后的覆盖）并即时生效', async () => {

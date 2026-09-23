@@ -14,35 +14,55 @@ import type { TodoUpdateRequestType } from './todoUpdateRequestType';
  */
 export interface TodoUpdateRequest {
   /**
+     * 待办标题
      * @maxLength 150
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TodoUpdateRequestType;
-  /** @nullable */
+  /**
+     * 绑定对象 id
+     * @nullable
+     */
   objectId?: number | null;
-  /** @nullable */
+  /**
+     * 日期（当日待办用）
+     * @nullable
+     */
   date?: string | null;
   /**
+     * 开始时间
      * @nullable
      * @pattern ^\d{2}:\d{2}$
      */
   beginTime?: string | null;
   /**
+     * 结束时间
      * @nullable
      * @pattern ^\d{2}:\d{2}$
      */
   endTime?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 是否私密
+     * @nullable
+     */
   isPrivate?: boolean | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

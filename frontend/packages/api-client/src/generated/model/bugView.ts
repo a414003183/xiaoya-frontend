@@ -16,86 +16,169 @@ import type { BugViewType } from './bugViewType';
  * Bug 视图（quality 卡 §3.1 全字段）
  */
 export interface BugView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 分类 id */
   categoryId?: number;
+  /** 项目 id */
   projectId?: number;
+  /** 执行 id */
   executionId?: number;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
-  /** @nullable */
+  /**
+     * 任务 id
+     * @nullable
+     */
   taskId?: number | null;
-  /** @nullable */
+  /**
+     * 用例 id
+     * @nullable
+     */
   testCaseId?: number | null;
-  /** @nullable */
+  /**
+     * 测试单 id
+     * @nullable
+     */
   testRunId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * Bug 标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 严重级别
      * @minimum 1
      * @maximum 4
      */
   severity: number;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
+  /** 类型 */
   type: BugViewType;
-  /** @nullable */
+  /**
+     * 操作系统（Bug 环境）
+     * @nullable
+     */
   os?: string | null;
-  /** @nullable */
+  /**
+     * 浏览器（Bug 环境）
+     * @nullable
+     */
   browser?: string | null;
-  /** @nullable */
+  /**
+     * 步骤说明
+     * @nullable
+     */
   steps?: string | null;
   /**
+     * 出现版本（多值）
      * @maxLength 255
      * @nullable
      */
   openedBuilds?: string | null;
+  /** 状态 */
   status: BugViewStatus;
+  /** 是否已确认 */
   confirmed: boolean;
-  /** @minimum 0 */
+  /**
+     * 激活次数
+     * @minimum 0
+     */
   activatedCount: number;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 指派时间
+     * @nullable
+     */
   assignedAt?: string | null;
-  /** @nullable */
+  /**
+     * 解决结果
+     * @nullable
+     */
   resolution?: BugViewResolution;
-  /** @nullable */
+  /**
+     * 解决人（登录账号）
+     * @nullable
+     */
   resolvedBy?: string | null;
-  /** @nullable */
+  /**
+     * 解决时间
+     * @nullable
+     */
   resolvedAt?: string | null;
   /**
+     * 解决版本
      * @maxLength 90
      * @nullable
      */
   resolvedBuild?: string | null;
-  /** @nullable */
+  /**
+     * 重复目标需求 id
+     * @nullable
+     */
   duplicateOfId?: number | null;
+  /** 相关 Bug id 集合 */
   relatedBugIds?: number[];
+  /** 通知人（登录账号集合） */
   notifyAccounts?: string[];
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
+  /** 自定义字段（动态字段表） */
   customFields?: BugViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

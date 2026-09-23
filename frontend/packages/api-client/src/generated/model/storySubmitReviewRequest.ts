@@ -14,6 +14,9 @@ export interface StorySubmitReviewRequest {
      * @nullable
      */
   reviewers?: string[] | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

@@ -1,15 +1,13 @@
+// list-standard: exempt (modal) — 弹窗内关联小表，无列表页身份
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
-  Button,
-  EmptyState,
   Form,
-  Modal,
+  LinkPickerModal,
   Select,
   Space,
   StatusTag,
-  Table,
-  Typography,
+  type TableColumnsType,
   useMessage,
 } from '@zentao/design-system'
 import { useState } from 'react'
@@ -30,6 +28,7 @@ import { testCaseTone } from '../model'
  * 测试单关联用例弹窗（T-9 / quality §5 linkTestRunCases）：
  * 候选 = 产品用例（排除 type=library 与已关联行）；可按套件筛选（选套件 → 拉该套件 caseIds 过滤）；
  * 可统一指派执行人；重复关联由服务端幂等兜底（UNIQUE(test_run_id, test_case_id)）。
+ * 呈现面收敛到 design-system 的 LinkPickerModal（T72/FE-11 单源，table 形态 · 空选提示口径）。
  */
 export function TestRunLinkCaseModal({
   testRun,
@@ -95,7 +94,7 @@ export function TestRunLinkCaseModal({
     },
   })
 
-  const columns = [
+  const columns: TableColumnsType<TestCaseView> = [
     { title: t('testCase.field.id'), dataIndex: 'id', width: 70 },
     { title: t('testRun.field.caseTitle'), dataIndex: 'title' },
     {
@@ -119,84 +118,63 @@ export function TestRunLinkCaseModal({
   ]
 
   return (
-    <Modal
+    <LinkPickerModal
       open={open}
-      width={760}
       forceRender
       title={t('testRun.action.linkCase')}
       onCancel={close}
-      footer={
-        <Space>
-          <Button onClick={close}>{t('common.action.cancel')}</Button>
-          <Button
-            type="primary"
-            loading={link.isPending}
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                message.warning(t('testRun.message.linkCasesEmpty'))
-                return
-              }
-              link.mutate(selectedIds)
-            }}
-          >
-            {t('common.action.link')}
-          </Button>
-        </Space>
+      error={link.error ? errorText(link.error, t, 'common.message.failed') : null}
+      toolbar={
+        <Form layout="vertical">
+          <Space wrap align="start">
+            <Form.Item label={t('suite.field.name')}>
+              <Select
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                className="tw:w-56"
+                aria-label="run-link-suite"
+                value={suiteId}
+                onChange={(value) => setSuiteId(value ?? null)}
+                placeholder={t('common.field.none')}
+                options={(suites.data?.items ?? []).map((item) => ({ value: item.id, label: item.name }))}
+              />
+            </Form.Item>
+            <Form.Item label={t('testRun.field.assignee')}>
+              <Select
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                className="tw:w-56"
+                aria-label="run-link-assignee"
+                value={assignee}
+                onChange={(value) => setAssignee(value ?? null)}
+                options={(accounts.data ?? []).map((account) => ({
+                  value: account.account,
+                  label: `${account.realName}（${account.account}）`,
+                }))}
+              />
+            </Form.Item>
+          </Space>
+        </Form>
       }
-    >
-      <Form layout="vertical">
-        <Space wrap align="start">
-          <Form.Item label={t('suite.field.name')}>
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              className="tw:w-56"
-              aria-label="run-link-suite"
-              value={suiteId}
-              onChange={(value) => setSuiteId(value ?? null)}
-              placeholder={t('common.field.none')}
-              options={(suites.data?.items ?? []).map((item) => ({ value: item.id, label: item.name }))}
-            />
-          </Form.Item>
-          <Form.Item label={t('testRun.field.assignee')}>
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              className="tw:w-56"
-              aria-label="run-link-assignee"
-              value={assignee}
-              onChange={(value) => setAssignee(value ?? null)}
-              options={(accounts.data ?? []).map((account) => ({
-                value: account.account,
-                label: `${account.realName}（${account.account}）`,
-              }))}
-            />
-          </Form.Item>
-        </Space>
-      </Form>
-      {items.length === 0 ? (
-        <EmptyState description={t('common.empty')} />
-      ) : (
-        <Table<TestCaseView>
-          rowKey="id"
-          size="small"
-          loading={candidates.isPending}
-          columns={columns}
-          dataSource={items}
-          pagination={false}
-          rowSelection={{
-            selectedRowKeys: selectedIds,
-            onChange: (keys) => setSelectedIds(keys.map((key) => Number(key))),
-          }}
-        />
-      )}
-      {link.error ? (
-        <Typography.Paragraph type="danger" className="tw:mt-3">
-          {errorText(link.error, t, 'common.message.failed')}
-        </Typography.Paragraph>
-      ) : null}
-    </Modal>
+      picker={{
+        kind: 'table',
+        rows: items,
+        columns,
+        loading: candidates.isPending,
+        emptyLabel: t('common.empty'),
+        selectedIds,
+        onSelectionChange: setSelectedIds,
+        confirm: {
+          cancelLabel: t('common.action.cancel'),
+          confirmLabel: t('common.action.link'),
+          onConfirm: () => link.mutate(selectedIds),
+          pending: link.isPending,
+          onEmptySelection: 'warn',
+          emptyWarnLabel: t('testRun.message.linkCasesEmpty'),
+        },
+      }}
+    />
   )
 }

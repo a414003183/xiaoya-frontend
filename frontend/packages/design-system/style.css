@@ -61,6 +61,29 @@
   flex: 1 1 auto;
 }
 
+/*
+ * 分页条常驻列表底部（T10 / 用户事项 9）：行数一多，卡随内容长高、分页条被推到屏外，
+ * 要滚到底才看得见。sticky 相对外壳内容区（唯一的滚动祖先）生效——分页条始终钉在视口底部，
+ * 滚到卡片末端时才回到自然位置；底色取容器色 + 上边框，浮在行上时不透出表格线。
+ *
+ * 不采用「卡片定高 + 表体内部纵向滚动」：antd 在设了 scroll.x 的表体上写死内联
+ * `overflow: auto hidden`（v6 实测），纵向被裁掉的行既滚不到也点不着；要改就得 !important
+ * 覆盖库的内联样式并自铺 sticky 表头，代价高于收益（任务卡 §3.1 的「优先纯 CSS（sticky）」）。
+ *
+ * z-index 取 4：antd 的固定列单元是 `position: sticky; z-index: 3`（v6 实测 21 个），
+ * 分页条压不过它就会被钉住的列盖掉一截（任务卡 §5 预警的层级边界）。
+ */
+.zt-page .ant-table-wrapper .ant-pagination {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  margin: 0;
+  padding-block: 8px;
+  background: var(--zt-color-bg-container);
+  border-top: 1px solid var(--zt-color-border-secondary);
+}
+
 .zt-page .ant-table-wrapper:has(.ant-table-placeholder),
 .zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-spin,
 .zt-page .ant-table-wrapper:has(.ant-table-placeholder) .ant-spin-nested-loading,

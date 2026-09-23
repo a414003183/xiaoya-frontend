@@ -10,6 +10,8 @@
 import type { AccountView } from './accountView';
 
 export interface AccountList {
+  /** 列表项（当前页） */
   items: AccountView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

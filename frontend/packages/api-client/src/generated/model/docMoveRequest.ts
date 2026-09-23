@@ -12,9 +12,16 @@
  * 移动文档（目标库/目录/父章节；成环 → 42201）
  */
 export interface DocMoveRequest {
+  /** 文档库 id */
   docSpaceId: number;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
 }

@@ -12,6 +12,9 @@
  * 仅带可选备注的动作请求体（close/activate/finish/terminate 等）
  */
 export interface CommentRequest {
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

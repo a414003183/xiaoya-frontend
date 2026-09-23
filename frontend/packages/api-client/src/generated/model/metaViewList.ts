@@ -9,7 +9,7 @@
  */
 
 /**
- * {defaultColumns, defaultSort}
+ * 列表默认配置（defaultColumns 与 defaultSort）
  * @nullable
  */
 export type MetaViewList = { [key: string]: unknown } | null;

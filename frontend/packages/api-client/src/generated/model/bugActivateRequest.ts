@@ -9,13 +9,19 @@
  */
 
 export interface BugActivateRequest {
-  /** @maxLength 255 */
+  /**
+     * 出现版本（多值）
+     * @maxLength 255
+     */
   openedBuilds: string;
   /**
      * 省略则回派原解决人
      * @nullable
      */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

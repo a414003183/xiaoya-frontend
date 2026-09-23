@@ -33,7 +33,10 @@ export interface TaskCreateRequest {
      * @nullable
      */
   categoryId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 任务标题
+     * @maxLength 255
+     */
   title: string;
   /**
      * 缺省 devel
@@ -41,18 +44,24 @@ export interface TaskCreateRequest {
      */
   type?: TaskCreateRequestType;
   /**
-     * 1–4，缺省 3
+     * 优先级（1–4），缺省 3
      * @nullable
      */
   priority?: number | null;
   /**
-     * ≥0，≤999.99
+     * 预估工时（≥0，≤999.99）
      * @nullable
      */
   estimateHours?: number | null;
-  /** @nullable */
+  /**
+     * 预计开始日期
+     * @nullable
+     */
   estStartedDate?: string | null;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
   /**
      * 指派账号（存在账号）
@@ -60,12 +69,19 @@ export interface TaskCreateRequest {
      */
   assignee?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
 }

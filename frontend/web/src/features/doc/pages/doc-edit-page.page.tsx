@@ -19,6 +19,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBeforeUnload, useBlocker, useNavigate, useParams } from 'react-router'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { DOC_QUERY_ROOTS, fetchDocVersion, publishDocAction, qk, saveDocDraftAction } from '../api/doc.api'
 
 /**
@@ -28,6 +29,7 @@ import { DOC_QUERY_ROOTS, fetchDocVersion, publishDocAction, qk, saveDocDraftAct
  */
 export default function DocEditPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -74,6 +76,7 @@ export default function DocEditPage() {
       message.success(t('doc.message.draftSaved'))
       afterWrite(saved)
     },
+    onError: feedback.failed,
   })
   const publish = useMutation({
     mutationFn: async () => {

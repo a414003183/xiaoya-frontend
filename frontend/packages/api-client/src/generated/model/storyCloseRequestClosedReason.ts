@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 关闭原因
+ */
 export type StoryCloseRequestClosedReason = typeof StoryCloseRequestClosedReason[keyof typeof StoryCloseRequestClosedReason];
 
 

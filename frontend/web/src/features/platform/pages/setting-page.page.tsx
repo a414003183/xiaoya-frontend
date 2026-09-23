@@ -1,16 +1,6 @@
-/** @route /admin/settings @title platform.settings.title @perm setting-manage @menu admin @order 1 */
+/** @route /admin/settings @title platform.settings.title @perm setting-manage @menu admin/system @order 1 */
 import { useMutation, useQuery } from '@tanstack/react-query'
-import {
-  Button,
-  Card,
-  Input,
-  PageContainer,
-  PageHeader,
-  PageLoading,
-  Select,
-  Typography,
-  useMessage,
-} from '@zentao/design-system'
+import { Button, Card, Input, PageContainer, PageLoading, Select, Typography, useMessage } from '@zentao/design-system'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchSettings, fetchTimezoneOptions, saveSettings } from '../api/platform.api'
@@ -59,7 +49,6 @@ export default function SettingPage() {
 
   return (
     <PageContainer variant="narrow">
-      <PageHeader title={t('platform.settings.title')} />
       <Card>
         <div className="tw:flex tw:flex-col tw:gap-4">
           {field(

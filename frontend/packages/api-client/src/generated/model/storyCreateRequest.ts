@@ -8,43 +8,94 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { StoryCreateRequestCustomFields } from './storyCreateRequestCustomFields';
+import type { StoryCreateRequestSource } from './storyCreateRequestSource';
+import type { StoryCreateRequestType } from './storyCreateRequestType';
 
 export interface StoryCreateRequest {
-  /** @nullable */
+  /**
+     * 分支 id
+     * @nullable
+     */
   branchId?: number | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 需求标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
-  type?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
+  type?: StoryCreateRequestType;
+  /**
+     * 优先级
+     * @nullable
+     */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 预估工时
+     * @nullable
+     */
   estimateHours?: number | null;
-  /** @nullable */
-  source?: string | null;
-  /** @nullable */
+  /**
+     * 来源
+     * @nullable
+     */
+  source?: StoryCreateRequestSource;
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 评审人（登录账号集合）
+     * @nullable
+     */
   reviewers?: string[] | null;
-  /** @nullable */
+  /**
+     * 是否免评审
+     * @nullable
+     */
   needNotReview?: boolean | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 关联需求 id 集合
+     * @nullable
+     */
   linkedStoryIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: StoryCreateRequestCustomFields;
 }

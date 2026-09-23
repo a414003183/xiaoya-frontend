@@ -13,6 +13,8 @@ import type { LinkRequestObjectType } from './linkRequestObjectType';
  * link/unlink 统一请求体（plan/release/build 三族同构）
  */
 export interface LinkRequest {
+  /** 绑定对象类型 */
   objectType: LinkRequestObjectType;
+  /** 目标对象 id 集合 */
   ids: number[];
 }

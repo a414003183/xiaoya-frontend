@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ListFilterForm, selectField } from '../../../shared/list-filter'
 import { useMetaOptions } from '../../../shared/meta-options'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { fetchNotifications, type NotificationView } from '../api/platform.api'
 
 const OBJECT_ROUTES: Record<string, (id: number) => string> = {
@@ -28,6 +29,7 @@ export default function NotificationListPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const feedback = useMutationFeedback()
   const [searchParams] = useSearchParams()
   const readAt = searchParams.get('readAt') ?? ''
   // 旧页签时代的 URL 值 unread 继续认（等价 @null）；值域来自 meta/notification 的 readAt 选项。
@@ -44,6 +46,7 @@ export default function NotificationListPage() {
       void queryClient.invalidateQueries({ queryKey: ['listNotifications'] })
       void queryClient.invalidateQueries({ queryKey: ['getNotificationUnreadCount'] })
     },
+    onError: feedback.failed,
   })
 
   const columns: TableColumnsType<NotificationView> = [
@@ -70,7 +73,7 @@ export default function NotificationListPage() {
       key: 'actions',
       render: (_: unknown, record: NotificationView) =>
         record.readAt == null ? (
-          <Button size="small" loading={markRead.isPending} onClick={() => void markRead.mutateAsync(record.id)}>
+          <Button size="small" loading={markRead.isPending} onClick={() => markRead.mutate(record.id)}>
             {t('platform.notification.action.markRead')}
           </Button>
         ) : (

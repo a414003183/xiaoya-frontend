@@ -38,6 +38,7 @@ import type {
   AccountView,
   ActivityList,
   BadRequestResponse,
+  DeleteAccountParams,
   DepartmentCreateRequest,
   DepartmentList,
   DepartmentNode,
@@ -46,27 +47,23 @@ import type {
   DepartmentUpdateRequest,
   ErrorEnvelope,
   ForbiddenResponse,
-  GetGroupMembersParams,
-  GroupCopyRequest,
-  GroupCreateRequest,
-  GroupList,
-  GroupMembersRequest,
-  GroupPrivilegesRequest,
-  GroupPrivilegesView,
-  GroupUpdateRequest,
-  GroupView,
+  GetRoleMembersParams,
   ListAccountActivitiesParams,
   ListAccountsParams,
   ListDepartmentsParams,
-  ListGroupsParams,
   ListPersonnelMembersParams,
   ListPersonnelWorkloadParams,
   PersonnelMemberList,
   PersonnelWorkloadList,
+  RoleCopyRequest,
   RoleCreateRequest,
   RoleList,
+  RoleMembersRequest,
+  RolePrivilegesRequest,
+  RolePrivilegesView,
   RoleUpdateRequest,
   RoleView,
+  StateConflictResponse,
   UnauthorizedResponse
 } from '../model';
 
@@ -498,7 +495,7 @@ export const getGetAccountUrl = (accountId: number,) => {
 }
 
 /**
- * @summary 账号详情（含 groupIds）
+ * @summary 账号详情（含 roleIds）
  */
 export const getAccount = async (accountId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getAccountResponse> => {
 
@@ -569,7 +566,7 @@ export function useGetAccount<TData = Awaited<ReturnType<typeof getAccount>>, TE
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 账号详情（含 groupIds）
+ * @summary 账号详情（含 roleIds）
  */
 
 export function useGetAccount<TData = Awaited<ReturnType<typeof getAccount>>, TError = ErrorEnvelope>(
@@ -637,7 +634,7 @@ export const getUpdateAccountUrl = (accountId: number,) => {
 }
 
 /**
- * @summary 部分更新（account 登录名不可改，出现在更新体 → 42201；groupIds 全量替换）
+ * @summary 部分更新（account 登录名不可改，出现在更新体 → 42201；roleIds 全量替换）
  */
 export const updateAccount = async (accountId: number,
     accountUpdateRequest: AccountUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateAccountResponse> => {
@@ -704,7 +701,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateAccountMutationVariables = {accountId: number;data: AccountUpdateRequest}
 
     /**
- * @summary 部分更新（account 登录名不可改，出现在更新体 → 42201；groupIds 全量替换）
+ * @summary 部分更新（account 登录名不可改，出现在更新体 → 42201；roleIds 全量替换）
  */
 export const useUpdateAccount = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccount>>, TError,UpdateAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -715,6 +712,122 @@ export const useUpdateAccount = <TError = ErrorEnvelope,
         TContext
       > => {
       return useMutation(getUpdateAccountMutationOptions(options), queryClient);
+    }
+    export type deleteAccountResponse200 = {
+  data: AccountView
+  status: 200
+}
+
+export type deleteAccountResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type deleteAccountResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type deleteAccountResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type deleteAccountResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type deleteAccountResponseSuccess = (deleteAccountResponse200) & {
+  headers: Headers;
+};
+export type deleteAccountResponseError = (deleteAccountResponse401 | deleteAccountResponse403 | deleteAccountResponse404 | deleteAccountResponse422) & {
+  headers: Headers;
+};
+
+export type deleteAccountResponse = (deleteAccountResponseSuccess | deleteAccountResponseError)
+
+export const getDeleteAccountUrl = (accountId: number,
+    params?: DeleteAccountParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/accounts/${accountId}?${stringifiedParams}` : `/api/v1/accounts/${accountId}`
+}
+
+/**
+ * @summary 软删账号（守卫：目标 ≠ 当前登录者且 ≠ 内置 admin；会话失效；字典不再供给）
+ */
+export const deleteAccount = async (accountId: number,
+    params?: DeleteAccountParams, options?: Parameters<typeof httpFetch>[1]): Promise<deleteAccountResponse> => {
+
+  return httpFetch<deleteAccountResponse>(getDeleteAccountUrl(accountId,params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAccountMutationKey = () => ['deleteAccount'] as const;
+
+export const getDeleteAccountMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAccountMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccount>>, DeleteAccountMutationVariables> = (props) => {
+          const {accountId,params} = props ?? {};
+
+          return  deleteAccount(accountId,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAccountMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccount>>>
+
+    export type DeleteAccountMutationError = ErrorEnvelope
+    export type DeleteAccountMutationVariables = {accountId: number;params?: DeleteAccountParams}
+
+    /**
+ * @summary 软删账号（守卫：目标 ≠ 当前登录者且 ≠ 内置 admin；会话失效；字典不再供给）
+ */
+export const useDeleteAccount = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAccount>>,
+        TError,
+        DeleteAccountMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAccountMutationOptions(options), queryClient);
     }
     export type changeAccountPasswordResponse200 = {
   data: AccountView
@@ -871,7 +984,7 @@ export const getResetAccountPasswordUrl = (accountId: number,) => {
 }
 
 /**
- * @summary 管理员重置密码（权限码 account-reset-password；通知账号本人）
+ * @summary 管理员重置密码（权限码 account-reset-password；通知账号本人；重置后该账号下次登录须改密）
  */
 export const resetAccountPassword = async (accountId: number,
     accountResetPasswordRequest: AccountResetPasswordRequest, options?: Parameters<typeof httpFetch>[1]): Promise<resetAccountPasswordResponse> => {
@@ -938,7 +1051,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ResetAccountPasswordMutationVariables = {accountId: number;data: AccountResetPasswordRequest}
 
     /**
- * @summary 管理员重置密码（权限码 account-reset-password；通知账号本人）
+ * @summary 管理员重置密码（权限码 account-reset-password；通知账号本人；重置后该账号下次登录须改密）
  */
 export const useResetAccountPassword = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetAccountPassword>>, TError,ResetAccountPasswordMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -1214,10 +1327,15 @@ export type unlockAccountResponse404 = {
   status: 404
 }
 
+export type unlockAccountResponse422 = {
+  data: StateConflictResponse
+  status: 422
+}
+
 export type unlockAccountResponseSuccess = (unlockAccountResponse200) & {
   headers: Headers;
 };
-export type unlockAccountResponseError = (unlockAccountResponse401 | unlockAccountResponse403 | unlockAccountResponse404) & {
+export type unlockAccountResponseError = (unlockAccountResponse401 | unlockAccountResponse403 | unlockAccountResponse404 | unlockAccountResponse422) & {
   headers: Headers;
 };
 
@@ -1251,7 +1369,7 @@ export const unlockAccount = async (accountId: number, options?: Parameters<type
 
 export const getUnlockAccountMutationKey = () => ['unlockAccount'] as const;
 
-export const getUnlockAccountMutationOptions = <TError = ErrorEnvelope,
+export const getUnlockAccountMutationOptions = <TError = ErrorEnvelope | StateConflictResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlockAccount>>, TError,UnlockAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof unlockAccount>>, TError,UnlockAccountMutationVariables, TContext> => {
 
@@ -1280,13 +1398,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type UnlockAccountMutationResult = NonNullable<Awaited<ReturnType<typeof unlockAccount>>>
 
-    export type UnlockAccountMutationError = ErrorEnvelope
+    export type UnlockAccountMutationError = ErrorEnvelope | StateConflictResponse
     export type UnlockAccountMutationVariables = {accountId: number}
 
     /**
  * @summary 解除登录锁定（清 fails/lockedAt）
  */
-export const useUnlockAccount = <TError = ErrorEnvelope,
+export const useUnlockAccount = <TError = ErrorEnvelope | StateConflictResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlockAccount>>, TError,UnlockAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof unlockAccount>>,
@@ -1295,128 +1413,6 @@ export const useUnlockAccount = <TError = ErrorEnvelope,
         TContext
       > => {
       return useMutation(getUnlockAccountMutationOptions(options), queryClient);
-    }
-    export type deleteAccountResponse200 = {
-  data: AccountView
-  status: 200
-}
-
-export type deleteAccountResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type deleteAccountResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type deleteAccountResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type deleteAccountResponse422 = {
-  data: ErrorEnvelope
-  status: 422
-}
-
-export type deleteAccountResponseSuccess = (deleteAccountResponse200) & {
-  headers: Headers;
-};
-export type deleteAccountResponseError = (deleteAccountResponse401 | deleteAccountResponse403 | deleteAccountResponse404 | deleteAccountResponse422) & {
-  headers: Headers;
-};
-
-export type deleteAccountResponse = (deleteAccountResponseSuccess | deleteAccountResponseError)
-
-export const getDeleteAccountUrl = (accountId: number,) => {
-
-
-
-
-  return `/api/v1/accounts/${accountId}/delete`
-}
-
-/**
- * @summary 软删账号（守卫：目标 ≠ 当前登录者且 ≠ 内置 admin；会话失效；字典不再供给）
- */
-export const deleteAccount = async (accountId: number,
-    accountActionRequest?: AccountActionRequest, options?: Parameters<typeof httpFetch>[1]): Promise<deleteAccountResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<deleteAccountResponse>(getDeleteAccountUrl(accountId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(accountActionRequest)
-  }
-);}
-
-
-
-
-
-export const getDeleteAccountMutationKey = () => ['deleteAccount'] as const;
-
-export const getDeleteAccountMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext> => {
-
-const mutationKey = getDeleteAccountMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccount>>, DeleteAccountMutationVariables> = (props) => {
-          const {accountId,data} = props ?? {};
-
-          return  deleteAccount(accountId,data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteAccountMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccount>>>
-    export type DeleteAccountMutationBody = AccountActionRequest | undefined
-    export type DeleteAccountMutationError = ErrorEnvelope
-    export type DeleteAccountMutationVariables = {accountId: number;data?: AccountActionRequest}
-
-    /**
- * @summary 软删账号（守卫：目标 ≠ 当前登录者且 ≠ 内置 admin；会话失效；字典不再供给）
- */
-export const useDeleteAccount = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccount>>, TError,DeleteAccountMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteAccount>>,
-        TError,
-        DeleteAccountMutationVariables,
-        TContext
-      > => {
-      return useMutation(getDeleteAccountMutationOptions(options), queryClient);
     }
     export type listAccountActivitiesResponse200 = {
   data: ActivityList
@@ -1567,15 +1563,10 @@ export type getDepartmentTreeResponse401 = {
   status: 401
 }
 
-export type getDepartmentTreeResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
 export type getDepartmentTreeResponseSuccess = (getDepartmentTreeResponse200) & {
   headers: Headers;
 };
-export type getDepartmentTreeResponseError = (getDepartmentTreeResponse401 | getDepartmentTreeResponse403) & {
+export type getDepartmentTreeResponseError = (getDepartmentTreeResponse401) & {
   headers: Headers;
 };
 
@@ -2283,733 +2274,6 @@ export const useDeleteDepartment = <TError = ErrorEnvelope,
       > => {
       return useMutation(getDeleteDepartmentMutationOptions(options), queryClient);
     }
-    export type listGroupsResponse200 = {
-  data: GroupList
-  status: 200
-}
-
-export type listGroupsResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type listGroupsResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type listGroupsResponseSuccess = (listGroupsResponse200) & {
-  headers: Headers;
-};
-export type listGroupsResponseError = (listGroupsResponse401 | listGroupsResponse403) & {
-  headers: Headers;
-};
-
-export type listGroupsResponse = (listGroupsResponseSuccess | listGroupsResponseError)
-
-export const getListGroupsUrl = (params?: ListGroupsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/groups?${stringifiedParams}` : `/api/v1/groups`
-}
-
-/**
- * @summary 权限组列表（含实时统计 memberCount/privilegeCount）
- */
-export const listGroups = async (params?: ListGroupsParams, options?: Parameters<typeof httpFetch>[1]): Promise<listGroupsResponse> => {
-
-  return httpFetch<listGroupsResponse>(getListGroupsUrl(params),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getListGroupsQueryKey = (params?: ListGroupsParams,) => {
-    return [
-    `/api/v1/groups`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getListGroupsQueryOptions = <TData = Awaited<ReturnType<typeof listGroups>>, TError = ErrorEnvelope>(params?: ListGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getListGroupsQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGroups>>> = ({ signal }) => listGroups(params, { signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ListGroupsQueryResult = NonNullable<Awaited<ReturnType<typeof listGroups>>>
-export type ListGroupsQueryError = ErrorEnvelope
-
-
-export function useListGroups<TData = Awaited<ReturnType<typeof listGroups>>, TError = ErrorEnvelope>(
- params: undefined |  ListGroupsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listGroups>>,
-          TError,
-          Awaited<ReturnType<typeof listGroups>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useListGroups<TData = Awaited<ReturnType<typeof listGroups>>, TError = ErrorEnvelope>(
- params?: ListGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listGroups>>,
-          TError,
-          Awaited<ReturnType<typeof listGroups>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useListGroups<TData = Awaited<ReturnType<typeof listGroups>>, TError = ErrorEnvelope>(
- params?: ListGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 权限组列表（含实时统计 memberCount/privilegeCount）
- */
-
-export function useListGroups<TData = Awaited<ReturnType<typeof listGroups>>, TError = ErrorEnvelope>(
- params?: ListGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listGroups>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getListGroupsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-export type createGroupResponse200 = {
-  data: GroupView
-  status: 200
-}
-
-export type createGroupResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type createGroupResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type createGroupResponse422 = {
-  data: ErrorEnvelope
-  status: 422
-}
-
-export type createGroupResponseSuccess = (createGroupResponse200) & {
-  headers: Headers;
-};
-export type createGroupResponseError = (createGroupResponse401 | createGroupResponse403 | createGroupResponse422) & {
-  headers: Headers;
-};
-
-export type createGroupResponse = (createGroupResponseSuccess | createGroupResponseError)
-
-export const getCreateGroupUrl = () => {
-
-
-
-
-  return `/api/v1/groups`
-}
-
-/**
- * @summary 创建权限组（name 全库唯一 → 42201）
- */
-export const createGroup = async (groupCreateRequest: GroupCreateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createGroupResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<createGroupResponse>(getCreateGroupUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(groupCreateRequest)
-  }
-);}
-
-
-
-
-
-export const getCreateGroupMutationKey = () => ['createGroup'] as const;
-
-export const getCreateGroupMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGroup>>, TError,CreateGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createGroup>>, TError,CreateGroupMutationVariables, TContext> => {
-
-const mutationKey = getCreateGroupMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createGroup>>, CreateGroupMutationVariables> = (props) => {
-          const {data} = props ?? {};
-
-          return  createGroup(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateGroupMutationResult = NonNullable<Awaited<ReturnType<typeof createGroup>>>
-    export type CreateGroupMutationBody = GroupCreateRequest
-    export type CreateGroupMutationError = ErrorEnvelope
-    export type CreateGroupMutationVariables = {data: GroupCreateRequest}
-
-    /**
- * @summary 创建权限组（name 全库唯一 → 42201）
- */
-export const useCreateGroup = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGroup>>, TError,CreateGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof createGroup>>,
-        TError,
-        CreateGroupMutationVariables,
-        TContext
-      > => {
-      return useMutation(getCreateGroupMutationOptions(options), queryClient);
-    }
-    export type getGroupResponse200 = {
-  data: GroupView
-  status: 200
-}
-
-export type getGroupResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type getGroupResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type getGroupResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type getGroupResponseSuccess = (getGroupResponse200) & {
-  headers: Headers;
-};
-export type getGroupResponseError = (getGroupResponse401 | getGroupResponse403 | getGroupResponse404) & {
-  headers: Headers;
-};
-
-export type getGroupResponse = (getGroupResponseSuccess | getGroupResponseError)
-
-export const getGetGroupUrl = (groupId: number,) => {
-
-
-
-
-  return `/api/v1/groups/${groupId}`
-}
-
-/**
- * @summary 权限组详情
- */
-export const getGroup = async (groupId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getGroupResponse> => {
-
-  return httpFetch<getGroupResponse>(getGetGroupUrl(groupId),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getGetGroupQueryKey = (groupId: number,) => {
-    return [
-    `/api/v1/groups/${groupId}`
-    ] as const;
-    }
-
-
-export const getGetGroupQueryOptions = <TData = Awaited<ReturnType<typeof getGroup>>, TError = ErrorEnvelope>(groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetGroupQueryKey(groupId);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGroup>>> = ({ signal }) => getGroup(groupId, { signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: groupId !== null && groupId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetGroupQueryResult = NonNullable<Awaited<ReturnType<typeof getGroup>>>
-export type GetGroupQueryError = ErrorEnvelope
-
-
-export function useGetGroup<TData = Awaited<ReturnType<typeof getGroup>>, TError = ErrorEnvelope>(
- groupId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroup>>,
-          TError,
-          Awaited<ReturnType<typeof getGroup>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroup<TData = Awaited<ReturnType<typeof getGroup>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroup>>,
-          TError,
-          Awaited<ReturnType<typeof getGroup>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroup<TData = Awaited<ReturnType<typeof getGroup>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 权限组详情
- */
-
-export function useGetGroup<TData = Awaited<ReturnType<typeof getGroup>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroup>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetGroupQueryOptions(groupId,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-export type updateGroupResponse200 = {
-  data: GroupView
-  status: 200
-}
-
-export type updateGroupResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type updateGroupResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type updateGroupResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type updateGroupResponse409 = {
-  data: ErrorEnvelope
-  status: 409
-}
-
-export type updateGroupResponse422 = {
-  data: ErrorEnvelope
-  status: 422
-}
-
-export type updateGroupResponseSuccess = (updateGroupResponse200) & {
-  headers: Headers;
-};
-export type updateGroupResponseError = (updateGroupResponse401 | updateGroupResponse403 | updateGroupResponse404 | updateGroupResponse409 | updateGroupResponse422) & {
-  headers: Headers;
-};
-
-export type updateGroupResponse = (updateGroupResponseSuccess | updateGroupResponseError)
-
-export const getUpdateGroupUrl = (groupId: number,) => {
-
-
-
-
-  return `/api/v1/groups/${groupId}`
-}
-
-/**
- * @summary 改名/改描述
- */
-export const updateGroup = async (groupId: number,
-    groupUpdateRequest: GroupUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateGroupResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<updateGroupResponse>(getUpdateGroupUrl(groupId),
-  {
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(groupUpdateRequest)
-  }
-);}
-
-
-
-
-
-export const getUpdateGroupMutationKey = () => ['updateGroup'] as const;
-
-export const getUpdateGroupMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGroup>>, TError,UpdateGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateGroup>>, TError,UpdateGroupMutationVariables, TContext> => {
-
-const mutationKey = getUpdateGroupMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateGroup>>, UpdateGroupMutationVariables> = (props) => {
-          const {groupId,data} = props ?? {};
-
-          return  updateGroup(groupId,data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type UpdateGroupMutationResult = NonNullable<Awaited<ReturnType<typeof updateGroup>>>
-    export type UpdateGroupMutationBody = GroupUpdateRequest
-    export type UpdateGroupMutationError = ErrorEnvelope
-    export type UpdateGroupMutationVariables = {groupId: number;data: GroupUpdateRequest}
-
-    /**
- * @summary 改名/改描述
- */
-export const useUpdateGroup = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGroup>>, TError,UpdateGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof updateGroup>>,
-        TError,
-        UpdateGroupMutationVariables,
-        TContext
-      > => {
-      return useMutation(getUpdateGroupMutationOptions(options), queryClient);
-    }
-    export type deleteGroupResponse200 = {
-  data: null
-  status: 200
-}
-
-export type deleteGroupResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type deleteGroupResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type deleteGroupResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type deleteGroupResponse422 = {
-  data: ErrorEnvelope
-  status: 422
-}
-
-export type deleteGroupResponseSuccess = (deleteGroupResponse200) & {
-  headers: Headers;
-};
-export type deleteGroupResponseError = (deleteGroupResponse401 | deleteGroupResponse403 | deleteGroupResponse404 | deleteGroupResponse422) & {
-  headers: Headers;
-};
-
-export type deleteGroupResponse = (deleteGroupResponseSuccess | deleteGroupResponseError)
-
-export const getDeleteGroupUrl = (groupId: number,) => {
-
-
-
-
-  return `/api/v1/groups/${groupId}`
-}
-
-/**
- * @summary 真实删除（级联删成员与矩阵行；内置 admin 组 → 42203）
- */
-export const deleteGroup = async (groupId: number, options?: Parameters<typeof httpFetch>[1]): Promise<deleteGroupResponse> => {
-
-  return httpFetch<deleteGroupResponse>(getDeleteGroupUrl(groupId),
-  {
-    ...options,
-    method: 'DELETE'
-
-
-  }
-);}
-
-
-
-
-
-export const getDeleteGroupMutationKey = () => ['deleteGroup'] as const;
-
-export const getDeleteGroupMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGroup>>, TError,DeleteGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteGroup>>, TError,DeleteGroupMutationVariables, TContext> => {
-
-const mutationKey = getDeleteGroupMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteGroup>>, DeleteGroupMutationVariables> = (props) => {
-          const {groupId} = props ?? {};
-
-          return  deleteGroup(groupId,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteGroupMutationResult = NonNullable<Awaited<ReturnType<typeof deleteGroup>>>
-
-    export type DeleteGroupMutationError = ErrorEnvelope
-    export type DeleteGroupMutationVariables = {groupId: number}
-
-    /**
- * @summary 真实删除（级联删成员与矩阵行；内置 admin 组 → 42203）
- */
-export const useDeleteGroup = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGroup>>, TError,DeleteGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteGroup>>,
-        TError,
-        DeleteGroupMutationVariables,
-        TContext
-      > => {
-      return useMutation(getDeleteGroupMutationOptions(options), queryClient);
-    }
-    export type copyGroupResponse200 = {
-  data: GroupView
-  status: 200
-}
-
-export type copyGroupResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type copyGroupResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type copyGroupResponse422 = {
-  data: ErrorEnvelope
-  status: 422
-}
-
-export type copyGroupResponseSuccess = (copyGroupResponse200) & {
-  headers: Headers;
-};
-export type copyGroupResponseError = (copyGroupResponse401 | copyGroupResponse403 | copyGroupResponse422) & {
-  headers: Headers;
-};
-
-export type copyGroupResponse = (copyGroupResponseSuccess | copyGroupResponseError)
-
-export const getCopyGroupUrl = (groupId: number,) => {
-
-
-
-
-  return `/api/v1/groups/${groupId}/copy`
-}
-
-/**
- * @summary 复制组（copyPrivileges/copyMembers 各选项生效，源组不变）
- */
-export const copyGroup = async (groupId: number,
-    groupCopyRequest: GroupCopyRequest, options?: Parameters<typeof httpFetch>[1]): Promise<copyGroupResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return httpFetch<copyGroupResponse>(getCopyGroupUrl(groupId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(groupCopyRequest)
-  }
-);}
-
-
-
-
-
-export const getCopyGroupMutationKey = () => ['copyGroup'] as const;
-
-export const getCopyGroupMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof copyGroup>>, TError,CopyGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof copyGroup>>, TError,CopyGroupMutationVariables, TContext> => {
-
-const mutationKey = getCopyGroupMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof copyGroup>>, CopyGroupMutationVariables> = (props) => {
-          const {groupId,data} = props ?? {};
-
-          return  copyGroup(groupId,data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CopyGroupMutationResult = NonNullable<Awaited<ReturnType<typeof copyGroup>>>
-    export type CopyGroupMutationBody = GroupCopyRequest
-    export type CopyGroupMutationError = ErrorEnvelope
-    export type CopyGroupMutationVariables = {groupId: number;data: GroupCopyRequest}
-
-    /**
- * @summary 复制组（copyPrivileges/copyMembers 各选项生效，源组不变）
- */
-export const useCopyGroup = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof copyGroup>>, TError,CopyGroupMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof copyGroup>>,
-        TError,
-        CopyGroupMutationVariables,
-        TContext
-      > => {
-      return useMutation(getCopyGroupMutationOptions(options), queryClient);
-    }
     export type listRolesResponse200 = {
   data: RoleList
   status: 200
@@ -3043,7 +2307,7 @@ export const getListRolesUrl = () => {
 }
 
 /**
- * @summary 角色列表（账号角色字典：全量返回，按 sort 升序；org 卡 §3.4）
+ * @summary 角色列表（全量返回，按 sort 升序；含实时统计 memberCount/privilegeCount）
  */
 export const listRoles = async ( options?: Parameters<typeof httpFetch>[1]): Promise<listRolesResponse> => {
 
@@ -3114,7 +2378,7 @@ export function useListRoles<TData = Awaited<ReturnType<typeof listRoles>>, TErr
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 角色列表（账号角色字典：全量返回，按 sort 升序；org 卡 §3.4）
+ * @summary 角色列表（全量返回，按 sort 升序；含实时统计 memberCount/privilegeCount）
  */
 
 export function useListRoles<TData = Awaited<ReturnType<typeof listRoles>>, TError = ErrorEnvelope>(
@@ -3172,7 +2436,7 @@ export const getCreateRoleUrl = () => {
 }
 
 /**
- * @summary 创建角色（code 全库唯一且创建后不可改 → 42201）
+ * @summary 创建角色（name 全库唯一 → 42201；code 可选且唯一）
  */
 export const createRole = async (roleCreateRequest: RoleCreateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<createRoleResponse> => {
 
@@ -3238,7 +2502,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateRoleMutationVariables = {data: RoleCreateRequest}
 
     /**
- * @summary 创建角色（code 全库唯一且创建后不可改 → 42201）
+ * @summary 创建角色（name 全库唯一 → 42201；code 可选且唯一）
  */
 export const useCreateRole = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRole>>, TError,CreateRoleMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -3250,7 +2514,136 @@ export const useCreateRole = <TError = ErrorEnvelope,
       > => {
       return useMutation(getCreateRoleMutationOptions(options), queryClient);
     }
-    export type updateRoleResponse200 = {
+    export type getRoleResponse200 = {
+  data: RoleView
+  status: 200
+}
+
+export type getRoleResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type getRoleResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type getRoleResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type getRoleResponseSuccess = (getRoleResponse200) & {
+  headers: Headers;
+};
+export type getRoleResponseError = (getRoleResponse401 | getRoleResponse403 | getRoleResponse404) & {
+  headers: Headers;
+};
+
+export type getRoleResponse = (getRoleResponseSuccess | getRoleResponseError)
+
+export const getGetRoleUrl = (roleId: number,) => {
+
+
+
+
+  return `/api/v1/roles/${roleId}`
+}
+
+/**
+ * @summary 角色详情
+ */
+export const getRole = async (roleId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getRoleResponse> => {
+
+  return httpFetch<getRoleResponse>(getGetRoleUrl(roleId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRoleQueryKey = (roleId: number,) => {
+    return [
+    `/api/v1/roles/${roleId}`
+    ] as const;
+    }
+
+
+export const getGetRoleQueryOptions = <TData = Awaited<ReturnType<typeof getRole>>, TError = ErrorEnvelope>(roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRoleQueryKey(roleId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRole>>> = ({ signal }) => getRole(roleId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: roleId !== null && roleId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRoleQueryResult = NonNullable<Awaited<ReturnType<typeof getRole>>>
+export type GetRoleQueryError = ErrorEnvelope
+
+
+export function useGetRole<TData = Awaited<ReturnType<typeof getRole>>, TError = ErrorEnvelope>(
+ roleId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRole>>,
+          TError,
+          Awaited<ReturnType<typeof getRole>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRole<TData = Awaited<ReturnType<typeof getRole>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRole>>,
+          TError,
+          Awaited<ReturnType<typeof getRole>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRole<TData = Awaited<ReturnType<typeof getRole>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 角色详情
+ */
+
+export function useGetRole<TData = Awaited<ReturnType<typeof getRole>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRole>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRoleQueryOptions(roleId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type updateRoleResponse200 = {
   data: RoleView
   status: 200
 }
@@ -3289,18 +2682,18 @@ export type updateRoleResponseError = (updateRoleResponse401 | updateRoleRespons
 
 export type updateRoleResponse = (updateRoleResponseSuccess | updateRoleResponseError)
 
-export const getUpdateRoleUrl = (code: string,) => {
+export const getUpdateRoleUrl = (roleId: number,) => {
 
 
 
 
-  return `/api/v1/roles/${code}`
+  return `/api/v1/roles/${roleId}`
 }
 
 /**
- * @summary 改名称（按语言）/排序（内置角色可改名，不可删）
+ * @summary 改名/改描述
  */
-export const updateRole = async (code: string,
+export const updateRole = async (roleId: number,
     roleUpdateRequest: RoleUpdateRequest, options?: Parameters<typeof httpFetch>[1]): Promise<updateRoleResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -3317,7 +2710,7 @@ export const updateRole = async (code: string,
     }
     return headers;
   };
-return httpFetch<updateRoleResponse>(getUpdateRoleUrl(code),
+return httpFetch<updateRoleResponse>(getUpdateRoleUrl(roleId),
   {
     ...options,
     method: 'PATCH',
@@ -3347,9 +2740,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRole>>, UpdateRoleMutationVariables> = (props) => {
-          const {code,data} = props ?? {};
+          const {roleId,data} = props ?? {};
 
-          return  updateRole(code,data,requestOptions)
+          return  updateRole(roleId,data,requestOptions)
         }
 
 
@@ -3362,10 +2755,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateRoleMutationResult = NonNullable<Awaited<ReturnType<typeof updateRole>>>
     export type UpdateRoleMutationBody = RoleUpdateRequest
     export type UpdateRoleMutationError = ErrorEnvelope
-    export type UpdateRoleMutationVariables = {code: string;data: RoleUpdateRequest}
+    export type UpdateRoleMutationVariables = {roleId: number;data: RoleUpdateRequest}
 
     /**
- * @summary 改名称（按语言）/排序（内置角色可改名，不可删）
+ * @summary 改名/改描述
  */
 export const useUpdateRole = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRole>>, TError,UpdateRoleMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -3411,20 +2804,20 @@ export type deleteRoleResponseError = (deleteRoleResponse401 | deleteRoleRespons
 
 export type deleteRoleResponse = (deleteRoleResponseSuccess | deleteRoleResponseError)
 
-export const getDeleteRoleUrl = (code: string,) => {
+export const getDeleteRoleUrl = (roleId: number,) => {
 
 
 
 
-  return `/api/v1/roles/${code}`
+  return `/api/v1/roles/${roleId}`
 }
 
 /**
- * @summary 删除角色（内置角色 → 42203；仍被账号使用 → 42203）
+ * @summary 真实删除（级联删成员与矩阵行；内置 admin 组 → 42203）
  */
-export const deleteRole = async (code: string, options?: Parameters<typeof httpFetch>[1]): Promise<deleteRoleResponse> => {
+export const deleteRole = async (roleId: number, options?: Parameters<typeof httpFetch>[1]): Promise<deleteRoleResponse> => {
 
-  return httpFetch<deleteRoleResponse>(getDeleteRoleUrl(code),
+  return httpFetch<deleteRoleResponse>(getDeleteRoleUrl(roleId),
   {
     ...options,
     method: 'DELETE'
@@ -3454,9 +2847,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRole>>, DeleteRoleMutationVariables> = (props) => {
-          const {code} = props ?? {};
+          const {roleId} = props ?? {};
 
-          return  deleteRole(code,requestOptions)
+          return  deleteRole(roleId,requestOptions)
         }
 
 
@@ -3469,10 +2862,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteRoleMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRole>>>
 
     export type DeleteRoleMutationError = ErrorEnvelope
-    export type DeleteRoleMutationVariables = {code: string}
+    export type DeleteRoleMutationVariables = {roleId: number}
 
     /**
- * @summary 删除角色（内置角色 → 42203；仍被账号使用 → 42203）
+ * @summary 真实删除（级联删成员与矩阵行；内置 admin 组 → 42203）
  */
 export const useDeleteRole = <TError = ErrorEnvelope,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRole>>, TError,DeleteRoleMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
@@ -3484,182 +2877,48 @@ export const useDeleteRole = <TError = ErrorEnvelope,
       > => {
       return useMutation(getDeleteRoleMutationOptions(options), queryClient);
     }
-    export type getGroupPrivilegesResponse200 = {
-  data: GroupPrivilegesView
+    export type copyRoleResponse200 = {
+  data: RoleView
   status: 200
 }
 
-export type getGroupPrivilegesResponse401 = {
+export type copyRoleResponse401 = {
   data: ErrorEnvelope
   status: 401
 }
 
-export type getGroupPrivilegesResponse403 = {
+export type copyRoleResponse403 = {
   data: ErrorEnvelope
   status: 403
 }
 
-export type getGroupPrivilegesResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type getGroupPrivilegesResponseSuccess = (getGroupPrivilegesResponse200) & {
-  headers: Headers;
-};
-export type getGroupPrivilegesResponseError = (getGroupPrivilegesResponse401 | getGroupPrivilegesResponse403 | getGroupPrivilegesResponse404) & {
-  headers: Headers;
-};
-
-export type getGroupPrivilegesResponse = (getGroupPrivilegesResponseSuccess | getGroupPrivilegesResponseError)
-
-export const getGetGroupPrivilegesUrl = (groupId: number,) => {
-
-
-
-
-  return `/api/v1/groups/${groupId}/privileges`
-}
-
-/**
- * @summary 读权限码矩阵
- */
-export const getGroupPrivileges = async (groupId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getGroupPrivilegesResponse> => {
-
-  return httpFetch<getGroupPrivilegesResponse>(getGetGroupPrivilegesUrl(groupId),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getGetGroupPrivilegesQueryKey = (groupId: number,) => {
-    return [
-    `/api/v1/groups/${groupId}/privileges`
-    ] as const;
-    }
-
-
-export const getGetGroupPrivilegesQueryOptions = <TData = Awaited<ReturnType<typeof getGroupPrivileges>>, TError = ErrorEnvelope>(groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetGroupPrivilegesQueryKey(groupId);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGroupPrivileges>>> = ({ signal }) => getGroupPrivileges(groupId, { signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: groupId !== null && groupId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetGroupPrivilegesQueryResult = NonNullable<Awaited<ReturnType<typeof getGroupPrivileges>>>
-export type GetGroupPrivilegesQueryError = ErrorEnvelope
-
-
-export function useGetGroupPrivileges<TData = Awaited<ReturnType<typeof getGroupPrivileges>>, TError = ErrorEnvelope>(
- groupId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroupPrivileges>>,
-          TError,
-          Awaited<ReturnType<typeof getGroupPrivileges>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroupPrivileges<TData = Awaited<ReturnType<typeof getGroupPrivileges>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroupPrivileges>>,
-          TError,
-          Awaited<ReturnType<typeof getGroupPrivileges>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroupPrivileges<TData = Awaited<ReturnType<typeof getGroupPrivileges>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 读权限码矩阵
- */
-
-export function useGetGroupPrivileges<TData = Awaited<ReturnType<typeof getGroupPrivileges>>, TError = ErrorEnvelope>(
- groupId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupPrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetGroupPrivilegesQueryOptions(groupId,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-export type saveGroupPrivilegesResponse200 = {
-  data: GroupPrivilegesView
-  status: 200
-}
-
-export type saveGroupPrivilegesResponse401 = {
-  data: ErrorEnvelope
-  status: 401
-}
-
-export type saveGroupPrivilegesResponse403 = {
-  data: ErrorEnvelope
-  status: 403
-}
-
-export type saveGroupPrivilegesResponse404 = {
-  data: ErrorEnvelope
-  status: 404
-}
-
-export type saveGroupPrivilegesResponse422 = {
+export type copyRoleResponse422 = {
   data: ErrorEnvelope
   status: 422
 }
 
-export type saveGroupPrivilegesResponseSuccess = (saveGroupPrivilegesResponse200) & {
+export type copyRoleResponseSuccess = (copyRoleResponse200) & {
   headers: Headers;
 };
-export type saveGroupPrivilegesResponseError = (saveGroupPrivilegesResponse401 | saveGroupPrivilegesResponse403 | saveGroupPrivilegesResponse404 | saveGroupPrivilegesResponse422) & {
+export type copyRoleResponseError = (copyRoleResponse401 | copyRoleResponse403 | copyRoleResponse422) & {
   headers: Headers;
 };
 
-export type saveGroupPrivilegesResponse = (saveGroupPrivilegesResponseSuccess | saveGroupPrivilegesResponseError)
+export type copyRoleResponse = (copyRoleResponseSuccess | copyRoleResponseError)
 
-export const getSaveGroupPrivilegesUrl = (groupId: number,) => {
-
-
+export const getCopyRoleUrl = (roleId: number,) => {
 
 
-  return `/api/v1/groups/${groupId}/privileges`
+
+
+  return `/api/v1/roles/${roleId}/copy`
 }
 
 /**
- * @summary 写权限码矩阵（整体替换差量落库；含未注册权限码 → 42201）
+ * @summary 复制组（copyPrivileges/copyMembers 各选项生效，源组不变）
  */
-export const saveGroupPrivileges = async (groupId: number,
-    groupPrivilegesRequest: GroupPrivilegesRequest, options?: Parameters<typeof httpFetch>[1]): Promise<saveGroupPrivilegesResponse> => {
+export const copyRole = async (roleId: number,
+    roleCopyRequest: RoleCopyRequest, options?: Parameters<typeof httpFetch>[1]): Promise<copyRoleResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -3675,12 +2934,12 @@ export const saveGroupPrivileges = async (groupId: number,
     }
     return headers;
   };
-return httpFetch<saveGroupPrivilegesResponse>(getSaveGroupPrivilegesUrl(groupId),
+return httpFetch<copyRoleResponse>(getCopyRoleUrl(roleId),
   {
     ...options,
-    method: 'PUT',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(groupPrivilegesRequest)
+    body: JSON.stringify(roleCopyRequest)
   }
 );}
 
@@ -3688,13 +2947,13 @@ return httpFetch<saveGroupPrivilegesResponse>(getSaveGroupPrivilegesUrl(groupId)
 
 
 
-export const getSaveGroupPrivilegesMutationKey = () => ['saveGroupPrivileges'] as const;
+export const getCopyRoleMutationKey = () => ['copyRole'] as const;
 
-export const getSaveGroupPrivilegesMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveGroupPrivileges>>, TError,SaveGroupPrivilegesMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof saveGroupPrivileges>>, TError,SaveGroupPrivilegesMutationVariables, TContext> => {
+export const getCopyRoleMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof copyRole>>, TError,CopyRoleMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof copyRole>>, TError,CopyRoleMutationVariables, TContext> => {
 
-const mutationKey = getSaveGroupPrivilegesMutationKey();
+const mutationKey = getCopyRoleMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3704,10 +2963,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveGroupPrivileges>>, SaveGroupPrivilegesMutationVariables> = (props) => {
-          const {groupId,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof copyRole>>, CopyRoleMutationVariables> = (props) => {
+          const {roleId,data} = props ?? {};
 
-          return  saveGroupPrivileges(groupId,data,requestOptions)
+          return  copyRole(roleId,data,requestOptions)
         }
 
 
@@ -3717,55 +2976,306 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type SaveGroupPrivilegesMutationResult = NonNullable<Awaited<ReturnType<typeof saveGroupPrivileges>>>
-    export type SaveGroupPrivilegesMutationBody = GroupPrivilegesRequest
-    export type SaveGroupPrivilegesMutationError = ErrorEnvelope
-    export type SaveGroupPrivilegesMutationVariables = {groupId: number;data: GroupPrivilegesRequest}
+    export type CopyRoleMutationResult = NonNullable<Awaited<ReturnType<typeof copyRole>>>
+    export type CopyRoleMutationBody = RoleCopyRequest
+    export type CopyRoleMutationError = ErrorEnvelope
+    export type CopyRoleMutationVariables = {roleId: number;data: RoleCopyRequest}
 
     /**
- * @summary 写权限码矩阵（整体替换差量落库；含未注册权限码 → 42201）
+ * @summary 复制组（copyPrivileges/copyMembers 各选项生效，源组不变）
  */
-export const useSaveGroupPrivileges = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveGroupPrivileges>>, TError,SaveGroupPrivilegesMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+export const useCopyRole = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof copyRole>>, TError,CopyRoleMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof saveGroupPrivileges>>,
+        Awaited<ReturnType<typeof copyRole>>,
         TError,
-        SaveGroupPrivilegesMutationVariables,
+        CopyRoleMutationVariables,
         TContext
       > => {
-      return useMutation(getSaveGroupPrivilegesMutationOptions(options), queryClient);
+      return useMutation(getCopyRoleMutationOptions(options), queryClient);
     }
-    export type getGroupMembersResponse200 = {
-  data: AccountList
+    export type getRolePrivilegesResponse200 = {
+  data: RolePrivilegesView
   status: 200
 }
 
-export type getGroupMembersResponse401 = {
+export type getRolePrivilegesResponse401 = {
   data: ErrorEnvelope
   status: 401
 }
 
-export type getGroupMembersResponse403 = {
+export type getRolePrivilegesResponse403 = {
   data: ErrorEnvelope
   status: 403
 }
 
-export type getGroupMembersResponse404 = {
+export type getRolePrivilegesResponse404 = {
   data: ErrorEnvelope
   status: 404
 }
 
-export type getGroupMembersResponseSuccess = (getGroupMembersResponse200) & {
+export type getRolePrivilegesResponseSuccess = (getRolePrivilegesResponse200) & {
   headers: Headers;
 };
-export type getGroupMembersResponseError = (getGroupMembersResponse401 | getGroupMembersResponse403 | getGroupMembersResponse404) & {
+export type getRolePrivilegesResponseError = (getRolePrivilegesResponse401 | getRolePrivilegesResponse403 | getRolePrivilegesResponse404) & {
   headers: Headers;
 };
 
-export type getGroupMembersResponse = (getGroupMembersResponseSuccess | getGroupMembersResponseError)
+export type getRolePrivilegesResponse = (getRolePrivilegesResponseSuccess | getRolePrivilegesResponseError)
 
-export const getGetGroupMembersUrl = (groupId: number,
-    params?: GetGroupMembersParams,) => {
+export const getGetRolePrivilegesUrl = (roleId: number,) => {
+
+
+
+
+  return `/api/v1/roles/${roleId}/privileges`
+}
+
+/**
+ * @summary 读权限码矩阵
+ */
+export const getRolePrivileges = async (roleId: number, options?: Parameters<typeof httpFetch>[1]): Promise<getRolePrivilegesResponse> => {
+
+  return httpFetch<getRolePrivilegesResponse>(getGetRolePrivilegesUrl(roleId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRolePrivilegesQueryKey = (roleId: number,) => {
+    return [
+    `/api/v1/roles/${roleId}/privileges`
+    ] as const;
+    }
+
+
+export const getGetRolePrivilegesQueryOptions = <TData = Awaited<ReturnType<typeof getRolePrivileges>>, TError = ErrorEnvelope>(roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRolePrivilegesQueryKey(roleId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRolePrivileges>>> = ({ signal }) => getRolePrivileges(roleId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: roleId !== null && roleId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRolePrivilegesQueryResult = NonNullable<Awaited<ReturnType<typeof getRolePrivileges>>>
+export type GetRolePrivilegesQueryError = ErrorEnvelope
+
+
+export function useGetRolePrivileges<TData = Awaited<ReturnType<typeof getRolePrivileges>>, TError = ErrorEnvelope>(
+ roleId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRolePrivileges>>,
+          TError,
+          Awaited<ReturnType<typeof getRolePrivileges>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRolePrivileges<TData = Awaited<ReturnType<typeof getRolePrivileges>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRolePrivileges>>,
+          TError,
+          Awaited<ReturnType<typeof getRolePrivileges>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRolePrivileges<TData = Awaited<ReturnType<typeof getRolePrivileges>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 读权限码矩阵
+ */
+
+export function useGetRolePrivileges<TData = Awaited<ReturnType<typeof getRolePrivileges>>, TError = ErrorEnvelope>(
+ roleId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRolePrivileges>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRolePrivilegesQueryOptions(roleId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type saveRolePrivilegesResponse200 = {
+  data: RolePrivilegesView
+  status: 200
+}
+
+export type saveRolePrivilegesResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type saveRolePrivilegesResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type saveRolePrivilegesResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type saveRolePrivilegesResponse422 = {
+  data: ErrorEnvelope
+  status: 422
+}
+
+export type saveRolePrivilegesResponseSuccess = (saveRolePrivilegesResponse200) & {
+  headers: Headers;
+};
+export type saveRolePrivilegesResponseError = (saveRolePrivilegesResponse401 | saveRolePrivilegesResponse403 | saveRolePrivilegesResponse404 | saveRolePrivilegesResponse422) & {
+  headers: Headers;
+};
+
+export type saveRolePrivilegesResponse = (saveRolePrivilegesResponseSuccess | saveRolePrivilegesResponseError)
+
+export const getSaveRolePrivilegesUrl = (roleId: number,) => {
+
+
+
+
+  return `/api/v1/roles/${roleId}/privileges`
+}
+
+/**
+ * @summary 写权限码矩阵（整体替换差量落库；含未注册权限码 → 42201）
+ */
+export const saveRolePrivileges = async (roleId: number,
+    rolePrivilegesRequest: RolePrivilegesRequest, options?: Parameters<typeof httpFetch>[1]): Promise<saveRolePrivilegesResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return httpFetch<saveRolePrivilegesResponse>(getSaveRolePrivilegesUrl(roleId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(rolePrivilegesRequest)
+  }
+);}
+
+
+
+
+
+export const getSaveRolePrivilegesMutationKey = () => ['saveRolePrivileges'] as const;
+
+export const getSaveRolePrivilegesMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRolePrivileges>>, TError,SaveRolePrivilegesMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveRolePrivileges>>, TError,SaveRolePrivilegesMutationVariables, TContext> => {
+
+const mutationKey = getSaveRolePrivilegesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveRolePrivileges>>, SaveRolePrivilegesMutationVariables> = (props) => {
+          const {roleId,data} = props ?? {};
+
+          return  saveRolePrivileges(roleId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveRolePrivilegesMutationResult = NonNullable<Awaited<ReturnType<typeof saveRolePrivileges>>>
+    export type SaveRolePrivilegesMutationBody = RolePrivilegesRequest
+    export type SaveRolePrivilegesMutationError = ErrorEnvelope
+    export type SaveRolePrivilegesMutationVariables = {roleId: number;data: RolePrivilegesRequest}
+
+    /**
+ * @summary 写权限码矩阵（整体替换差量落库；含未注册权限码 → 42201）
+ */
+export const useSaveRolePrivileges = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRolePrivileges>>, TError,SaveRolePrivilegesMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveRolePrivileges>>,
+        TError,
+        SaveRolePrivilegesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveRolePrivilegesMutationOptions(options), queryClient);
+    }
+    export type getRoleMembersResponse200 = {
+  data: AccountList
+  status: 200
+}
+
+export type getRoleMembersResponse401 = {
+  data: ErrorEnvelope
+  status: 401
+}
+
+export type getRoleMembersResponse403 = {
+  data: ErrorEnvelope
+  status: 403
+}
+
+export type getRoleMembersResponse404 = {
+  data: ErrorEnvelope
+  status: 404
+}
+
+export type getRoleMembersResponseSuccess = (getRoleMembersResponse200) & {
+  headers: Headers;
+};
+export type getRoleMembersResponseError = (getRoleMembersResponse401 | getRoleMembersResponse403 | getRoleMembersResponse404) & {
+  headers: Headers;
+};
+
+export type getRoleMembersResponse = (getRoleMembersResponseSuccess | getRoleMembersResponseError)
+
+export const getGetRoleMembersUrl = (roleId: number,
+    params?: GetRoleMembersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -3777,16 +3287,16 @@ export const getGetGroupMembersUrl = (groupId: number,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/v1/groups/${groupId}/members?${stringifiedParams}` : `/api/v1/groups/${groupId}/members`
+  return stringifiedParams.length > 0 ? `/api/v1/roles/${roleId}/members?${stringifiedParams}` : `/api/v1/roles/${roleId}/members`
 }
 
 /**
  * @summary 成员列表
  */
-export const getGroupMembers = async (groupId: number,
-    params?: GetGroupMembersParams, options?: Parameters<typeof httpFetch>[1]): Promise<getGroupMembersResponse> => {
+export const getRoleMembers = async (roleId: number,
+    params?: GetRoleMembersParams, options?: Parameters<typeof httpFetch>[1]): Promise<getRoleMembersResponse> => {
 
-  return httpFetch<getGroupMembersResponse>(getGetGroupMembersUrl(groupId,params),
+  return httpFetch<getRoleMembersResponse>(getGetRoleMembersUrl(roleId,params),
   {
     ...options,
     method: 'GET'
@@ -3799,75 +3309,75 @@ export const getGroupMembers = async (groupId: number,
 
 
 
-export const getGetGroupMembersQueryKey = (groupId: number,
-    params?: GetGroupMembersParams,) => {
+export const getGetRoleMembersQueryKey = (roleId: number,
+    params?: GetRoleMembersParams,) => {
     return [
-    `/api/v1/groups/${groupId}/members`, ...(params ? [params] : [])
+    `/api/v1/roles/${roleId}/members`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetGroupMembersQueryOptions = <TData = Awaited<ReturnType<typeof getGroupMembers>>, TError = ErrorEnvelope>(groupId: number,
-    params?: GetGroupMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+export const getGetRoleMembersQueryOptions = <TData = Awaited<ReturnType<typeof getRoleMembers>>, TError = ErrorEnvelope>(roleId: number,
+    params?: GetRoleMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetGroupMembersQueryKey(groupId,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetRoleMembersQueryKey(roleId,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGroupMembers>>> = ({ signal }) => getGroupMembers(groupId,params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRoleMembers>>> = ({ signal }) => getRoleMembers(roleId,params, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: groupId !== null && groupId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: roleId !== null && roleId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetGroupMembersQueryResult = NonNullable<Awaited<ReturnType<typeof getGroupMembers>>>
-export type GetGroupMembersQueryError = ErrorEnvelope
+export type GetRoleMembersQueryResult = NonNullable<Awaited<ReturnType<typeof getRoleMembers>>>
+export type GetRoleMembersQueryError = ErrorEnvelope
 
 
-export function useGetGroupMembers<TData = Awaited<ReturnType<typeof getGroupMembers>>, TError = ErrorEnvelope>(
- groupId: number,
-    params: undefined |  GetGroupMembersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData>> & Pick<
+export function useGetRoleMembers<TData = Awaited<ReturnType<typeof getRoleMembers>>, TError = ErrorEnvelope>(
+ roleId: number,
+    params: undefined |  GetRoleMembersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroupMembers>>,
+          Awaited<ReturnType<typeof getRoleMembers>>,
           TError,
-          Awaited<ReturnType<typeof getGroupMembers>>
+          Awaited<ReturnType<typeof getRoleMembers>>
         > , 'initialData'
       >, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroupMembers<TData = Awaited<ReturnType<typeof getGroupMembers>>, TError = ErrorEnvelope>(
- groupId: number,
-    params?: GetGroupMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData>> & Pick<
+export function useGetRoleMembers<TData = Awaited<ReturnType<typeof getRoleMembers>>, TError = ErrorEnvelope>(
+ roleId: number,
+    params?: GetRoleMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getGroupMembers>>,
+          Awaited<ReturnType<typeof getRoleMembers>>,
           TError,
-          Awaited<ReturnType<typeof getGroupMembers>>
+          Awaited<ReturnType<typeof getRoleMembers>>
         > , 'initialData'
       >, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetGroupMembers<TData = Awaited<ReturnType<typeof getGroupMembers>>, TError = ErrorEnvelope>(
- groupId: number,
-    params?: GetGroupMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+export function useGetRoleMembers<TData = Awaited<ReturnType<typeof getRoleMembers>>, TError = ErrorEnvelope>(
+ roleId: number,
+    params?: GetRoleMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary 成员列表
  */
 
-export function useGetGroupMembers<TData = Awaited<ReturnType<typeof getGroupMembers>>, TError = ErrorEnvelope>(
- groupId: number,
-    params?: GetGroupMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getGroupMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
+export function useGetRoleMembers<TData = Awaited<ReturnType<typeof getRoleMembers>>, TError = ErrorEnvelope>(
+ roleId: number,
+    params?: GetRoleMembersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoleMembers>>, TError, TData>>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetGroupMembersQueryOptions(groupId,params,options)
+  const queryOptions = getGetRoleMembersQueryOptions(roleId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -3879,53 +3389,53 @@ export function useGetGroupMembers<TData = Awaited<ReturnType<typeof getGroupMem
 
 
 
-export type saveGroupMembersResponse200 = {
+export type saveRoleMembersResponse200 = {
   data: AccountList
   status: 200
 }
 
-export type saveGroupMembersResponse401 = {
+export type saveRoleMembersResponse401 = {
   data: ErrorEnvelope
   status: 401
 }
 
-export type saveGroupMembersResponse403 = {
+export type saveRoleMembersResponse403 = {
   data: ErrorEnvelope
   status: 403
 }
 
-export type saveGroupMembersResponse404 = {
+export type saveRoleMembersResponse404 = {
   data: ErrorEnvelope
   status: 404
 }
 
-export type saveGroupMembersResponse422 = {
+export type saveRoleMembersResponse422 = {
   data: ErrorEnvelope
   status: 422
 }
 
-export type saveGroupMembersResponseSuccess = (saveGroupMembersResponse200) & {
+export type saveRoleMembersResponseSuccess = (saveRoleMembersResponse200) & {
   headers: Headers;
 };
-export type saveGroupMembersResponseError = (saveGroupMembersResponse401 | saveGroupMembersResponse403 | saveGroupMembersResponse404 | saveGroupMembersResponse422) & {
+export type saveRoleMembersResponseError = (saveRoleMembersResponse401 | saveRoleMembersResponse403 | saveRoleMembersResponse404 | saveRoleMembersResponse422) & {
   headers: Headers;
 };
 
-export type saveGroupMembersResponse = (saveGroupMembersResponseSuccess | saveGroupMembersResponseError)
+export type saveRoleMembersResponse = (saveRoleMembersResponseSuccess | saveRoleMembersResponseError)
 
-export const getSaveGroupMembersUrl = (groupId: number,) => {
-
-
+export const getSaveRoleMembersUrl = (roleId: number,) => {
 
 
-  return `/api/v1/groups/${groupId}/members`
+
+
+  return `/api/v1/roles/${roleId}/members`
 }
 
 /**
  * @summary 写成员（整体替换差量落库；accountIds 含不存在账号 → 42201；重复去重）
  */
-export const saveGroupMembers = async (groupId: number,
-    groupMembersRequest: GroupMembersRequest, options?: Parameters<typeof httpFetch>[1]): Promise<saveGroupMembersResponse> => {
+export const saveRoleMembers = async (roleId: number,
+    roleMembersRequest: RoleMembersRequest, options?: Parameters<typeof httpFetch>[1]): Promise<saveRoleMembersResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -3941,12 +3451,12 @@ export const saveGroupMembers = async (groupId: number,
     }
     return headers;
   };
-return httpFetch<saveGroupMembersResponse>(getSaveGroupMembersUrl(groupId),
+return httpFetch<saveRoleMembersResponse>(getSaveRoleMembersUrl(roleId),
   {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(groupMembersRequest)
+    body: JSON.stringify(roleMembersRequest)
   }
 );}
 
@@ -3954,13 +3464,13 @@ return httpFetch<saveGroupMembersResponse>(getSaveGroupMembersUrl(groupId),
 
 
 
-export const getSaveGroupMembersMutationKey = () => ['saveGroupMembers'] as const;
+export const getSaveRoleMembersMutationKey = () => ['saveRoleMembers'] as const;
 
-export const getSaveGroupMembersMutationOptions = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveGroupMembers>>, TError,SaveGroupMembersMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof saveGroupMembers>>, TError,SaveGroupMembersMutationVariables, TContext> => {
+export const getSaveRoleMembersMutationOptions = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRoleMembers>>, TError,SaveRoleMembersMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveRoleMembers>>, TError,SaveRoleMembersMutationVariables, TContext> => {
 
-const mutationKey = getSaveGroupMembersMutationKey();
+const mutationKey = getSaveRoleMembersMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3970,10 +3480,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveGroupMembers>>, SaveGroupMembersMutationVariables> = (props) => {
-          const {groupId,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveRoleMembers>>, SaveRoleMembersMutationVariables> = (props) => {
+          const {roleId,data} = props ?? {};
 
-          return  saveGroupMembers(groupId,data,requestOptions)
+          return  saveRoleMembers(roleId,data,requestOptions)
         }
 
 
@@ -3983,23 +3493,23 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type SaveGroupMembersMutationResult = NonNullable<Awaited<ReturnType<typeof saveGroupMembers>>>
-    export type SaveGroupMembersMutationBody = GroupMembersRequest
-    export type SaveGroupMembersMutationError = ErrorEnvelope
-    export type SaveGroupMembersMutationVariables = {groupId: number;data: GroupMembersRequest}
+    export type SaveRoleMembersMutationResult = NonNullable<Awaited<ReturnType<typeof saveRoleMembers>>>
+    export type SaveRoleMembersMutationBody = RoleMembersRequest
+    export type SaveRoleMembersMutationError = ErrorEnvelope
+    export type SaveRoleMembersMutationVariables = {roleId: number;data: RoleMembersRequest}
 
     /**
  * @summary 写成员（整体替换差量落库；accountIds 含不存在账号 → 42201；重复去重）
  */
-export const useSaveGroupMembers = <TError = ErrorEnvelope,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveGroupMembers>>, TError,SaveGroupMembersMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
+export const useSaveRoleMembers = <TError = ErrorEnvelope,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRoleMembers>>, TError,SaveRoleMembersMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof saveGroupMembers>>,
+        Awaited<ReturnType<typeof saveRoleMembers>>,
         TError,
-        SaveGroupMembersMutationVariables,
+        SaveRoleMembersMutationVariables,
         TContext
       > => {
-      return useMutation(getSaveGroupMembersMutationOptions(options), queryClient);
+      return useMutation(getSaveRoleMembersMutationOptions(options), queryClient);
     }
     export type listPersonnelMembersResponse200 = {
   data: PersonnelMemberList

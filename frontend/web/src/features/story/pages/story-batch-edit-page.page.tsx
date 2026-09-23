@@ -1,4 +1,5 @@
 /** @route /stories/batch-edit @title story.title.batchEdit @perm story-edit @hide @activeMenu /products */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {

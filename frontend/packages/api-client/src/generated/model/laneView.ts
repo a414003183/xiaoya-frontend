@@ -12,12 +12,17 @@
  * 看板列（旧 region/group 分层砍）
  */
 export interface LaneView {
+  /** 主键 id */
   id: number;
+  /** 看板 id */
   boardId: number;
-  /** @maxLength 90 */
+  /**
+     * 泳道名称
+     * @maxLength 90
+     */
   name: string;
   /**
-     * #RRGGBB
+     * 颜色（#RRGGBB）
      * @nullable
      */
   color?: string | null;
@@ -27,6 +32,8 @@ export interface LaneView {
      * @maximum 999
      */
   wipLimit: number;
+  /** 是否归档 */
   archived: boolean;
+  /** 排序值（升序，越小越前） */
   sort: number;
 }

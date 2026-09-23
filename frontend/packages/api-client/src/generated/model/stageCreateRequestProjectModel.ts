@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 项目模型（waterfall）
+ */
 export type StageCreateRequestProjectModel = typeof StageCreateRequestProjectModel[keyof typeof StageCreateRequestProjectModel];
 
 

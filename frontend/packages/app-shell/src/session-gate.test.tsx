@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { createQueryClient } from '@zentao/api-client'
 import { AppProvider } from '@zentao/design-system'
 import { initI18n } from '@zentao/i18n'
@@ -49,6 +49,8 @@ function renderGate(initialEntry: string) {
       {
         path: '/',
         element: <SessionGate />,
+        // 路由级错误面（真机上由 app-router 挂 ErrorFallback）：FE-09 的判据是「抛到错误面」而非无限 loading
+        errorElement: <div>error-surface</div>,
         children: [
           { path: 'my', element: <div>business-page</div> },
           { path: 'my/profile', element: <div>profile-page</div> },
@@ -68,6 +70,8 @@ function renderGate(initialEntry: string) {
 }
 
 afterEach(() => {
+  // 本包无 vitest 配置（globals 关闭）→ RTL 的自动清理不生效；断言「不存在」的用例需要显式 cleanup
+  cleanup()
   vi.unstubAllGlobals()
 })
 
@@ -87,6 +91,25 @@ test('已改密（标记为假）：业务路由照常放行', async () => {
 
   expect(await screen.findByText('business-page')).toBeInTheDocument()
   expect(router.state.location.pathname).toBe('/my')
+})
+
+test('非 401 的取数失败（T69 / FE-09）：不无限转圈，抛到路由错误面', async () => {
+  // 50001：queryClient 默认重试两次（4xxxx 才不重试），故给足等待时间
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: { code: 50001, message: '', traceId: 'test' } }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    ),
+  )
+  renderGate('/my')
+
+  expect(await screen.findByText('error-surface', undefined, { timeout: 8000 })).toBeInTheDocument()
+  expect(screen.queryByText('business-page')).not.toBeInTheDocument()
 })
 
 test('标记缺失（旧后端/契约可选字段）：不拦，照常放行', async () => {

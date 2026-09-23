@@ -55,4 +55,30 @@ describe('MarkdownView 消毒（A7-3）', () => {
     expect(screen.queryByTestId('markdown-view')).toBeNull()
     expect(screen.getByText('暂无正文')).toBeInTheDocument()
   })
+
+  // ── T61 / SEC-15：钓鱼表单族剥离 + 链接 rel ──
+
+  test('表单族标签（form/input/button/textarea/select/...）被剥离，留正文不留控件', () => {
+    const view = renderMarkdown(
+      '正文\n\n<form action="https://evil.example"><input name="pwd" type="password"><button>登录</button></form>\n\n<textarea>x</textarea><select><option>a</option></select>',
+    )
+    expect(view).toHaveTextContent('正文')
+    for (const tag of ['form', 'input', 'button', 'textarea', 'select', 'option']) {
+      expect(view.querySelector(tag)).toBeNull()
+    }
+    expect(view.innerHTML).not.toContain('<form')
+    expect(view.innerHTML).not.toContain('<input')
+    expect(view.innerHTML).not.toContain('<button')
+  })
+
+  test('链接一律带 rel="noopener noreferrer"（含 target=_blank 的）', () => {
+    const view = renderMarkdown(
+      '[官网](https://example.com)\n\n<a href="https://example.com" target="_blank">新窗口</a>',
+    )
+    const links = view.querySelectorAll('a')
+    expect(links).toHaveLength(2)
+    for (const link of links) {
+      expect(link.getAttribute('rel')).toBe('noopener noreferrer')
+    }
+  })
 })

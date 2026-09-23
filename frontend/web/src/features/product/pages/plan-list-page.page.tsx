@@ -5,9 +5,9 @@ import {
   Button,
   Card,
   EmptyState,
-  Flex,
   HasPerm,
   ListCard,
+  ListCardHeader,
   PageContainer,
   PageHeader,
   PageLoading,
@@ -15,7 +15,6 @@ import {
   Segmented,
   Space,
   StatusTag,
-  spacing,
   type TableColumnsType,
   useMessage,
 } from '@zentao/design-system'
@@ -155,15 +154,8 @@ export default function PlanListPage() {
         />
       ) : (
         <Card>
-          {/* 看板卡头：与 ListCard 的「左功能按钮 / 右工具栏」同形 */}
-          <Flex justify="space-between" align="center" gap={spacing.md} wrap style={{ marginBottom: spacing.lg }}>
-            <Flex align="center" gap={spacing.sm} wrap>
-              {actions}
-            </Flex>
-            <Flex align="center" gap={spacing.sm} wrap>
-              {toolbar}
-            </Flex>
-          </Flex>
+          {/* 看板卡头：标准件（T72/FE-12）——与 ListCard 同一个「左功能按钮 / 右工具栏」头 */}
+          <ListCardHeader actions={actions} toolbar={toolbar} />
           <div className="tw:grid tw:grid-cols-4 tw:gap-3">
             {groupByStatus(items, PLAN_STATUSES).map((column) => (
               <Card key={column.status} size="small" title={t(`plan.status.${column.status}`)}>

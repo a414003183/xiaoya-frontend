@@ -9,6 +9,7 @@
  */
 
 /**
+ * 关闭原因
  * @nullable
  */
 export type TaskCloseRequestClosedReason = typeof TaskCloseRequestClosedReason[keyof typeof TaskCloseRequestClosedReason] | null;

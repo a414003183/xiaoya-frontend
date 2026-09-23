@@ -14,41 +14,61 @@ import type { CardUpdateRequestStatus } from './cardUpdateRequestStatus';
  */
 export interface CardUpdateRequest {
   /**
+     * 卡片标题
      * @maxLength 255
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
   /**
+     * 预估工时
      * @minimum 0
      * @nullable
      */
   estimateHours?: number | null;
   /**
+     * 进度（0~100）
      * @minimum 0
      * @maximum 100
      * @nullable
      */
   progress?: number | null;
-  /** @nullable */
+  /**
+     * 颜色（#RRGGBB 或预置色码）
+     * @nullable
+     */
   color?: string | null;
   /**
      * doing ↔ done（§5 卡片状态直改）
      * @nullable
      */
   status?: CardUpdateRequestStatus;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

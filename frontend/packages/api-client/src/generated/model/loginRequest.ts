@@ -10,11 +10,13 @@
 
 export interface LoginRequest {
   /**
+     * 登录账号
      * @minLength 1
      * @maxLength 64
      */
   account: string;
   /**
+     * 口令
      * @minLength 1
      * @maxLength 64
      */

@@ -15,50 +15,96 @@ import type { TestCaseViewStatus } from './testCaseViewStatus';
 import type { TestCaseViewType } from './testCaseViewType';
 
 export interface TestCaseView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
+  /** 分支 id */
   branchId?: number;
+  /** 用例库 id */
   libraryId: number;
+  /** 分类 id */
   categoryId?: number;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 用例标题
+     * @maxLength 255
+     */
   title: string;
-  /** @nullable */
+  /**
+     * 前置条件
+     * @nullable
+     */
   precondition?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
+  /** 类型 */
   type: TestCaseViewType;
   /** 保留旧拼写 intergrate */
   stage?: TestCaseViewStageItem[];
+  /** 状态 */
   status: TestCaseViewStatus;
+  /** 步骤说明 */
   steps: CaseStep[];
-  /** @nullable */
+  /**
+     * 来源 Bug id
+     * @nullable
+     */
   fromBugId?: number | null;
-  /** @nullable */
+  /**
+     * 最近执行结果
+     * @nullable
+     */
   lastRunResult?: TestCaseViewLastRunResult;
-  /** @nullable */
+  /**
+     * 最近执行人（登录账号）
+     * @nullable
+     */
   lastRunner?: string | null;
-  /** @nullable */
+  /**
+     * 最近执行时间
+     * @nullable
+     */
   lastRunAt?: string | null;
+  /** 评审人（登录账号集合） */
   reviewers?: string[];
-  /** @nullable */
+  /**
+     * 评审时间
+     * @nullable
+     */
   reviewedAt?: string | null;
+  /** 版本 */
   version: number;
+  /** 自定义字段（动态字段表） */
   customFields?: TestCaseViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

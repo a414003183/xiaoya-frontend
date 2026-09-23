@@ -11,31 +11,58 @@ import type { TestRunUpdateRequestType } from './testRunUpdateRequestType';
 
 export interface TestRunUpdateRequest {
   /**
+     * 测试单名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TestRunUpdateRequestType;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
-  /** @nullable */
+  /**
+     * 构建 id
+     * @nullable
+     */
   buildId?: number | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 执行成员（登录账号集合）
+     * @nullable
+     */
   members?: string[] | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

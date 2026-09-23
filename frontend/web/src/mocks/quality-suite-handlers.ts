@@ -39,7 +39,7 @@ function hasPerm(codes: string[]): boolean {
   if (!account) {
     return false
   }
-  if (account.groupIds.includes(1)) {
+  if (account.roleIds.includes(1)) {
     return true
   }
   const owned = privilegesOf(account)
@@ -47,7 +47,7 @@ function hasPerm(codes: string[]): boolean {
 }
 
 function isSuperAdmin(): boolean {
-  return currentAccount()?.groupIds.includes(1) ?? false
+  return currentAccount()?.roleIds.includes(1) ?? false
 }
 
 function matchIn(value: unknown, filter: string | null): boolean {

@@ -13,6 +13,8 @@ import type { ActivityView } from './activityView';
  * 游标分页时间线（03 §3：items + hasMore，倒序）
  */
 export interface ActivityList {
+  /** 列表项（当前页） */
   items: ActivityView[];
+  /** 是否还有更早的（游标分页） */
   hasMore: boolean;
 }

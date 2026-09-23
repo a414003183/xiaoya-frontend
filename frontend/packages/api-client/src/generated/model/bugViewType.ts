@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 类型
+ */
 export type BugViewType = typeof BugViewType[keyof typeof BugViewType];
 
 

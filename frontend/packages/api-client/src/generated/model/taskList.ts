@@ -10,6 +10,8 @@
 import type { TaskView } from './taskView';
 
 export interface TaskList {
+  /** 列表项（当前页） */
   items: TaskView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

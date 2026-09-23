@@ -1,17 +1,16 @@
 /** @route /projects/:projectId/stakeholders @title project.title.stakeholders @perm stakeholder-view @hide @activeMenu /projects */
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import {
   Button,
   Form,
   HasPerm,
-  Input,
   ListCard,
   Modal,
   PageContainer,
   PageHeader,
   Popconfirm,
-  Select,
   Switch,
   type TableColumnsType,
   Tag,
@@ -19,9 +18,13 @@ import {
   useMessage,
 } from '@zentao/design-system'
 import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
+import { z } from 'zod'
+import { applyServerFields, errorProps, SelectField, TextField } from '../../../shared/form-fields'
 import { metaOptions, useDomainMeta } from '../../../shared/meta-options'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   addProjectStakeholderAction,
   fetchAccountOptions,
@@ -31,13 +34,27 @@ import {
   type StakeholderView,
 } from '../api/project.api'
 
+/** 添加干系人守卫（对齐旧 rules）：account 必填（SelectField 清空为 null 时同样落必填文案）；type/source 无校验（单选清空值为 null，服务端回落）。 */
+export const stakeholderSchema = z.object({
+  account: z.string({ error: 'common.message.required' }).min(1, 'common.message.required'),
+  type: z.string().nullable(),
+  isKey: z.boolean(),
+  source: z.string(),
+})
+
+export type StakeholderValues = z.input<typeof stakeholderSchema>
+
 /** 项目干系人（T-5 / project §3.8：添加 + 软删；重复 account → 42201 由后端守卫）。 */
 export default function ProjectStakeholderPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const projectId = Number(useParams().projectId)
-  const [form] = Form.useForm<{ account: string; type: string; isKey: boolean; source: string }>()
+  const { control, handleSubmit, setError, reset } = useForm<StakeholderValues>({
+    resolver: zodResolver(stakeholderSchema),
+    defaultValues: { account: '', type: 'inside', isKey: false, source: '' },
+  })
   const [addOpen, setAddOpen] = useState(false)
 
   const stakeholders = useQuery({
@@ -50,7 +67,7 @@ export default function ProjectStakeholderPage() {
 
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ['listProjectStakeholders'] })
   const add = useMutation({
-    mutationFn: (values: { account: string; type: string; isKey: boolean; source: string }) =>
+    mutationFn: (values: StakeholderValues) =>
       addProjectStakeholderAction(projectId, {
         account: values.account,
         type: values.type,
@@ -60,16 +77,20 @@ export default function ProjectStakeholderPage() {
     onSuccess: () => {
       message.success(t('common.message.saved'))
       setAddOpen(false)
-      form.resetFields()
+      reset()
       invalidate()
     },
+    // 重复 account / 账号不存在：后端只回 42201 + 字段码 → 字段级落点（T70），整体提示沿用表单下方段落
+    onError: (error) => applyServerFields(error, setError),
   })
+  const submit = handleSubmit((values) => add.mutate(values))
   const remove = useMutation({
     mutationFn: (stakeholderId: number) => removeProjectStakeholderAction(projectId, stakeholderId),
     onSuccess: () => {
       message.success(t('common.message.deleted'))
       invalidate()
     },
+    onError: feedback.failed,
   })
 
   const rows = stakeholders.data?.items ?? []
@@ -133,38 +154,46 @@ export default function ProjectStakeholderPage() {
         open={addOpen}
         title={t('stakeholder.action.add')}
         onCancel={() => setAddOpen(false)}
-        onOk={() => void form.submit()}
+        onOk={() => void submit()}
         confirmLoading={add.isPending}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{ type: 'inside', isKey: false, source: '' }}
-          onFinish={(values) => add.mutate(values)}
-        >
-          <Form.Item
+        <Form layout="vertical">
+          <SelectField
+            control={control}
             name="account"
             label={t('stakeholder.field.account')}
-            rules={[{ required: true, message: t('common.message.required') }]}
-          >
-            <Select
-              showSearch
-              optionFilterProp="label"
-              aria-label="stakeholder-account"
-              options={(accounts.data ?? [])
-                .filter((account) => !used.has(account.account))
-                .map((account) => ({ value: account.account, label: `${account.realName}(${account.account})` }))}
-            />
-          </Form.Item>
-          <Form.Item name="type" label={t('stakeholder.field.type')}>
-            <Select aria-label="stakeholder-type" options={metaOptions(stakeholderMeta.data, 'type', t)} />
-          </Form.Item>
-          <Form.Item name="isKey" label={t('stakeholder.field.isKey')} valuePropName="checked">
-            <Switch aria-label="stakeholder-is-key" />
-          </Form.Item>
-          <Form.Item name="source" label={t('stakeholder.field.source')}>
-            <Input aria-label="stakeholder-source" maxLength={30} />
-          </Form.Item>
+            options={(accounts.data ?? [])
+              .filter((account) => !used.has(account.account))
+              .map((account) => ({ value: account.account, label: `${account.realName}(${account.account})` }))}
+            aria-label="stakeholder-account"
+          />
+          <SelectField
+            control={control}
+            name="type"
+            label={t('stakeholder.field.type')}
+            options={metaOptions(stakeholderMeta.data, 'type', t)}
+            aria-label="stakeholder-type"
+          />
+          <Controller
+            control={control}
+            name="isKey"
+            render={({ field, fieldState }) => (
+              <Form.Item label={t('stakeholder.field.isKey')} {...errorProps(fieldState.error, t)}>
+                <Switch
+                  checked={field.value}
+                  aria-label="stakeholder-is-key"
+                  onChange={(checked) => field.onChange(checked)}
+                />
+              </Form.Item>
+            )}
+          />
+          <TextField
+            control={control}
+            name="source"
+            label={t('stakeholder.field.source')}
+            maxLength={30}
+            aria-label="stakeholder-source"
+          />
         </Form>
         {add.error ? (
           <Typography.Paragraph type="danger">{errorText(add.error, t, 'common.message.failed')}</Typography.Paragraph>

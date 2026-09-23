@@ -13,5 +13,6 @@ import type { ExecutionKanbanLane } from './executionKanbanLane';
  * 执行需求看板（关联需求按 story.status 分列；K 范式数据源）
  */
 export interface ExecutionKanbanView {
+  /** 泳道列表 */
   lanes: ExecutionKanbanLane[];
 }

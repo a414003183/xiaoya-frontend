@@ -12,10 +12,13 @@
  * 新建列（boardId 取路径；wipLimit 缺省 -1=不限）
  */
 export interface LaneCreateRequest {
-  /** @maxLength 90 */
+  /**
+     * 泳道名称
+     * @maxLength 90
+     */
   name: string;
   /**
-     * #RRGGBB
+     * 颜色（#RRGGBB）
      * @nullable
      */
   color?: string | null;
@@ -26,8 +29,14 @@ export interface LaneCreateRequest {
      * @nullable
      */
   wipLimit?: number | null;
-  /** @nullable */
+  /**
+     * 是否归档
+     * @nullable
+     */
   archived?: boolean | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

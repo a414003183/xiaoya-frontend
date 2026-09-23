@@ -10,5 +10,6 @@
 import type { DepartmentNode } from './departmentNode';
 
 export interface DepartmentTree {
+  /** 部门节点列表（嵌套树） */
   items: DepartmentNode[];
 }

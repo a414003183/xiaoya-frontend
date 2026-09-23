@@ -14,6 +14,9 @@
 export interface ExecutionKanbanMoveRequest {
   /** 目标列 key = ExecutionKanbanLane.key */
   column: string;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

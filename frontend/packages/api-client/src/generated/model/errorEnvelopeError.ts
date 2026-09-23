@@ -9,6 +9,9 @@
  */
 import type { ErrorEnvelopeErrorFields } from './errorEnvelopeErrorFields';
 
+/**
+ * 错误体（code/message/fields/traceId）
+ */
 export type ErrorEnvelopeError = {
   /** 5 位错误码（03 §4），段位即 HTTP 映射：40101 未登录/40301 无功能权限/40302 无数据权限/40401 不存在/40901 乐观锁/42201 字段校验/42202 状态不允许/42203 守卫不满足/42901 限流/50001 内部 */
   code: number;

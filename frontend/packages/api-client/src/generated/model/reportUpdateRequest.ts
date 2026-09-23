@@ -10,19 +10,36 @@
 
 export interface ReportUpdateRequest {
   /**
+     * 标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
-  /** @nullable */
+  /**
+     * 测试单 id 集合
+     * @nullable
+     */
   testRunIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 报告正文
+     * @nullable
+     */
   content?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

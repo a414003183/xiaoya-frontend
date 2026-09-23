@@ -10,5 +10,6 @@
 import type { BatchCreateResultItem } from './batchCreateResultItem';
 
 export interface StoryBatchCreateResult {
+  /** 逐项结果 */
   results: BatchCreateResultItem[];
 }

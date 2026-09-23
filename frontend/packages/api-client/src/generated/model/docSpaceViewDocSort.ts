@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 库内默认排序
+ */
 export type DocSpaceViewDocSort = typeof DocSpaceViewDocSort[keyof typeof DocSpaceViewDocSort];
 
 

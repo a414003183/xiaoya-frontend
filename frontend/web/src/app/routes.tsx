@@ -3,7 +3,7 @@
  * 注解字段：@route/@title/@perm/@menu/@order/@icon/@hide/@activeMenu（06 A1-1）。
  */
 import { PageLoading } from '@zentao/design-system'
-import { lazy, type ReactNode, Suspense } from 'react'
+import { type ComponentType, type LazyExoticComponent, lazy, type ReactNode, Suspense } from 'react'
 import type { RouteObject } from 'react-router'
 
 export type NavigationItem = { path: string; title: string; perm?: string; icon?: string; order: number }
@@ -15,11 +15,18 @@ export type NavigationGroup = {
   children: (NavigationItem | NavigationSection)[]
 }
 
+const ApiDocPage = lazy(() => import('../features/platform/pages/api-doc-page.page'))
 const AuditLogListPage = lazy(() => import('../features/platform/pages/audit-log-list-page.page'))
-const LangItemPage = lazy(() => import('../features/platform/pages/lang-item-page.page'))
+const DictTypeListPage = lazy(() => import('../features/platform/pages/dict-type-list-page.page'))
 const LangUploadPage = lazy(() => import('../features/platform/pages/lang-upload-page.page'))
 const LoginLogListPage = lazy(() => import('../features/platform/pages/login-log-list-page.page'))
+const MenuListPage = lazy(() => import('../features/platform/pages/menu-list-page.page'))
+const ServerMonitorPage = lazy(() => import('../features/platform/pages/server-monitor-page.page'))
+const OnlineUserListPage = lazy(() => import('../features/platform/pages/online-user-list-page.page'))
+const ParamListPage = lazy(() => import('../features/platform/pages/param-list-page.page'))
 const RoleListPage = lazy(() => import('../features/org/pages/role-list-page.page'))
+const RoleMembersPage = lazy(() => import('../features/org/pages/role-members-page.page'))
+const RolePrivilegesPage = lazy(() => import('../features/org/pages/role-privileges-page.page'))
 const SettingPage = lazy(() => import('../features/platform/pages/setting-page.page'))
 const BoardSpaceListPage = lazy(() => import('../features/board/pages/board-space-list-page.page'))
 const BoardSpaceDetailPage = lazy(() => import('../features/board/pages/board-space-detail-page.page'))
@@ -59,8 +66,6 @@ const AccountListPage = lazy(() => import('../features/org/pages/account-list-pa
 const AccountDetailPage = lazy(() => import('../features/org/pages/account-detail-page.page'))
 const AccountBatchCreatePage = lazy(() => import('../features/org/pages/account-batch-create-page.page'))
 const DepartmentListPage = lazy(() => import('../features/org/pages/department-list-page.page'))
-const GroupDetailPage = lazy(() => import('../features/org/pages/group-detail-page.page'))
-const GroupPrivMatrixPage = lazy(() => import('../features/org/pages/group-priv-matrix-page.page'))
 const PersonnelListPage = lazy(() => import('../features/org/pages/personnel-list-page.page'))
 const PersonnelWorkloadPage = lazy(() => import('../features/org/pages/personnel-workload-page.page'))
 const PlanDetailPage = lazy(() => import('../features/product/pages/plan-detail-page.page'))
@@ -115,16 +120,131 @@ const TodoBatchEditPage = lazy(() => import('../features/workspace/pages/todo-ba
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={<PageLoading />}>{node}</Suspense>
 
+/**
+ * 页面组件表（T26 动态路由）：component 名 → lazy 组件。
+ * 路由的**层级与路径**来自后端菜单数据（GET /menus/routes，内置基线 + DB 覆盖），
+ * 组件实现只能来自代码，故这里按页面文件生成一张查表：管理端改了路径，前端按 component 名找回同一个组件。
+ */
+export const pageComponents: Record<string, LazyExoticComponent<ComponentType>> = {
+  ApiDocPage,
+  AuditLogListPage,
+  DictTypeListPage,
+  LangUploadPage,
+  LoginLogListPage,
+  MenuListPage,
+  ServerMonitorPage,
+  OnlineUserListPage,
+  ParamListPage,
+  RoleListPage,
+  RoleMembersPage,
+  RolePrivilegesPage,
+  SettingPage,
+  BoardSpaceListPage,
+  BoardSpaceDetailPage,
+  BoardPage,
+  BugDetailPage,
+  BugBatchEditPage,
+  BuildDetailPage,
+  DocFilesPage,
+  DocMyPage,
+  DocSpaceListPage,
+  DocSpacePage,
+  DocDetailPage,
+  DocDiffPage,
+  DocEditPage,
+  DocVersionsPage,
+  ExecutionListPage,
+  ExecutionDetailPage,
+  ExecutionKanbanPage,
+  ReportListPage,
+  ReportBurnPage,
+  TaskListPage,
+  TaskBatchCreatePage,
+  LibraryListPage,
+  LibraryDetailPage,
+  LibraryCaseBatchCreatePage,
+  LoginPage,
+  MyDashboardPage,
+  MyActivitiesPage,
+  MyBugsPage,
+  MyProfilePage,
+  MyStoriesPage,
+  MyTasksPage,
+  TodoListPage,
+  NotificationListPage,
+  NotificationSettingPage,
+  AccountListPage,
+  AccountDetailPage,
+  AccountBatchCreatePage,
+  DepartmentListPage,
+  PersonnelListPage,
+  PersonnelWorkloadPage,
+  PlanDetailPage,
+  ProductListPage,
+  ProductDetailPage,
+  ProductBranchesPage,
+  BugListPage,
+  BugBatchCreatePage,
+  BuildListPage,
+  ProductCategoriesPage,
+  ProductDynamicPage,
+  PlanListPage,
+  ProductProjectsPage,
+  ReleaseListPage,
+  ReportBugDistributionPage,
+  ReportStorySummaryPage,
+  StoryListPage,
+  StoryBatchCreatePage,
+  SuiteListPage,
+  TestCaseListPage,
+  TestCaseBatchCreatePage,
+  TestRunListPage,
+  ProductTrackPage,
+  ProductBatchEditPage,
+  ProductKanbanPage,
+  ProgramListPage,
+  ProgramDetailPage,
+  ProjectListPage,
+  ProjectDetailPage,
+  ProjectExecutionListPage,
+  ProjectMemberPage,
+  ProjectStakeholderPage,
+  ProjectStoryListPage,
+  WeeklyReportPage,
+  ProjectWhitelistPage,
+  ReleaseDetailPage,
+  ReportDetailPage,
+  StageListPage,
+  StoryDetailPage,
+  StoryBatchEditPage,
+  SuiteDetailPage,
+  TaskDetailPage,
+  TaskBatchEditPage,
+  TestCaseDetailPage,
+  TestCaseBatchEditPage,
+  TestRunDetailPage,
+  TestRunCasesPage,
+  ReportCasePassRatePage,
+  TodoDetailPage,
+  TodoBatchCreatePage,
+  TodoBatchEditPage,
+}
+
 export const generatedRoutes: RouteObject[] = [
+  {
+    path: '/admin/api-docs',
+    element: withSuspense(<ApiDocPage />),
+    handle: { title: 'platform.apiDoc.title', perm: 'api-doc-view' },
+  },
   {
     path: '/admin/audit-logs',
     element: withSuspense(<AuditLogListPage />),
     handle: { title: 'platform.auditLog.title', perm: 'audit-log-view' },
   },
   {
-    path: '/admin/lang-items',
-    element: withSuspense(<LangItemPage />),
-    handle: { title: 'platform.lang.title', perm: 'lang-manage' },
+    path: '/admin/dicts',
+    element: withSuspense(<DictTypeListPage />),
+    handle: { title: 'platform.dict.title', perm: 'setting-manage' },
   },
   {
     path: '/admin/lang-upload',
@@ -137,9 +257,39 @@ export const generatedRoutes: RouteObject[] = [
     handle: { title: 'platform.loginLog.title', perm: 'audit-log-view' },
   },
   {
+    path: '/admin/menus',
+    element: withSuspense(<MenuListPage />),
+    handle: { title: 'platform.menu.title', perm: 'menu-manage' },
+  },
+  {
+    path: '/admin/monitor',
+    element: withSuspense(<ServerMonitorPage />),
+    handle: { title: 'platform.monitor.title', perm: 'monitor-view' },
+  },
+  {
+    path: '/admin/online-users',
+    element: withSuspense(<OnlineUserListPage />),
+    handle: { title: 'platform.onlineUser.title', perm: 'online-user-view' },
+  },
+  {
+    path: '/admin/params',
+    element: withSuspense(<ParamListPage />),
+    handle: { title: 'platform.param.title', perm: 'setting-manage' },
+  },
+  {
     path: '/admin/roles',
     element: withSuspense(<RoleListPage />),
     handle: { title: 'org.role.title', perm: 'role-view' },
+  },
+  {
+    path: '/admin/roles/:roleId/members',
+    element: withSuspense(<RoleMembersPage />),
+    handle: { title: 'org.role.membersTitle', perm: 'role-view' },
+  },
+  {
+    path: '/admin/roles/:roleId/privileges',
+    element: withSuspense(<RolePrivilegesPage />),
+    handle: { title: 'org.role.privilegeTitle', perm: 'role-priv-edit' },
   },
   {
     path: '/admin/settings',
@@ -335,16 +485,6 @@ export const generatedRoutes: RouteObject[] = [
     path: '/org/departments',
     element: withSuspense(<DepartmentListPage />),
     handle: { title: 'org.departments.title', perm: 'department-view' },
-  },
-  {
-    path: '/org/groups/:groupId',
-    element: withSuspense(<GroupDetailPage />),
-    handle: { title: 'org.group.detailTitle', perm: 'group-view' },
-  },
-  {
-    path: '/org/groups/:groupId/privileges',
-    element: withSuspense(<GroupPrivMatrixPage />),
-    handle: { title: 'org.group.matrixTitle', perm: 'group-priv-edit' },
   },
   {
     path: '/personnel',
@@ -671,15 +811,22 @@ export const navigation: NavigationGroup[] = [
     title: 'nav.group.admin',
     icon: 'SettingOutlined',
     children: [
-      { path: '/admin/settings', title: 'platform.settings.title', order: 1, perm: 'setting-manage' },
+      {
+        key: 'admin/system',
+        title: 'nav.section.adminSystem',
+        order: 1,
+        children: [
+          { path: '/admin/settings', title: 'platform.settings.title', order: 1, perm: 'setting-manage' },
+          { path: '/admin/params', title: 'platform.param.title', order: 2, perm: 'setting-manage' },
+          { path: '/admin/dicts', title: 'platform.dict.title', order: 3, perm: 'setting-manage' },
+          { path: '/admin/menus', title: 'platform.menu.title', order: 4, perm: 'menu-manage' },
+        ],
+      },
       {
         key: 'admin/lang',
         title: 'nav.section.adminLang',
         order: 2,
-        children: [
-          { path: '/admin/lang-items', title: 'platform.lang.title', order: 1, perm: 'lang-manage' },
-          { path: '/admin/lang-upload', title: 'platform.langUpload.title', order: 2, perm: 'lang-manage' },
-        ],
+        children: [{ path: '/admin/lang-upload', title: 'platform.langUpload.title', order: 1, perm: 'lang-manage' }],
       },
       { path: '/settings/stages', title: 'stage.title.list', order: 3, perm: 'stage-view' },
       { path: '/admin/roles', title: 'org.role.title', order: 4, perm: 'role-view' },
@@ -692,12 +839,24 @@ export const navigation: NavigationGroup[] = [
           { path: '/admin/login-logs', title: 'platform.loginLog.title', order: 2, perm: 'audit-log-view' },
         ],
       },
+      {
+        key: 'admin/monitor',
+        title: 'nav.section.adminMonitor',
+        order: 6,
+        children: [
+          { path: '/admin/online-users', title: 'platform.onlineUser.title', order: 1, perm: 'online-user-view' },
+          { path: '/admin/api-docs', title: 'platform.apiDoc.title', order: 2, perm: 'api-doc-view' },
+          { path: '/admin/monitor', title: 'platform.monitor.title', order: 3, perm: 'monitor-view' },
+        ],
+      },
     ],
   },
 ]
 
 /** 隐藏页 → 菜单高亮目标（06 A1-1）：详情/批量等上下文页的菜单归属。 */
 export const activeMenuMap: Record<string, string> = {
+  '/admin/roles/:roleId/members': '/admin/roles',
+  '/admin/roles/:roleId/privileges': '/admin/roles',
   '/board-spaces/:boardSpaceId': '/board-spaces',
   '/boards/:boardId': '/board-spaces',
   '/bugs/:bugId': '/products',
@@ -720,8 +879,6 @@ export const activeMenuMap: Record<string, string> = {
   '/notifications/settings': '/notifications',
   '/org/accounts/:accountId': '/org/accounts',
   '/org/accounts/batch': '/org/accounts',
-  '/org/groups/:groupId': '/admin/roles',
-  '/org/groups/:groupId/privileges': '/admin/roles',
   '/plans/:planId': '/products',
   '/products/:productId': '/products',
   '/products/:productId/branches': '/products',

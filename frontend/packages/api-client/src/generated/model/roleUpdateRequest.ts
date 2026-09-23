@@ -7,15 +7,36 @@
  *
  * OpenAPI spec version: 0.2.0
  */
-import type { RoleUpdateRequestLabels } from './roleUpdateRequestLabels';
+import type { RoleAcl } from './roleAcl';
 
 /**
- * 部分更新（03 §1 null=不修改）
+ * 部分更新（03 §1 null=不修改）；code 创建后不可改（传入不同值 → 42201）
  */
 export interface RoleUpdateRequest {
-  /** @nullable */
-  labels?: RoleUpdateRequestLabels;
-  /** @nullable */
+  /**
+     * 角色名称
+     * @maxLength 60
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * 只允许原值；改角色码等于换了个角色，故不接受新值
+     * @nullable
+     */
+  code?: string | null;
+  /**
+     * 描述
+     * @maxLength 255
+     * @nullable
+     */
+  description?: string | null;
+  /** null=不修改；传对象=整体替换（PATCH null 语义见 03 §1） */
+  acl?: RoleAcl;
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
-  lockVersion?: number;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
+  lockVersion: number;
 }

@@ -9,5 +9,6 @@
  */
 
 export interface NotificationUnreadCountView {
+  /** 条数 */
   count: number;
 }

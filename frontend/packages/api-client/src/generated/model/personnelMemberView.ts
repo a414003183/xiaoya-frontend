@@ -12,16 +12,17 @@
  * 成员视图（无表只读聚合：账号列 + 跨域在办计数；停用/软删账号不出现）
  */
 export interface PersonnelMemberView {
+  /** 登录账号 */
   account: string;
+  /** 姓名 */
   realName: string;
-  /** @nullable */
-  departmentId?: number | null;
   /**
-     * 账号角色码（GET /roles 的 code）；未设置为 null
-     * @maxLength 16
+     * 部门 id
      * @nullable
      */
-  role?: string | null;
+  departmentId?: number | null;
+  /** 所属角色 id 集合（GET /roles 的 id；前端按角色表解析名字） */
+  roleIds?: number[];
   /** 在办任务数（assignee 且 status ∉ done,closed,cancel） */
   openTaskCount: number;
   /** 未解决 Bug 数（status=active 且 assignee=本人） */

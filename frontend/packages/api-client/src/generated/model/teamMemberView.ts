@@ -13,9 +13,13 @@ import type { TeamMemberViewObjectType } from './teamMemberViewObjectType';
  * 团队成员（(objectType, objectId, account) 唯一；重复 → 42201）
  */
 export interface TeamMemberView {
+  /** 主键 id */
   id: number;
+  /** 绑定对象类型 */
   objectType: TeamMemberViewObjectType;
+  /** 绑定对象 id */
   objectId: number;
+  /** 登录账号 */
   account: string;
   /**
      * 团队内角色（自由文本）
@@ -36,5 +40,6 @@ export interface TeamMemberView {
      * @maximum 24
      */
   hours: number;
+  /** 排序值（升序，越小越前） */
   sort: number;
 }

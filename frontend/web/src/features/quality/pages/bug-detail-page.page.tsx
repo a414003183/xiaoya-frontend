@@ -221,7 +221,11 @@ export default function BugDetailPage() {
             {
               key: 'files',
               label: t('bug.tab.files'),
-              children: <FileUploadField objectType="bug" objectId={bugId} />,
+              children: (
+                <HasPerm perm="file-upload">
+                  <FileUploadField objectType="bug" objectId={bugId} />
+                </HasPerm>
+              ),
             },
             {
               key: 'related',

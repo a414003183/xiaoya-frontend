@@ -9,6 +9,6 @@
  */
 
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  */
 export type PageParameter = number;

@@ -5,15 +5,15 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { ActivityTimeline, CommentPanel } from '../../platform'
 import { fetchAccount, fetchAccountActivities } from '../api/org.api'
-import { useRoleLabel } from '../role-options'
+import { useRoleLabels } from '../role-options'
 
 /** 账号详情（org 卡 §6：页头 + 资料区 + 动态页签；旧 user-profile/dynamic）。 */
 export default function AccountDetailPage() {
   const { t } = useTranslation()
   const accountId = Number(useParams().accountId)
   const account = useQuery({ queryKey: ['getAccount', accountId], queryFn: () => fetchAccount(accountId) })
-  // role 列存的是角色码，展示名来自角色字典（org §3.4）
-  const roleLabelOf = useRoleLabel()
+  // 账号的角色是成员关系（T23）：展示名来自角色表，多个角色顿号分隔
+  const roleLabelsOf = useRoleLabels()
 
   if (account.isPending) {
     return (
@@ -32,7 +32,7 @@ export default function AccountDetailPage() {
           column={2}
           items={[
             { key: 'account', label: t('org.account.field.account'), children: view?.account ?? '-' },
-            { key: 'role', label: t('org.account.field.role'), children: roleLabelOf(view?.role) },
+            { key: 'roles', label: t('org.account.field.roles'), children: roleLabelsOf(view?.roleIds) },
             { key: 'email', label: t('org.account.field.email'), children: view?.email ?? '-' },
             {
               key: 'status',

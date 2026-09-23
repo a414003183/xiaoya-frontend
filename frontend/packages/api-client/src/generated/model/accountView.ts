@@ -14,49 +14,64 @@ import type { AccountViewStatus } from './accountViewStatus';
  * 账号响应视图（org 卡 §3.1 读侧；password 只写不读，任何端点不回显）
  */
 export interface AccountView {
+  /** 主键 id */
   id: number;
+  /** 登录账号 */
   account: string;
+  /** 姓名 */
   realName: string;
   /**
+     * 昵称
      * @maxLength 60
      * @nullable
      */
   nickname?: string | null;
+  /** 所属角色 id 集合（GET /roles 的 id；成员关系，权限码由角色决定） */
+  roleIds: number[];
   /**
-     * 账号角色码，取值来自角色列表（GET /roles，可维护）；未设置为 null
-     * @maxLength 16
+     * 部门 id
      * @nullable
      */
-  role?: string | null;
-  /** @nullable */
   departmentId?: number | null;
   /**
+     * 邮箱
      * @maxLength 90
      * @nullable
      */
   email?: string | null;
   /**
+     * 手机号
      * @maxLength 20
      * @nullable
      */
   mobile?: string | null;
   /**
+     * 电话
      * @maxLength 20
      * @nullable
      */
   phone?: string | null;
+  /** 性别 */
   gender: AccountViewGender;
-  /** @nullable */
+  /**
+     * 生日
+     * @nullable
+     */
   birthday?: string | null;
-  /** @nullable */
+  /**
+     * 入职日期
+     * @nullable
+     */
   joinedAt?: string | null;
-  /** @nullable */
+  /**
+     * 头像文件 id
+     * @nullable
+     */
   avatarFileId?: number | null;
+  /** 状态 */
   status: AccountViewStatus;
   /** 首登强制改密标记（06 A7-5，只读）：种子/迁移生成的初始口令为 true，本人改密成功后为 false； 前端会话门禁据此把业务路由重定向到 /my/profile，后端不拦截请求 */
   readonly mustChangePassword?: boolean;
-  /** 所属权限组 id 集合（user_group 关联） */
-  groupIds: number[];
   /** 连续登录失败次数（只读） */
   fails: number;
   /**
@@ -64,19 +79,33 @@ export interface AccountView {
      * @nullable
      */
   lockedAt?: string | null;
-  /** @nullable */
+  /**
+     * 最近活跃时间
+     * @nullable
+     */
   lastActiveAt?: string | null;
-  /** @nullable */
+  /**
+     * 创建人（登录账号）
+     * @nullable
+     */
   createdBy?: string | null;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
   /**
      * 软删标记
      * @nullable
      */
   deletedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

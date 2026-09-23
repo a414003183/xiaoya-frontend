@@ -6,9 +6,7 @@ import {
   Alert,
   Card,
   EmptyState,
-  filterInputWidth,
   filterSelectWidth,
-  Input,
   ListCard,
   PageContainer,
   PageLoading,
@@ -18,7 +16,7 @@ import {
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
-import { ListFilterForm } from '../../../shared/list-filter'
+import { dateRangeField, ListFilterForm } from '../../../shared/list-filter'
 import { ReportChart, stackedBarOption, todayIso } from '../../workspace'
 import { fetchDepartmentTree, fetchPersonnelWorkload, type PersonnelWorkloadView } from '../api/org.api'
 import { departmentNames, departmentOptions, monthRange } from '../model'
@@ -31,17 +29,18 @@ export default function PersonnelWorkloadPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const fallback = monthRange(todayIso())
-  const from = searchParams.get('from') ?? fallback.from
-  const to = searchParams.get('to') ?? fallback.to
+  /* 必填区间：URL 无值即用当前自然月（表单按同一兜底预填，不写 URL，重置后回到本月） */
+  const dateRange = `${fallback.from}..${fallback.to}`
+  const filter = searchParams.get('filters[date]') ?? dateRange
   const departmentId = searchParams.get('departmentId')
 
   const departments = useQuery({ queryKey: ['getDepartmentTree'], queryFn: fetchDepartmentTree })
   const workload = useQuery({
-    queryKey: ['listPersonnelWorkload', from, to, departmentId],
+    queryKey: ['listPersonnelWorkload', filter, departmentId],
     queryFn: () =>
       fetchPersonnelWorkload({
         limit: 200,
-        'filters[date]': `${from}..${to}`,
+        'filters[date]': filter,
         ...(departmentId ? { 'filters[departmentId]': departmentId } : {}),
       }),
   })
@@ -75,16 +74,7 @@ export default function PersonnelWorkloadPage() {
     <PageContainer>
       <ListFilterForm
         fields={[
-          {
-            name: 'from',
-            label: t('report.field.beginDate'),
-            control: <Input type="date" style={{ width: filterInputWidth }} aria-label="personnel-workload-from" />,
-          },
-          {
-            name: 'to',
-            label: t('report.field.endDate'),
-            control: <Input type="date" style={{ width: filterInputWidth }} aria-label="personnel-workload-to" />,
-          },
+          dateRangeField('filters[date]', t('common.filter.dateRange')),
           {
             name: 'departmentId',
             label: t('personnel.field.department'),
@@ -102,8 +92,8 @@ export default function PersonnelWorkloadPage() {
             ),
           },
         ]}
-        /* filters[date] 必填：缺省区间为当前自然月，表单按同一兜底预填（不写 URL，重置后回到本月） */
-        defaults={{ from: fallback.from, to: fallback.to }}
+        /* filters[date] 必填：表单预填当前自然月（不写 URL，重置后回到本月） */
+        defaults={{ 'filters[date]': dateRange }}
       />
       {workload.isPending ? (
         <PageLoading />

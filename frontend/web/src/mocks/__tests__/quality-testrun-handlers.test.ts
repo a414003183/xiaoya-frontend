@@ -19,7 +19,7 @@ import {
   submitTestRun,
   unlinkTestRunCasesAction,
 } from '../../features/quality/api/quality.api'
-import { db, resetMockData } from '../db'
+import { db, grantRolePrivileges, resetMockData } from '../db'
 import { handlers } from '../handlers'
 
 /**
@@ -122,7 +122,7 @@ describe('TestRun 生命周期（quality §4.3）', () => {
     const view = await createRun()
     db.testRuns.push({ ...view, id: 9100, productId: 900 })
     db.currentAccountId = 2 // dev1：补 testrun-view 后仅剩数据权限拦截
-    db.groups.find((group) => group.id === 2)?.privCodes.push('testrun-view', 'testrun-create')
+    grantRolePrivileges(2, ['testrun-view', 'testrun-create'])
     await expectApiError(fetchTestRuns(900, {}), 40302)
     await expectApiError(fetchTestRun(9100), 40302)
   })

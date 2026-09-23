@@ -9,6 +9,8 @@
  */
 
 export interface TestCaseImportRequest {
+  /** 用例库 id */
   libraryId: number;
+  /** 用例 id 集合 */
   caseIds: number[];
 }

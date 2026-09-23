@@ -9,6 +9,7 @@
  */
 
 /**
+ * 状态视觉配置（色码表）
  * @nullable
  */
 export type MetaViewStatusVisuals = { [key: string]: unknown } | null;

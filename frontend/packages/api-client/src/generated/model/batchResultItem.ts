@@ -9,8 +9,13 @@
  */
 
 export interface BatchResultItem {
+  /** 主键 id */
   id: number;
+  /** 是否成功 */
   ok: boolean;
-  /** @nullable */
+  /**
+     * 失败原因（code:message 形态）
+     * @nullable
+     */
   error?: string | null;
 }

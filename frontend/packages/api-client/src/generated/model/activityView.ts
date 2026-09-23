@@ -13,18 +13,29 @@ import type { ActivityViewDetailItem } from './activityViewDetailItem';
  * 动态流（platform 卡 §3.2）
  */
 export interface ActivityView {
+  /** 主键 id */
   id: number;
+  /** 绑定对象类型 */
   objectType: string;
+  /** 绑定对象 id */
   objectId: number;
+  /** 操作者账号 */
   actor: string;
-  /** @maxLength 64 */
+  /**
+     * 动作码
+     * @maxLength 64
+     */
   action: string;
   /**
      * 编辑类动作字段 diff [{field, oldValue, newValue}]
      * @nullable
      */
   detail?: ActivityViewDetailItem[] | null;
-  /** @nullable */
+  /**
+     * 备注
+     * @nullable
+     */
   remark?: string | null;
+  /** 发生时间 */
   occurredAt: string;
 }

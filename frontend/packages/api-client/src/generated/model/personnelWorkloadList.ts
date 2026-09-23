@@ -10,6 +10,8 @@
 import type { PersonnelWorkloadView } from './personnelWorkloadView';
 
 export interface PersonnelWorkloadList {
+  /** 列表项（当前页） */
   items: PersonnelWorkloadView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

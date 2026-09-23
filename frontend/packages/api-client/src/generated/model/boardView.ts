@@ -16,34 +16,60 @@ import type { LaneView } from './laneView';
  * 看板（acl=extend 继承空间可见性，§7）；lanes/cards 仅整板端点（GET /boards/{boardId}）填充
  */
 export interface BoardView {
+  /** 主键 id */
   id: number;
   /** 创建后不可改 */
   spaceId: number;
-  /** @maxLength 90 */
+  /**
+     * 看板名称
+     * @maxLength 90
+     */
   name: string;
+  /** 负责人（登录账号） */
   owner?: string;
+  /** 成员账号集合 */
   team?: string[];
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
   /** extend=继承空间可见性 */
   acl: BoardViewAcl;
   /** acl=private 时生效（acl_entry 承载） */
   whitelist: string[];
+  /** 状态 */
   status: BoardViewStatus;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
   /** 看板列（整板端点填充，按 sort 升序） */
   lanes: LaneView[];
   /** 卡片（整板端点填充） */
   cards: CardView[];
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

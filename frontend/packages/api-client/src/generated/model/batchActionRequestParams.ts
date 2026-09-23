@@ -8,4 +8,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 动作参数（action=edit 时 params.rows=[{id,lockVersion,…}] 逐行应用）
+ */
 export type BatchActionRequestParams = { [key: string]: unknown };

@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type TestCaseCreateRequestType = typeof TestCaseCreateRequestType[keyof typeof TestCaseCreateRequestType] | null;

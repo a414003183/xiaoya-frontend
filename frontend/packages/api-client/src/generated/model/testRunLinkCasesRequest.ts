@@ -9,6 +9,7 @@
  */
 
 export interface TestRunLinkCasesRequest {
+  /** 用例 id 集合 */
   caseIds: number[];
   /**
      * 统一指派执行人

@@ -16,7 +16,7 @@ export interface MySummaryView {
   todoCount: number;
   /** 任务 status ∉ done,closed,cancel */
   taskCount: number;
-  /** Bug status=active */
+  /** Bug 数（status=active） */
   bugCount: number;
   /** 需求 status ∉ closed,draft */
   storyCount: number;

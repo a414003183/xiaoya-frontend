@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 评审结果（pass=通过 / clarify=需澄清）
+ */
 export type TestCaseReviewRequestResult = typeof TestCaseReviewRequestResult[keyof typeof TestCaseReviewRequestResult];
 
 

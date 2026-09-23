@@ -16,9 +16,14 @@ import type { StoryCountByType } from './storyCountByType';
  * 产品需求统计（排除 deletedAt 非空）
  */
 export interface StorySummaryReport {
+  /** 总条数（满足筛选的全量） */
   total: number;
+  /** 按状态分布 */
   byStatus: StoryCountByStatus[];
+  /** 按优先级分布 */
   byPriority: StoryCountByPriority[];
+  /** 按阶段分布 */
   byStage: StoryCountByStage[];
+  /** 按类型分布 */
   byType: StoryCountByType[];
 }

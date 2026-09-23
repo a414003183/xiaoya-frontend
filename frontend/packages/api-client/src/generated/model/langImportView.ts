@@ -13,8 +13,11 @@ import type { LangImportViewStatus } from './langImportViewStatus';
  * 语言包上传记录（platform 卡 §3.12；失败也留痕，message 存校验失败摘要）
  */
 export interface LangImportView {
+  /** 主键 id */
   id: number;
+  /** 新记录恒 `all`（T05 单文件全语言，语言由文件列头决定）；历史行仍为 zh-cn/en */
   lang: string;
+  /** 原始文件名 */
   fileName: string;
   /** 文件数据行数（不含表头） */
   totalRows: number;
@@ -22,13 +25,17 @@ export interface LangImportView {
   appliedRows: number;
   /** 未通过校验的行数 */
   failedRows: number;
+  /** 状态 */
   status: LangImportViewStatus;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
   /**
      * 校验失败摘要（成功为 null）
      * @nullable
      */
   message?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion?: number;
 }

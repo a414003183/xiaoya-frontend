@@ -11,60 +11,102 @@ import type { BugUpdateRequestType } from './bugUpdateRequestType';
 
 export interface BugUpdateRequest {
   /**
+     * Bug 标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
   /**
+     * 严重级别
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   severity?: number | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: BugUpdateRequestType;
-  /** @nullable */
+  /**
+     * 操作系统（Bug 环境）
+     * @nullable
+     */
   os?: string | null;
-  /** @nullable */
+  /**
+     * 浏览器（Bug 环境）
+     * @nullable
+     */
   browser?: string | null;
-  /** @nullable */
+  /**
+     * 步骤说明
+     * @nullable
+     */
   steps?: string | null;
   /**
+     * 出现版本（多值）
      * @maxLength 255
      * @nullable
      */
   openedBuilds?: string | null;
-  /** @nullable */
+  /**
+     * 分类 id
+     * @nullable
+     */
   categoryId?: number | null;
-  /** @nullable */
+  /**
+     * 执行 id
+     * @nullable
+     */
   executionId?: number | null;
-  /** @nullable */
+  /**
+     * 计划 id
+     * @nullable
+     */
   planId?: number | null;
-  /** @nullable */
+  /**
+     * 需求 id
+     * @nullable
+     */
   storyId?: number | null;
-  /** @nullable */
+  /**
+     * 任务 id
+     * @nullable
+     */
   taskId?: number | null;
   /**
      * 来源用例关联可改（B-QUA-01 补口）；0=清空
      * @nullable
      */
   testCaseId?: number | null;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
-  /** @nullable */
+  /**
+     * 相关 Bug id 集合
+     * @nullable
+     */
   relatedBugIds?: number[] | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

@@ -12,12 +12,12 @@ import type { PageParameter } from './pageParameter';
 
 export type ListAuditLogsParams = {
 /**
- * 页码，从 1 开始（03 §3）
+ * 页码，从 1 开始（03 §3）；翻页深度 (page-1)*limit ≤ 10000，超限 40001 不钳制
  * @minimum 1
  */
 page?: PageParameter;
 /**
- * 每页条数，默认 50 上限 200
+ * 每页条数，默认 20 上限 200；?format=csv 全量导出上限 5000
  * @minimum 1
  * @maximum 200
  */
@@ -27,23 +27,35 @@ limit?: LimitParameter;
  */
 sort?: string;
 /**
- * 操作人账号（等值 / 逗号 IN）
+ * 操作人账号（等值 / 逗号 IN）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[account]'?: string;
 /**
- * 动作名（等值 / 逗号 IN；如 login、login-failed、account-create、patch /api/v1/products/{productId}）
+ * 动作名（等值 / 逗号 IN；如 login、login-failed、account-create、patch /api/v1/products/{productId}）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[action]'?: string;
 /**
- * 对象类型（等值 / 逗号 IN；如 account、product）
+ * 对象类型（等值 / 逗号 IN；如 account、product）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[objectType]'?: string;
 /**
- * 对象 id（等值 / 逗号 IN）
+ * 对象 id（等值 / 逗号 IN）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[objectId]'?: string;
 /**
- * 时间区间 a..b（含当日；开区间 a.. 或 ..b）
+ * 操作分类（等值 / 逗号 IN；auth/perm/config/business/batch/export/sensitive/query/approve）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
+ */
+'filters[category]'?: string;
+/**
+ * 结果（等值 / 逗号 IN；success/fail/denied）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
+ */
+'filters[result]'?: string;
+/**
+ * 批次 id（等值 / 逗号 IN；批量操作同批记录共享，T22 起写入）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
+ */
+'filters[batchId]'?: string;
+/**
+ * 时间区间 a..b（含当日；开区间 a.. 或 ..b）；多值逗号分隔，单个 IN ≤200 值，超限 40001 不钳制
  */
 'filters[createdAt]'?: string;
 /**

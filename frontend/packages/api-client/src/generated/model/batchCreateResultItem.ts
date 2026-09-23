@@ -9,10 +9,18 @@
  */
 
 export interface BatchCreateResultItem {
+  /** 批量项下标 */
   index: number;
+  /** 是否成功 */
   ok: boolean;
-  /** @nullable */
+  /**
+     * 主键 id
+     * @nullable
+     */
   id?: number | null;
-  /** @nullable */
+  /**
+     * 失败原因（code:message 形态）
+     * @nullable
+     */
   error?: string | null;
 }

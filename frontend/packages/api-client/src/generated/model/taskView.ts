@@ -17,6 +17,7 @@ import type { TaskViewType } from './taskViewType';
  * 任务视图（task 卡 §3 读侧；children/storyTitle 为联表只读字段，不接受写入）
  */
 export interface TaskView {
+  /** 主键 id */
   id: number;
   /** 所属执行，创建后不可改 */
   executionId: number;
@@ -28,14 +29,20 @@ export interface TaskView {
   parentId: number;
   /** 执行下 type=task 的分类节点；0=无（filterable） */
   categoryId: number;
-  /** @maxLength 255 */
+  /**
+     * 任务标题
+     * @maxLength 255
+     */
   title: string;
+  /** 类型 */
   type: TaskViewType;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      */
   priority: number;
+  /** 状态 */
   status: TaskViewStatus;
   /**
      * 预计工时（≥0，≤999.99）
@@ -49,51 +56,101 @@ export interface TaskView {
      * @nullable
      */
   leftHours?: number | null;
-  /** @nullable */
+  /**
+     * 预计开始日期
+     * @nullable
+     */
   estStartedDate?: string | null;
-  /** @nullable */
+  /**
+     * 截止时间
+     * @nullable
+     */
   deadline?: string | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 指派时间
+     * @nullable
+     */
   assignedAt?: string | null;
   /**
      * start/finish 回写
      * @nullable
      */
   startedAt?: string | null;
-  /** @nullable */
+  /**
+     * 激活时间
+     * @nullable
+     */
   activatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 完成人（登录账号）
+     * @nullable
+     */
   finishedBy?: string | null;
-  /** @nullable */
+  /**
+     * 完成时间
+     * @nullable
+     */
   finishedAt?: string | null;
-  /** @nullable */
+  /**
+     * 取消人（登录账号）
+     * @nullable
+     */
   canceledBy?: string | null;
-  /** @nullable */
+  /**
+     * 取消时间
+     * @nullable
+     */
   canceledAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭人（登录账号）
+     * @nullable
+     */
   closedBy?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭原因
+     * @nullable
+     */
   closedReason?: TaskViewClosedReason;
   /**
+     * 关键词
      * @maxLength 255
      * @nullable
      */
   keywords?: string | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
   /** 有未删子任务即 true（系统维护，不开放写） */
   isParent: boolean;
+  /** 通知人（登录账号集合） */
   notifyAccounts: string[];
+  /** 自定义字段（动态字段表） */
   customFields?: TaskViewCustomFields;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
   /** 写路径 If-Match 语义（动作端点不校验） */
   lockVersion: number;

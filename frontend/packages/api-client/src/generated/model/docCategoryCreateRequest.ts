@@ -9,10 +9,19 @@
  */
 
 export interface DocCategoryCreateRequest {
-  /** @maxLength 60 */
+  /**
+     * 目录名称
+     * @maxLength 60
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

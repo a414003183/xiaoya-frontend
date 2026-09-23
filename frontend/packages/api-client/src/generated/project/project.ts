@@ -2206,10 +2206,15 @@ export type removeProgramStakeholderResponse404 = {
   status: 404
 }
 
+export type removeProgramStakeholderResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type removeProgramStakeholderResponseSuccess = (removeProgramStakeholderResponse200) & {
   headers: Headers;
 };
-export type removeProgramStakeholderResponseError = (removeProgramStakeholderResponse401 | removeProgramStakeholderResponse403 | removeProgramStakeholderResponse404) & {
+export type removeProgramStakeholderResponseError = (removeProgramStakeholderResponse401 | removeProgramStakeholderResponse403 | removeProgramStakeholderResponse404 | removeProgramStakeholderResponse422) & {
   headers: Headers;
 };
 
@@ -2245,7 +2250,7 @@ export const removeProgramStakeholder = async (programId: number,
 
 export const getRemoveProgramStakeholderMutationKey = () => ['removeProgramStakeholder'] as const;
 
-export const getRemoveProgramStakeholderMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getRemoveProgramStakeholderMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProgramStakeholder>>, TError,RemoveProgramStakeholderMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof removeProgramStakeholder>>, TError,RemoveProgramStakeholderMutationVariables, TContext> => {
 
@@ -2274,13 +2279,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type RemoveProgramStakeholderMutationResult = NonNullable<Awaited<ReturnType<typeof removeProgramStakeholder>>>
 
-    export type RemoveProgramStakeholderMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type RemoveProgramStakeholderMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type RemoveProgramStakeholderMutationVariables = {programId: number;stakeholderId: number}
 
     /**
  * @summary 移除项目集干系人（软删，data 为 null）
  */
-export const useRemoveProgramStakeholder = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useRemoveProgramStakeholder = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProgramStakeholder>>, TError,RemoveProgramStakeholderMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof removeProgramStakeholder>>,
@@ -4199,10 +4204,15 @@ export type unlinkProjectStoryResponse404 = {
   status: 404
 }
 
+export type unlinkProjectStoryResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type unlinkProjectStoryResponseSuccess = (unlinkProjectStoryResponse200) & {
   headers: Headers;
 };
-export type unlinkProjectStoryResponseError = (unlinkProjectStoryResponse401 | unlinkProjectStoryResponse403 | unlinkProjectStoryResponse404) & {
+export type unlinkProjectStoryResponseError = (unlinkProjectStoryResponse401 | unlinkProjectStoryResponse403 | unlinkProjectStoryResponse404 | unlinkProjectStoryResponse422) & {
   headers: Headers;
 };
 
@@ -4238,7 +4248,7 @@ export const unlinkProjectStory = async (projectId: number,
 
 export const getUnlinkProjectStoryMutationKey = () => ['unlinkProjectStory'] as const;
 
-export const getUnlinkProjectStoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getUnlinkProjectStoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkProjectStory>>, TError,UnlinkProjectStoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof unlinkProjectStory>>, TError,UnlinkProjectStoryMutationVariables, TContext> => {
 
@@ -4267,13 +4277,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type UnlinkProjectStoryMutationResult = NonNullable<Awaited<ReturnType<typeof unlinkProjectStory>>>
 
-    export type UnlinkProjectStoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type UnlinkProjectStoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type UnlinkProjectStoryMutationVariables = {projectId: number;storyId: number}
 
     /**
  * @summary 解除项目-需求关联（删 project_story 行，幂等；B-PRJ-06 补口）
  */
-export const useUnlinkProjectStory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useUnlinkProjectStory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkProjectStory>>, TError,UnlinkProjectStoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof unlinkProjectStory>>,
@@ -5116,10 +5126,15 @@ export type removeProjectStakeholderResponse404 = {
   status: 404
 }
 
+export type removeProjectStakeholderResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type removeProjectStakeholderResponseSuccess = (removeProjectStakeholderResponse200) & {
   headers: Headers;
 };
-export type removeProjectStakeholderResponseError = (removeProjectStakeholderResponse401 | removeProjectStakeholderResponse403 | removeProjectStakeholderResponse404) & {
+export type removeProjectStakeholderResponseError = (removeProjectStakeholderResponse401 | removeProjectStakeholderResponse403 | removeProjectStakeholderResponse404 | removeProjectStakeholderResponse422) & {
   headers: Headers;
 };
 
@@ -5155,7 +5170,7 @@ export const removeProjectStakeholder = async (projectId: number,
 
 export const getRemoveProjectStakeholderMutationKey = () => ['removeProjectStakeholder'] as const;
 
-export const getRemoveProjectStakeholderMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getRemoveProjectStakeholderMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProjectStakeholder>>, TError,RemoveProjectStakeholderMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof removeProjectStakeholder>>, TError,RemoveProjectStakeholderMutationVariables, TContext> => {
 
@@ -5184,13 +5199,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type RemoveProjectStakeholderMutationResult = NonNullable<Awaited<ReturnType<typeof removeProjectStakeholder>>>
 
-    export type RemoveProjectStakeholderMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type RemoveProjectStakeholderMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type RemoveProjectStakeholderMutationVariables = {projectId: number;stakeholderId: number}
 
     /**
  * @summary 移除项目干系人（软删，data 为 null；再添加同 account 成功）
  */
-export const useRemoveProjectStakeholder = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useRemoveProjectStakeholder = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProjectStakeholder>>, TError,RemoveProjectStakeholderMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof removeProjectStakeholder>>,
@@ -7266,10 +7281,15 @@ export type unlinkExecutionStoryResponse404 = {
   status: 404
 }
 
+export type unlinkExecutionStoryResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type unlinkExecutionStoryResponseSuccess = (unlinkExecutionStoryResponse200) & {
   headers: Headers;
 };
-export type unlinkExecutionStoryResponseError = (unlinkExecutionStoryResponse401 | unlinkExecutionStoryResponse403 | unlinkExecutionStoryResponse404) & {
+export type unlinkExecutionStoryResponseError = (unlinkExecutionStoryResponse401 | unlinkExecutionStoryResponse403 | unlinkExecutionStoryResponse404 | unlinkExecutionStoryResponse422) & {
   headers: Headers;
 };
 
@@ -7305,7 +7325,7 @@ export const unlinkExecutionStory = async (executionId: number,
 
 export const getUnlinkExecutionStoryMutationKey = () => ['unlinkExecutionStory'] as const;
 
-export const getUnlinkExecutionStoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getUnlinkExecutionStoryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkExecutionStory>>, TError,UnlinkExecutionStoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof unlinkExecutionStory>>, TError,UnlinkExecutionStoryMutationVariables, TContext> => {
 
@@ -7334,13 +7354,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type UnlinkExecutionStoryMutationResult = NonNullable<Awaited<ReturnType<typeof unlinkExecutionStory>>>
 
-    export type UnlinkExecutionStoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type UnlinkExecutionStoryMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type UnlinkExecutionStoryMutationVariables = {executionId: number;storyId: number}
 
     /**
  * @summary 解除执行自身需求关联行（幂等；项目级行不受影响，B-PRJ-06 补口）
  */
-export const useUnlinkExecutionStory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useUnlinkExecutionStory = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkExecutionStory>>, TError,UnlinkExecutionStoryMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof unlinkExecutionStory>>,
@@ -8146,10 +8166,15 @@ export type deleteStageResponse404 = {
   status: 404
 }
 
+export type deleteStageResponse422 = {
+  data: ReferencedResponse
+  status: 422
+}
+
 export type deleteStageResponseSuccess = (deleteStageResponse200) & {
   headers: Headers;
 };
-export type deleteStageResponseError = (deleteStageResponse401 | deleteStageResponse403 | deleteStageResponse404) & {
+export type deleteStageResponseError = (deleteStageResponse401 | deleteStageResponse403 | deleteStageResponse404 | deleteStageResponse422) & {
   headers: Headers;
 };
 
@@ -8183,7 +8208,7 @@ export const deleteStage = async (stageId: number, options?: Parameters<typeof h
 
 export const getDeleteStageMutationKey = () => ['deleteStage'] as const;
 
-export const getDeleteStageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const getDeleteStageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStage>>, TError,DeleteStageMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteStage>>, TError,DeleteStageMutationVariables, TContext> => {
 
@@ -8212,13 +8237,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type DeleteStageMutationResult = NonNullable<Awaited<ReturnType<typeof deleteStage>>>
 
-    export type DeleteStageMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type DeleteStageMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse
     export type DeleteStageMutationVariables = {stageId: number}
 
     /**
  * @summary 删除阶段类型（软删，data 为 null）
  */
-export const useDeleteStage = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+export const useDeleteStage = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ReferencedResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStage>>, TError,DeleteStageMutationVariables, TContext>, request?: SecondParameter<typeof httpFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteStage>>,

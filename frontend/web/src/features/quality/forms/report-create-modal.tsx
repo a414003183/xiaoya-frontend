@@ -1,18 +1,44 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import type { ReportView } from '@zentao/api-client/generated/model/reportView'
-import { Checkbox, Form, Input, Modal, Select, Typography, useMessage } from '@zentao/design-system'
+import { Checkbox, Form, Modal, Typography, useMessage } from '@zentao/design-system'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import {
+  applyServerFields,
+  DateField,
+  errorProps,
+  SelectField,
+  TextAreaField,
+  TextField,
+} from '../../../shared/form-fields'
 import { fetchExecution, fetchProjectProducts } from '../../project'
 import { fetchAccountOptions, fetchTestRuns, patchReport, submitReport } from '../api/quality.api'
 
-export type ReportFormValues = {
-  title: string
-  testRunIds: number[]
-  beginDate: string
-  endDate: string
-  owner: string | null
-  content: string | null
+export const reportFormSchema = z.object({
+  title: z.string().min(1, 'common.message.required'),
+  testRunIds: z.array(z.number()),
+  beginDate: z.string().min(1, 'common.message.required'),
+  endDate: z.string().min(1, 'common.message.required'),
+  owner: z.string().nullable(),
+  content: z.string().nullable(),
+})
+
+export type ReportFormValues = z.input<typeof reportFormSchema>
+
+function valuesOf(report: ReportView | null): ReportFormValues {
+  const today = new Date().toISOString().slice(0, 10)
+  return {
+    title: report?.title ?? '',
+    testRunIds: report?.testRunIds ?? [],
+    beginDate: report?.beginDate ?? today,
+    endDate: report?.endDate ?? today,
+    owner: report?.owner ?? null,
+    content: report?.content ?? null,
+  }
 }
 
 /** 提交体（quality §3.6）：executionId 由路由定死，创建后不可改（PATCH 白名单不含它）。 */
@@ -44,9 +70,16 @@ export function ReportFormModal({
   const message = useMessage()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [form] = Form.useForm<ReportFormValues>()
   const editing = report != null
-  const today = new Date().toISOString().slice(0, 10)
+  const { control, handleSubmit, setError, reset } = useForm<ReportFormValues>({
+    resolver: zodResolver(reportFormSchema),
+    defaultValues: valuesOf(report ?? null),
+  })
+
+  // 切换新建/编辑对象时重置表单（defaultValues 只在首挂载生效）
+  useEffect(() => {
+    reset(valuesOf(report ?? null))
+  }, [report, reset])
 
   // 执行 id 来自路由；候选测试单 = 该执行所属项目的产品下的测试单（按 executionId 过滤）
   const execution = useQuery({
@@ -88,7 +121,10 @@ export function ReportFormModal({
       }
       onClose()
     },
+    onError: (error) => applyServerFields(error, setError),
   })
+
+  const submit = handleSubmit((values) => save.mutate(values))
 
   return (
     <Modal
@@ -100,64 +136,54 @@ export function ReportFormModal({
       okText={t('common.action.submit')}
       cancelText={t('common.action.cancel')}
       confirmLoading={save.isPending}
-      onOk={() => void form.submit()}
+      onOk={() => void submit()}
     >
-      <Form
-        form={form}
-        key={report?.id ?? 'create'}
-        layout="vertical"
-        initialValues={{
-          title: report?.title ?? '',
-          testRunIds: report?.testRunIds ?? [],
-          beginDate: report?.beginDate ?? today,
-          endDate: report?.endDate ?? today,
-          owner: report?.owner ?? null,
-          content: report?.content ?? null,
-        }}
-        onFinish={(values) => save.mutate(values)}
-      >
-        <Form.Item
+      <Form layout="vertical">
+        <TextField
+          control={control}
           name="title"
           label={t('report.field.title')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="report-title" maxLength={255} />
-        </Form.Item>
-        <Form.Item
+          maxLength={255}
+          aria-label="report-title"
+        />
+        <DateField
+          control={control}
           name="beginDate"
           label={t('report.field.beginDate')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="report-begin-date" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item
-          name="endDate"
-          label={t('report.field.endDate')}
-          rules={[{ required: true, message: t('common.message.required') }]}
-        >
-          <Input aria-label="report-end-date" placeholder="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item name="owner" label={t('report.field.owner')}>
-          <Select
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            aria-label="report-owner"
-            options={(accounts.data ?? []).map((account) => ({
-              value: account.account,
-              label: `${account.realName}（${account.account}）`,
-            }))}
-          />
-        </Form.Item>
-        <Form.Item name="testRunIds" label={t('report.field.testRuns')}>
-          <Checkbox.Group
-            aria-label="report-runs"
-            options={(runs.data ?? []).map((run) => ({ value: run.id, label: `#${run.id} ${run.name}` }))}
-          />
-        </Form.Item>
-        <Form.Item name="content" label={t('report.field.content')}>
-          <Input.TextArea aria-label="report-content" rows={8} />
-        </Form.Item>
+          aria-label="report-begin-date"
+        />
+        <DateField control={control} name="endDate" label={t('report.field.endDate')} aria-label="report-end-date" />
+        <SelectField
+          control={control}
+          name="owner"
+          label={t('report.field.owner')}
+          options={(accounts.data ?? []).map((account) => ({
+            value: account.account,
+            label: `${account.realName}（${account.account}）`,
+          }))}
+          aria-label="report-owner"
+        />
+        <Controller
+          control={control}
+          name="testRunIds"
+          render={({ field, fieldState }) => (
+            <Form.Item label={t('report.field.testRuns')} {...errorProps(fieldState.error, t)}>
+              <Checkbox.Group
+                aria-label="report-runs"
+                options={(runs.data ?? []).map((run) => ({ value: run.id, label: `#${run.id} ${run.name}` }))}
+                value={field.value}
+                onChange={(next) => field.onChange(next)}
+              />
+            </Form.Item>
+          )}
+        />
+        <TextAreaField
+          control={control}
+          name="content"
+          label={t('report.field.content')}
+          rows={8}
+          aria-label="report-content"
+        />
         {editing ? (
           <Typography.Paragraph type="secondary">{t('report.message.executionFixed')}</Typography.Paragraph>
         ) : null}

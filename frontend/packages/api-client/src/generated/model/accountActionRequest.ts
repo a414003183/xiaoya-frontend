@@ -9,9 +9,12 @@
  */
 
 /**
- * disable/enable/delete 动作通用请求体（comment 可省）
+ * disable/enable 动作通用请求体（comment 可省；删除动作走 DELETE /accounts/{accountId}）
  */
 export interface AccountActionRequest {
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

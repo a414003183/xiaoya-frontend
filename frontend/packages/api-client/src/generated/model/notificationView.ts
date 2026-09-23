@@ -12,11 +12,16 @@
  * 站内通知（platform 卡 §3.4）
  */
 export interface NotificationView {
+  /** 主键 id */
   id: number;
+  /** 接收人（登录账号） */
   recipient: string;
   /** 通知事件码 `<资源单数>-<动作>` */
   type: string;
-  /** @nullable */
+  /**
+     * 绑定对象类型
+     * @nullable
+     */
   objectType?: string | null;
   /** 0=系统通知 */
   objectId: number;
@@ -25,9 +30,13 @@ export interface NotificationView {
      * @nullable
      */
   activityId?: number | null;
-  /** @maxLength 255 */
+  /**
+     * 通知标题
+     * @maxLength 255
+     */
   title: string;
   /**
+     * 通知内容
      * @maxLength 2000
      * @nullable
      */
@@ -37,6 +46,8 @@ export interface NotificationView {
      * @nullable
      */
   readAt?: string | null;
+  /** 创建人（登录账号） */
   createdBy: string;
+  /** 创建时间 */
   createdAt: string;
 }

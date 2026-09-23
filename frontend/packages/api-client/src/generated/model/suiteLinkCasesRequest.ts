@@ -12,5 +12,6 @@
  * 套件/测试单关联用例 id 集合（link/unlink 共用）
  */
 export interface SuiteLinkCasesRequest {
+  /** 用例 id 集合 */
   caseIds: number[];
 }

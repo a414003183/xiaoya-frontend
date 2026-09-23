@@ -10,25 +10,46 @@
 import type { BranchViewStatus } from './branchViewStatus';
 
 export interface BranchView {
+  /** 主键 id */
   id: number;
+  /** 产品 id */
   productId: number;
-  /** @maxLength 255 */
+  /**
+     * 分支名称
+     * @maxLength 255
+     */
   name: string;
+  /** 是否默认 */
   isDefault: boolean;
+  /** 状态 */
   status: BranchViewStatus;
   /**
+     * 描述
      * @maxLength 255
      * @nullable
      */
   description?: string | null;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
-  /** @nullable */
+  /**
+     * 关闭时间
+     * @nullable
+     */
   closedAt?: string | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

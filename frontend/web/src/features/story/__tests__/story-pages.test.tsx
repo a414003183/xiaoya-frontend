@@ -95,7 +95,8 @@ describe('需求详情页', () => {
       deletedAt: null,
     })
     const user = userEvent.setup()
-    renderPage(<StoryDetailPage />, '/stories/:storyId', '/stories/1')
+    // T02：上传入口按 file-upload 码显隐，夹具须持码
+    renderPage(<StoryDetailPage />, '/stories/:storyId', '/stories/1', ['story-view', 'file-upload'])
     expect((await screen.findAllByText('Support SMS captcha on login page')).length).toBeGreaterThan(0)
     await user.click(screen.getByRole('tab', { name: /附\s*件/ }))
     expect(await screen.findByText('需求附件说明.txt')).toBeInTheDocument()

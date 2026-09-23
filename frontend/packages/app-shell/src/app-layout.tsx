@@ -5,29 +5,22 @@ import {
   Avatar,
   BackTargetScope,
   Button,
-  DashboardOutlined,
   Dropdown,
-  ExperimentOutlined,
-  FileTextOutlined,
   Flex,
   hasPerm,
   Layout,
   LogoutOutlined,
   Menu,
   MenuFoldOutlined,
+  MenuIcon,
   type MenuProps,
   MenuUnfoldOutlined,
   PageContainer,
-  ProductOutlined,
-  ProjectOutlined,
-  SettingOutlined,
   siderBrandHeight,
   siderCollapsedWidth,
-  siderMenuWidth,
   siderRailWidth,
   siderWidth,
   spacing,
-  TeamOutlined,
   Tooltip,
   Typography,
   theme,
@@ -35,7 +28,7 @@ import {
   useMessage,
   usePrivileges,
 } from '@zentao/design-system'
-import { type ComponentType, lazy, type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router'
 import { GlobalSearch } from './global-search'
@@ -99,17 +92,6 @@ export function ancestorKeys(navigation: NavigationGroup[], path: string): strin
  */
 export function resolveBackTarget(backTo: string, tabs: readonly { key: string; href: string }[]): string {
   return tabs.find((tab) => tab.key === backTo)?.href ?? backTo
-}
-
-/** 组图标名 → 组件（名字来自 route-codegen GROUP_META，06 §八-8.1 站点地图）。 */
-const GROUP_ICONS: Record<string, ComponentType> = {
-  DashboardOutlined,
-  ProductOutlined,
-  ProjectOutlined,
-  ExperimentOutlined,
-  FileTextOutlined,
-  TeamOutlined,
-  SettingOutlined,
 }
 
 /**
@@ -208,10 +190,12 @@ export function AppLayout({
   const [picked, setPicked] = useState<{ path: string | undefined; group: string } | null>(null)
   const pickedGroup = picked !== null && picked.path === pathname ? picked.group : undefined
   const activeGroup = visibleGroups.find((group) => group.key === (pickedGroup ?? routeGroup)) ?? visibleGroups[0]
-  const railItems: NonNullable<MenuProps['items']> = visibleGroups.map((group) => {
-    const Icon = group.icon ? GROUP_ICONS[group.icon] : undefined
-    return { key: group.key, icon: Icon ? <Icon /> : undefined, label: t(group.title) }
-  })
+  const railItems: NonNullable<MenuProps['items']> = visibleGroups.map((group) => ({
+    key: group.key,
+    // 图标名来自菜单（内置基线）或菜单管理页里配的 DB 图标：同一个登记表渲染，选了什么就显示什么
+    icon: <MenuIcon name={group.icon} />,
+    label: t(group.title),
+  }))
   const columnItems: NonNullable<MenuProps['items']> = activeGroup ? toMenuItems(visibleChildren(activeGroup)) : []
   /* 高亮：左栏点亮所属组，右栏点亮当前页；收起态只剩左栏，故只按组点亮。 */
   const railSelectedKeys = activeGroup ? [activeGroup.key] : []
@@ -371,10 +355,20 @@ export function AppLayout({
             />
           </div>
           {/* 两栏菜单区：左＝一级栏（**图标栏**，点击只切换右栏，不下拉不导航；名称走 antd 收起态自带的 hover 提示）
-              → 右＝该组的二级栏（顶部一条组名标题，二级带子项时栏内下拉出三级）。
+              → 右＝该组的二级栏（二级带子项时栏内下拉出三级）。
               左右双栏 + 图标栏的理由：一级名称中英长度差大（「组织」vs Organization），并排文字在 232 内栏宽下必截断；
-              收起态只剩图标栏，点一级即展开侧栏并把右栏切到该组。 */}
-          <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', display: 'flex', alignItems: 'flex-start' }}>
+              收起态只剩图标栏，点一级即展开侧栏并把右栏切到该组。
+              overflowX 显式 hidden：只写 overflowY 时另一轴的 visible 会被计算成 auto，纵向滚动条一出现就多出横向滚动条。 */}
+          <div
+            style={{
+              flex: '1 1 auto',
+              minHeight: 0,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              display: 'flex',
+              alignItems: 'flex-start',
+            }}
+          >
             <Menu
               mode="inline"
               theme="light"
@@ -393,19 +387,7 @@ export function AppLayout({
               }}
             />
             {!siderCollapsed && (
-              <div style={{ width: siderMenuWidth, flexShrink: 0 }}>
-                {/* 组名标题：图标栏没有文字，二级栏顶部补上「我在哪个组」，避免只剩一堆二级项难定位 */}
-                <Typography.Text
-                  type="secondary"
-                  style={{
-                    display: 'block',
-                    paddingBlock: spacing.sm,
-                    paddingInline: spacing.md,
-                    fontWeight: 600,
-                  }}
-                >
-                  {activeGroup ? t(activeGroup.title) : ''}
-                </Typography.Text>
+              <div style={{ flex: '1 1 auto', minWidth: 0 }}>
                 <Menu
                   mode="inline"
                   theme="light"

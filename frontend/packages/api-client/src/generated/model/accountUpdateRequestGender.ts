@@ -9,6 +9,7 @@
  */
 
 /**
+ * 性别
  * @nullable
  */
 export type AccountUpdateRequestGender = typeof AccountUpdateRequestGender[keyof typeof AccountUpdateRequestGender] | null;

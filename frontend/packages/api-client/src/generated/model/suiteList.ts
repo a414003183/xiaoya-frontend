@@ -10,6 +10,8 @@
 import type { SuiteView } from './suiteView';
 
 export interface SuiteList {
+  /** 列表项（当前页） */
   items: SuiteView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

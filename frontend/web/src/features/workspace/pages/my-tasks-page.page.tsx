@@ -75,10 +75,7 @@ export default function MyTasksPage() {
           selectField('status', t('common.field.status'), taskMeta.options('status')),
           selectField('type', t('common.field.type'), taskMeta.options('type')),
           selectField('priority', t('common.field.priority'), taskMeta.options('priority')),
-          dateRangeField('deadline', t('task.field.deadline'), {
-            from: 'my-tasks-filter-deadline-from',
-            to: 'my-tasks-filter-deadline-to',
-          }),
+          dateRangeField('deadline', t('task.field.deadline')),
         ]}
       />
       <ListCard<TaskView>

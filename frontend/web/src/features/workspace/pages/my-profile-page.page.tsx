@@ -2,20 +2,29 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
-import { Button, Card, Form, PageContainer, PageLoading, spacing, Typography, useMessage } from '@zentao/design-system'
+import {
+  Button,
+  Card,
+  Form,
+  HasPerm,
+  PageContainer,
+  PageLoading,
+  spacing,
+  Typography,
+  useMessage,
+} from '@zentao/design-system'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { DateField, SelectField, TextField } from '../../../shared/form-fields'
-import { AccountPasswordModal, useRoleOptions } from '../../org'
+import { AccountPasswordModal, useRoleLabels } from '../../org'
 import { FileUploadField } from '../../platform'
 import { type AccountView, fetchMe, fetchMyDepartmentOptions, patchMyAccount } from '../api/workspace.api'
 
 const profileSchema = z.object({
   realName: z.string().trim().min(1, 'common.message.required').max(100, 'common.message.required'),
   nickname: z.string().trim().max(60, 'common.message.required'),
-  role: z.string().nullable(),
   departmentId: z.number().nullable(),
   email: z
     .string()
@@ -36,7 +45,6 @@ function valuesOf(account: AccountView): ProfileValues {
   return {
     realName: account.realName ?? '',
     nickname: account.nickname ?? '',
-    role: account.role ?? null,
     departmentId: account.departmentId ?? null,
     email: account.email ?? '',
     mobile: account.mobile ?? '',
@@ -54,11 +62,11 @@ export default function MyProfilePagePage() {
   const queryClient = useQueryClient()
   const me = useQuery({ queryKey: ['getMe'], queryFn: fetchMe })
   const departments = useQuery({ queryKey: ['getDepartmentTree'], queryFn: fetchMyDepartmentOptions })
-  const roleOptions = useRoleOptions()
   const [passwordOpen, setPasswordOpen] = useState(false)
 
   const account = me.data?.account ?? null
   const canEdit = me.data?.privileges.includes('account-edit') ?? false
+  const roleLabelsOf = useRoleLabels()
 
   const { control, handleSubmit, reset } = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -77,7 +85,6 @@ export default function MyProfilePagePage() {
       patchMyAccount(account?.id ?? 0, {
         realName: values.realName,
         nickname: values.nickname === '' ? null : values.nickname,
-        role: values.role ?? null,
         departmentId: values.departmentId ?? null,
         email: values.email === '' ? null : values.email,
         mobile: values.mobile === '' ? null : values.mobile,
@@ -136,15 +143,18 @@ export default function MyProfilePagePage() {
         {!canEdit ? <Typography.Paragraph type="secondary">{t('my.profile.readonlyHint')}</Typography.Paragraph> : null}
         <Form layout="vertical" disabled={!canEdit}>
           <Form.Item label={t('my.profile.avatar')}>
-            <FileUploadField
-              objectType="account"
-              objectId={account.id ?? 0}
-              onChange={(fileId) => {
-                if (fileId !== undefined) {
-                  uploadAvatar.mutate(fileId)
-                }
-              }}
-            />
+            {/* T02：头像走 platform 上传口，同码 file-upload（FileController POST /files） */}
+            <HasPerm perm="file-upload">
+              <FileUploadField
+                objectType="account"
+                objectId={account.id ?? 0}
+                onChange={(fileId) => {
+                  if (fileId !== undefined) {
+                    uploadAvatar.mutate(fileId)
+                  }
+                }}
+              />
+            </HasPerm>
             {uploadAvatar.error ? (
               <Typography.Text type="danger">
                 {errorText(uploadAvatar.error, t, 'common.message.failed')}
@@ -198,13 +208,10 @@ export default function MyProfilePagePage() {
             label={t('org.account.field.joinedAt')}
             aria-label="my-profile-joinedAt"
           />
-          <SelectField
-            control={control}
-            name="role"
-            label={t('org.account.field.role')}
-            options={roleOptions}
-            aria-label="my-profile-role"
-          />
+          {/* 角色 = 权限（T23 统一实体）：本人的角色不可自改（那是提权），只读展示，指派走账号编辑 */}
+          <Form.Item label={t('org.account.field.roles')}>
+            <Typography.Text aria-label="my-profile-roles">{roleLabelsOf(account?.roleIds)}</Typography.Text>
+          </Form.Item>
           <SelectField
             control={control}
             name="departmentId"
@@ -240,7 +247,7 @@ const EMPTY_ACCOUNT: AccountView = {
   realName: '',
   gender: 'm',
   status: 'active',
-  groupIds: [],
+  roleIds: [],
   fails: 0,
   createdAt: '',
   lockVersion: 0,

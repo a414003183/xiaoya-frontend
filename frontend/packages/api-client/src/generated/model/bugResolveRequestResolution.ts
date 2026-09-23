@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 解决结果
+ */
 export type BugResolveRequestResolution = typeof BugResolveRequestResolution[keyof typeof BugResolveRequestResolution];
 
 

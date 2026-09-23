@@ -10,6 +10,8 @@
 import type { PlanView } from './planView';
 
 export interface PlanList {
+  /** 列表项（当前页） */
   items: PlanView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

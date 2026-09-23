@@ -14,21 +14,37 @@ import type { StageViewType } from './stageViewType';
  * 阶段类型字典（瀑布模型用；同 projectModel 下 percent 累计 ≤100，超限 → 42201）
  */
 export interface StageView {
+  /** 主键 id */
   id: number;
-  /** @maxLength 255 */
+  /**
+     * 阶段名称
+     * @maxLength 255
+     */
   name: string;
   /**
+     * 完成百分比（0~100）
      * @minimum 0
      * @maximum 100
      */
   percent: number;
+  /** 类型 */
   type: StageViewType;
+  /** 项目模型（waterfall） */
   projectModel: StageViewProjectModel;
+  /** 排序值（升序，越小越前） */
   sort: number;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
 }

@@ -7,10 +7,12 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { ExecutionKanbanLaneKey } from './executionKanbanLaneKey';
 import type { StoryView } from './storyView';
 
 export interface ExecutionKanbanLane {
   /** 列 key = story.status（draft|reviewing|active|changing|changed|closed；2026-09-19 修正——原误写 story.stage） */
-  key: string;
+  key: ExecutionKanbanLaneKey;
+  /** 列内卡片（StoryView 列表） */
   items: StoryView[];
 }

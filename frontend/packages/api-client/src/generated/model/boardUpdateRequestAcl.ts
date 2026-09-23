@@ -9,6 +9,7 @@
  */
 
 /**
+ * 访问控制（可见范围策略）
  * @nullable
  */
 export type BoardUpdateRequestAcl = typeof BoardUpdateRequestAcl[keyof typeof BoardUpdateRequestAcl] | null;

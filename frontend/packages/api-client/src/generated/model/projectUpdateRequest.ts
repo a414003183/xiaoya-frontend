@@ -16,49 +16,90 @@ import type { ProjectUpdateRequestModel } from './projectUpdateRequestModel';
  */
 export interface ProjectUpdateRequest {
   /**
+     * 项目名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
   /**
+     * 编码（业务唯一标识）
      * @maxLength 45
      * @nullable
      */
   code?: string | null;
-  /** @nullable */
+  /**
+     * 项目模型（scrum/waterfall/kanban）
+     * @nullable
+     */
   model?: ProjectUpdateRequestModel;
-  /** @nullable */
+  /**
+     * 开始日期
+     * @nullable
+     */
   beginDate?: string | null;
-  /** @nullable */
+  /**
+     * 结束日期
+     * @nullable
+     */
   endDate?: string | null;
   /**
+     * 工期天数
      * @minimum 0
      * @maximum 3650
      * @nullable
      */
   days?: number | null;
   /**
+     * 预算
      * @minimum 0
      * @nullable
      */
   budget?: number | null;
-  /** @nullable */
+  /**
+     * 项目经理（登录账号）
+     * @nullable
+     */
   pm?: string | null;
-  /** @nullable */
+  /**
+     * 产品负责人（登录账号）
+     * @nullable
+     */
   po?: string | null;
-  /** @nullable */
+  /**
+     * 测试负责人（登录账号）
+     * @nullable
+     */
   qd?: string | null;
-  /** @nullable */
+  /**
+     * 研发负责人（登录账号）
+     * @nullable
+     */
   rd?: string | null;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
   acl?: ProjectUpdateRequestAcl;
-  /** @nullable */
+  /**
+     * 白名单（自定义可见集）
+     * @nullable
+     */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
-  /** @nullable */
+  /**
+     * 是否里程碑
+     * @nullable
+     */
   isMilestone?: boolean | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

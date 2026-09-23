@@ -14,21 +14,38 @@ import type { BoardSpaceCreateRequestType } from './boardSpaceCreateRequestType'
  * 创建看板空间（owner 缺省当前账号）
  */
 export interface BoardSpaceCreateRequest {
-  /** @maxLength 90 */
+  /**
+     * 空间名称
+     * @maxLength 90
+     */
   name: string;
+  /** 类型 */
   type: BoardSpaceCreateRequestType;
   /**
      * 缺省当前账号
      * @nullable
      */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 成员账号集合
+     * @nullable
+     */
   team?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
+  /** 访问控制（可见范围策略） */
   acl: BoardSpaceCreateRequestAcl;
-  /** @nullable */
+  /**
+     * 白名单（自定义可见集）
+     * @nullable
+     */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
 }

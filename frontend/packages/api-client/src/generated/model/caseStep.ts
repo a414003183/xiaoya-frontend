@@ -15,9 +15,13 @@ export interface CaseStep {
      * @nullable
      */
   sort?: number | null;
-  /** @maxLength 2000 */
+  /**
+     * 步骤描述
+     * @maxLength 2000
+     */
   description: string;
   /**
+     * 预期结果
      * @maxLength 2000
      * @nullable
      */

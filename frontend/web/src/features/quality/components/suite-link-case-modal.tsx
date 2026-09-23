@@ -1,6 +1,7 @@
+// list-standard: exempt (modal) — 弹窗内关联小表，无列表页身份
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
-import { Button, EmptyState, Modal, Space, StatusTag, Table, Typography, useMessage } from '@zentao/design-system'
+import { LinkPickerModal, StatusTag, type TableColumnsType, useMessage } from '@zentao/design-system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchTestCases, linkSuiteCasesAction, type SuiteView, type TestCaseView } from '../api/quality.api'
@@ -9,6 +10,7 @@ import { testCaseTone } from '../model'
 /**
  * 套件关联用例弹窗（T-7 / quality §6：按产品选**未关联**用例；UNIQUE 幂等由后端兜底，前端只滤已关联行）。
  * 候选来源 = 产品用例列表（已排除 type=library 的库用例）。
+ * 呈现面收敛到 design-system 的 LinkPickerModal（T72/FE-11 单源，table 形态 · 空选禁用口径）。
  */
 export function SuiteLinkCaseModal({
   suite,
@@ -49,7 +51,7 @@ export function SuiteLinkCaseModal({
     },
   })
 
-  const columns = [
+  const columns: TableColumnsType<TestCaseView> = [
     { title: t('testCase.field.id'), dataIndex: 'id', width: 70 },
     { title: t('testCase.field.title'), dataIndex: 'title' },
     {
@@ -73,46 +75,27 @@ export function SuiteLinkCaseModal({
   ]
 
   return (
-    <Modal
+    <LinkPickerModal
       open={open}
-      width={760}
       title={t('suite.action.linkCase')}
       onCancel={close}
-      footer={
-        <Space>
-          <Button onClick={close}>{t('common.action.cancel')}</Button>
-          <Button
-            type="primary"
-            loading={link.isPending}
-            disabled={selectedIds.length === 0}
-            onClick={() => link.mutate(selectedIds)}
-          >
-            {t('common.action.link')}
-          </Button>
-        </Space>
-      }
-    >
-      {items.length === 0 ? (
-        <EmptyState description={t('common.empty')} />
-      ) : (
-        <Table<TestCaseView>
-          rowKey="id"
-          size="small"
-          loading={candidates.isPending}
-          columns={columns}
-          dataSource={items}
-          pagination={false}
-          rowSelection={{
-            selectedRowKeys: selectedIds,
-            onChange: (keys) => setSelectedIds(keys.map((key) => Number(key))),
-          }}
-        />
-      )}
-      {link.error ? (
-        <Typography.Paragraph type="danger" className="tw:mt-3">
-          {errorText(link.error, t, 'common.message.failed')}
-        </Typography.Paragraph>
-      ) : null}
-    </Modal>
+      error={link.error ? errorText(link.error, t, 'common.message.failed') : null}
+      picker={{
+        kind: 'table',
+        rows: items,
+        columns,
+        loading: candidates.isPending,
+        emptyLabel: t('common.empty'),
+        selectedIds,
+        onSelectionChange: setSelectedIds,
+        confirm: {
+          cancelLabel: t('common.action.cancel'),
+          confirmLabel: t('common.action.link'),
+          onConfirm: () => link.mutate(selectedIds),
+          pending: link.isPending,
+          onEmptySelection: 'disable',
+        },
+      }}
+    />
   )
 }

@@ -10,16 +10,27 @@
 import type { BugResolveRequestResolution } from './bugResolveRequestResolution';
 
 export interface BugResolveRequest {
+  /** 解决结果 */
   resolution: BugResolveRequestResolution;
   /**
+     * 解决版本
      * @maxLength 90
      * @nullable
      */
   resolvedBuild?: string | null;
-  /** @nullable */
+  /**
+     * 重复目标需求 id
+     * @nullable
+     */
   duplicateOfId?: number | null;
-  /** @nullable */
+  /**
+     * 处理人（登录账号，空=未指派）
+     * @nullable
+     */
   assignee?: string | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

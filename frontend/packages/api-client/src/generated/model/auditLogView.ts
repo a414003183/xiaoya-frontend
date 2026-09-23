@@ -7,11 +7,14 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { AuditLogViewCategory } from './auditLogViewCategory';
+import type { AuditLogViewResult } from './auditLogViewResult';
 
 /**
- * 审计日志行（B1 §H3；只读，无写端点——行由写请求的审计横切追加）
+ * 审计日志行（B1 §H3 / T04 审计 2.0；只读，无写端点——行由写请求的审计横切追加）
  */
 export interface AuditLogView {
+  /** 主键 id */
   id: number;
   /**
      * 操作人账号；无会话主体的动作（如登录失败）为 null
@@ -24,28 +27,67 @@ export interface AuditLogView {
      * @maxLength 64
      */
   action: string;
+  /** 操作分类（9 类；动作到分类的映射由 AuditCatalog 声明，未登记动作回落 business） */
+  category: AuditLogViewCategory;
+  /** 结果；fail 行带 reason（失败原因或错误码） */
+  result: AuditLogViewResult;
   /**
+     * 失败/拒绝原因（result=fail|denied 时有值，来自错误文案或异常名）
+     * @maxLength 255
+     * @nullable
+     */
+  reason?: string | null;
+  /**
+     * 绑定对象类型
      * @maxLength 64
      * @nullable
      */
   objectType?: string | null;
-  /** @nullable */
+  /**
+     * 绑定对象 id
+     * @nullable
+     */
   objectId?: number | null;
   /**
-     * 动作明细：当前写路径记「HTTP 方法 + 实际 URI」，便于回溯请求现场
+     * 批次 id（批量/导出类动作共享；非批量动作为 null）
+     * @nullable
+     */
+  batchId?: number | null;
+  /**
+     * 动作明细：写路径记「HTTP 方法 + 实际 URI」（按 key 寻址的写端点带查询串）
      * @nullable
      */
   detail?: string | null;
   /**
+     * 来源 IP
      * @maxLength 64
      * @nullable
      */
   ip?: string | null;
+  /**
+     * User-Agent 原文（截断至 255）
+     * @maxLength 255
+     * @nullable
+     */
+  ua?: string | null;
+  /**
+     * UA 摘要（浏览器 + 操作系统，朴素识别；MFA 位预留）
+     * @maxLength 64
+     * @nullable
+     */
+  device?: string | null;
+  /**
+     * 多因素认证方式（预留，T34 启用；当前恒 null）
+     * @maxLength 32
+     * @nullable
+     */
+  mfa?: string | null;
   /**
      * 链路 id（同响应头 X-Trace-Id），可与服务日志/APM 关联
      * @maxLength 64
      * @nullable
      */
   traceId?: string | null;
+  /** 创建时间（秒精度，与库列 TIMESTAMP 一致） */
   createdAt: string;
 }

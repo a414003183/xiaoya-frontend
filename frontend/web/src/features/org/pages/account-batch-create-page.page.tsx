@@ -1,9 +1,11 @@
 /** @route /org/accounts/batch @title org.accounts.batchTitle @perm account-create @hide @activeMenu /org/accounts */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation } from '@tanstack/react-query'
 import { batchCreateAccounts } from '@zentao/api-client/generated'
 import { Button, Card, Input, PageContainer, PageHeader, Table, Typography, useMessage } from '@zentao/design-system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import { randomPassword } from '../model'
 
 type Row = { key: number; account: string; realName: string; email: string; password: string; result?: string }
@@ -12,6 +14,7 @@ type Row = { key: number; account: string; realName: string; email: string; pass
 export default function AccountBatchCreatePage() {
   const message = useMessage()
   const { t } = useTranslation()
+  const feedback = useMutationFeedback()
   const [rows, setRows] = useState<Row[]>([
     { key: 1, account: '', realName: '', email: '', password: '' },
     { key: 2, account: '', realName: '', email: '', password: '' },
@@ -39,6 +42,7 @@ export default function AccountBatchCreatePage() {
         }),
       )
     },
+    onError: feedback.failed,
   })
 
   const patchRow = (key: number, patch: Partial<Row>) =>
@@ -53,7 +57,7 @@ export default function AccountBatchCreatePage() {
       message.warning(t('org.accounts.batchPasswordRequired'))
       return
     }
-    void submit.mutateAsync()
+    submit.mutate()
   }
 
   const columns = [

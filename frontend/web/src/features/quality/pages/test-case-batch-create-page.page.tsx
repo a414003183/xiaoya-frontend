@@ -1,4 +1,5 @@
 /** @route /products/:productId/test-cases/batch @title quality.title.caseBatchCreate @perm testcase-create @hide @activeMenu /products */
+// list-standard: exempt (batch-form) — 表即表单（整表可编辑），不接列设置/分页
 import { useMutation } from '@tanstack/react-query'
 import { errorText } from '@zentao/api-client'
 import { Button, Card, Input, PageContainer, PageHeader, Select, Table, Typography } from '@zentao/design-system'
@@ -150,7 +151,7 @@ export default function TestCaseBatchCreatePage() {
             >
               {t('common.action.add')}
             </Button>
-            <Button type="primary" loading={submit.isPending} onClick={() => void submit.mutateAsync(rows)}>
+            <Button type="primary" loading={submit.isPending} onClick={() => submit.mutate(rows)}>
               {t('common.action.submit')}
             </Button>
           </>

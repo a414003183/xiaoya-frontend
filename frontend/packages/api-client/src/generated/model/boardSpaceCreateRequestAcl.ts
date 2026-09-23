@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 访问控制（可见范围策略）
+ */
 export type BoardSpaceCreateRequestAcl = typeof BoardSpaceCreateRequestAcl[keyof typeof BoardSpaceCreateRequestAcl];
 
 

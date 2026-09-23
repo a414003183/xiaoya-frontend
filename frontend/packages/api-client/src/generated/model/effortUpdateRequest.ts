@@ -18,18 +18,21 @@ export interface EffortUpdateRequest {
      */
   workDate?: string | null;
   /**
+     * 已消耗工时
      * @maximum 999.99
      * @exclusiveMinimum 0
      * @nullable
      */
   consumedHours?: number | null;
   /**
+     * 剩余工时
      * @minimum 0
      * @maximum 999.99
      * @nullable
      */
   leftHours?: number | null;
   /**
+     * 工时说明
      * @maxLength 255
      * @nullable
      */

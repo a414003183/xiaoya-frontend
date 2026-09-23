@@ -13,5 +13,6 @@ import type { BatchCreateResultItem } from './batchCreateResultItem';
  * 批量创建逐项结果
  */
 export interface TaskBatchCreateResult {
+  /** 逐项结果 */
   results: BatchCreateResultItem[];
 }

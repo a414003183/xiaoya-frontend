@@ -13,6 +13,8 @@ import type { DocVersionView } from './docVersionView';
  * 版本列表（v≥1 快照，固定 version desc，不分页）
  */
 export interface DocVersionList {
+  /** 列表项（当前页） */
   items: DocVersionView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

@@ -10,7 +10,7 @@
 
 export type ListMyActivitiesParams = {
 /**
- * 默认 20 上限 200
+ * 默认 50 上限 200
  * @minimum 1
  * @maximum 200
  */

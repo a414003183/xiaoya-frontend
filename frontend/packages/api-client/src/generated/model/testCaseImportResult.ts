@@ -9,5 +9,6 @@
  */
 
 export interface TestCaseImportResult {
+  /** 导入条数 */
   importedCount: number;
 }

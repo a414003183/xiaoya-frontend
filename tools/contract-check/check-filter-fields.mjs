@@ -396,7 +396,7 @@ for (const [opId, op] of operations) {
  *   listGroups filters[id]：org 卡 §5 组列表 filterable 含 id，GroupQueryService.list 未接任何 DSL（page/limit/sort/q 同样缺）。
  * 实现任一即删对应行，门禁自动恢复红灯。
  */
-const KNOWN_GAPS = new Set(['listFiles:filters[extension]', 'listGroups:filters[id]'])
+const KNOWN_GAPS = new Set(['listFiles:filters[extension]'])
 
 let gapHits = 0
 for (const [opId, op] of operations) {

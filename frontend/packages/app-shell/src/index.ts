@@ -1,4 +1,6 @@
 export * from './app-layout'
+export * from './error-boundary'
+export * from './error-fallback'
 export * from './global-search'
 export * from './lang-switch'
 export * from './privileges'

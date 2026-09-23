@@ -9,6 +9,7 @@
  */
 
 /**
+ * 状态
  * @nullable
  */
 export type DocCreateRequestStatus = typeof DocCreateRequestStatus[keyof typeof DocCreateRequestStatus] | null;

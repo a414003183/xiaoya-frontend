@@ -13,11 +13,16 @@
  */
 export interface DocSaveDraftRequest {
   /**
+     * 文档标题
      * @maxLength 255
      * @nullable
      */
   title?: string | null;
+  /** 草稿正文（覆盖写 v0） */
   content: string;
-  /** @nullable */
+  /**
+     * 附件文件 id 集合
+     * @nullable
+     */
   files?: number[] | null;
 }

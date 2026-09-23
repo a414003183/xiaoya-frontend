@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 需求阶段
+ */
 export type StoryViewStage = typeof StoryViewStage[keyof typeof StoryViewStage];
 
 

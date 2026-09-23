@@ -1,3 +1,4 @@
+import { ErrorBoundary } from '@zentao/app-shell'
 import { initI18n } from '@zentao/i18n'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -19,7 +20,10 @@ void enableMocking().then(() => {
   createRoot(document.getElementById('root') as HTMLElement).render(
     <StrictMode>
       <AppProviders>
-        <AppRouter />
+        {/* 应用级兜底（FE-P0-1）：壳层/RouterProvider 自身抛错时的最后防线；页面级错误由路由 errorElement 接 */}
+        <ErrorBoundary>
+          <AppRouter />
+        </ErrorBoundary>
       </AppProviders>
     </StrictMode>,
   )

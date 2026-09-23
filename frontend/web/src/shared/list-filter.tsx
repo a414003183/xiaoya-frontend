@@ -1,16 +1,14 @@
 import {
+  DateRangePicker,
   type FilterField,
   FilterForm,
   type FilterValues,
-  Flex,
   filterInputWidth,
   filterSelectWidth,
   Input,
   Select,
-  spacing,
-  Typography,
 } from '@zentao/design-system'
-import { cloneElement, isValidElement, type ReactNode, useEffect, useMemo, useState } from 'react'
+import { cloneElement, isValidElement, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { withParams } from './url'
@@ -31,84 +29,24 @@ export function selectField(name: string, label: string, options: { value: strin
 }
 
 /** `a..b` → 两半；无值与缺边（`a..`、`..b`）的空半边一律折成空串。 */
-function splitRange(value: string | undefined): [string, string] {
+export function splitRange(value: string | undefined): [string, string] {
   const [from = '', to = ''] = (value ?? '').split('..')
   return [from, to]
-}
-
-/**
- * 日期区间控件（表单值是单个 `a..b` 串，与 URL 参数同形）：两半都空 → undefined，
- * 只填一端 → `a..` / `..b`（开区间，另一半不设限）。
- * 两半留在本地 state 以容纳输入过程，外部值（URL 回灌 / 查询 / 重置）变化时回写。
- */
-export function DateRangeControl({
-  value,
-  onChange,
-  id,
-  ariaLabelFrom,
-  ariaLabelTo,
-}: {
-  /** 表单值 `a..b`（单边可空）；两端都空即无值。 */
-  value?: string | undefined
-  /** 变更回调：两端都空时回 undefined（表单侧即删键）。 */
-  onChange?: ((value: string | undefined) => void) | undefined
-  /** Form.Item 注入的控件 id：落在左半边，使标签的 htmlFor 有落点。 */
-  id?: string | undefined
-  /** 两半的无障碍名（本仓惯例是 kebab 标识串，如 task-list-filter-deadline-from）。 */
-  ariaLabelFrom?: string | undefined
-  ariaLabelTo?: string | undefined
-}) {
-  const [halves, setHalves] = useState<[string, string]>(() => splitRange(value))
-
-  useEffect(() => {
-    setHalves(splitRange(value))
-  }, [value])
-
-  const emit = (next: [string, string]): void => {
-    setHalves(next)
-    const [from, to] = next
-    onChange?.(from === '' && to === '' ? undefined : `${from}..${to}`)
-  }
-
-  return (
-    <Flex align="center" gap={spacing.xs}>
-      <Input
-        type="date"
-        id={id}
-        aria-label={ariaLabelFrom}
-        style={{ width: filterInputWidth / 2 }}
-        value={halves[0]}
-        onChange={(event) => emit([event.target.value, halves[1]])}
-      />
-      <Typography.Text type="secondary">～</Typography.Text>
-      <Input
-        type="date"
-        aria-label={ariaLabelTo}
-        style={{ width: filterInputWidth / 2 }}
-        value={halves[1]}
-        onChange={(event) => emit([halves[0], event.target.value])}
-      />
-    </Flex>
-  )
 }
 
 /**
  * 日期区间筛选项（闭区间，URL 形如 filters[deadline]=2026-01-01..2026-01-31）。
  * 口径与后端一致（platform/filters/Filters.java：含 `..` 才是 RANGE，裸值按 EQ），
  * 故本控件永远发 `a..b`（单边留空即开区间），不再发单日裸值。
- * 两半是**原生日期输入**（type=date）：浏览器只画自己的格式提示、不渲染 placeholder，
- * 故「无值显示全部」的注入规则（withAllPlaceholder）不适用于本控件，空值即无筛选。
+ * 控件本体是 design-system 的 `DateRangePicker`（T07：全站唯一的日期筛选控件，面板自带一键预设）——
+ * 值形态与解析都封在它内部，页面只认 `a..b` 串。
  */
-export function dateRangeField(
-  name: string,
-  label: string,
-  ariaLabels?: { from?: string | undefined; to?: string | undefined },
-): FilterField {
+export function dateRangeField(name: string, label: string): FilterField {
   return {
     name,
     label,
     colon: false,
-    control: <DateRangeControl ariaLabelFrom={ariaLabels?.from} ariaLabelTo={ariaLabels?.to} />,
+    control: <DateRangePicker />,
   }
 }
 
@@ -130,7 +68,7 @@ function toParam(value: FilterValues[string]): string | undefined {
  *   （ui.ts 再导出面），故 `type === Select` 是可靠判定，页面内联写的 `<Select>` 一并覆盖；
  * - 字段自带 placeholder 的不动（如「选择文档」「全部部门」）——那是比「全部」更具体的语义；
  * - 空值即无筛选（提交时 toParam 删 URL 键），所以占位符就是正确的表达方式：**不加空值选项**，
- *   那会改掉请求 DSL（01 §3.3）。原生日期输入（type=date）不吃 placeholder，故不在规则内。
+ *   那会改掉请求 DSL（01 §3.3）。日期区间控件自画 placeholder，不走本规则。
  */
 function withAllPlaceholder(field: FilterField, all: string): FilterField {
   const control = field.control

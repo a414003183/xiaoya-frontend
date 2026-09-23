@@ -9,6 +9,7 @@
  */
 
 /**
+ * 访问控制（可见范围策略）
  * @nullable
  */
 export type DocSpaceUpdateRequestAcl = typeof DocSpaceUpdateRequestAcl[keyof typeof DocSpaceUpdateRequestAcl] | null;

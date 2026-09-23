@@ -22,6 +22,7 @@ import { useMetaOptions } from '../../../shared/meta-options'
 import { RowNameLink } from '../../../shared/row-name-link'
 import { withParam } from '../../../shared/url'
 import { csvQuery, useCsvExport } from '../../../shared/use-csv-export'
+import { useMutationFeedback } from '../../../shared/use-mutation-feedback'
 import {
   deleteProductAction,
   fetchProducts,
@@ -37,6 +38,7 @@ import { statusTone } from '../model'
  * 筛选值域来自 meta/product（前端不留常量清单）。 */
 export default function ProductListPage() {
   const message = useMessage()
+  const feedback = useMutationFeedback()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -64,6 +66,7 @@ export default function ProductListPage() {
       void queryClient.invalidateQueries({ queryKey: ['listProducts'] })
       void queryClient.invalidateQueries({ queryKey: ['getProduct'] })
     },
+    onError: feedback.failed,
   })
   const remove = useMutation({
     mutationFn: (productId: number) => deleteProductAction(productId),

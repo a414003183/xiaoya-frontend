@@ -27,6 +27,9 @@ export interface TaskStartRequest {
      * @nullable
      */
   leftHours?: number | null;
-  /** @nullable */
+  /**
+     * 备注（可省，记入动态流）
+     * @nullable
+     */
   comment?: string | null;
 }

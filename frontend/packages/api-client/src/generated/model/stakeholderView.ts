@@ -14,10 +14,15 @@ import type { StakeholderViewType } from './stakeholderViewType';
  * 干系人（(objectType, objectId, account) 唯一；旧保留字 user/key/from 规避）
  */
 export interface StakeholderView {
+  /** 主键 id */
   id: number;
+  /** 绑定对象类型 */
   objectType: StakeholderViewObjectType;
+  /** 绑定对象 id */
   objectId: number;
+  /** 登录账号 */
   account: string;
+  /** 类型 */
   type: StakeholderViewType;
   /** 关键干系人 */
   isKey: boolean;
@@ -27,10 +32,18 @@ export interface StakeholderView {
      * @nullable
      */
   source?: string | null;
+  /** 创建人（登录账号） */
   createdBy?: string;
+  /** 创建时间 */
   createdAt?: string;
-  /** @nullable */
+  /**
+     * 更新人（登录账号）
+     * @nullable
+     */
   updatedBy?: string | null;
-  /** @nullable */
+  /**
+     * 更新时间
+     * @nullable
+     */
   updatedAt?: string | null;
 }

@@ -10,6 +10,8 @@
 import type { StoryView } from './storyView';
 
 export interface StoryList {
+  /** 列表项（当前页） */
   items: StoryView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

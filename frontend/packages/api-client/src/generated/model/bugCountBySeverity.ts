@@ -9,6 +9,8 @@
  */
 
 export interface BugCountBySeverity {
+  /** 严重级别 */
   severity: number;
+  /** 条数 */
   count: number;
 }

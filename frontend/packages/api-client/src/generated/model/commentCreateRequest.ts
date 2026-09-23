@@ -9,9 +9,12 @@
  */
 
 export interface CommentCreateRequest {
+  /** 绑定对象类型 */
   objectType: string;
+  /** 绑定对象 id */
   objectId: number;
   /**
+     * 评论内容（必填，非空）
      * @minLength 1
      * @maxLength 10000
      */

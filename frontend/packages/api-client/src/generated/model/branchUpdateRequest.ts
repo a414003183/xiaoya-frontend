@@ -10,16 +10,22 @@
 
 export interface BranchUpdateRequest {
   /**
+     * 分支名称
      * @maxLength 255
      * @nullable
      */
   name?: string | null;
   /**
+     * 描述
      * @maxLength 255
      * @nullable
      */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

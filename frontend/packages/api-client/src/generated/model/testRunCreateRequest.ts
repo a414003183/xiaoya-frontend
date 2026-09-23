@@ -11,29 +11,57 @@ import type { TestRunCreateRequestCustomFields } from './testRunCreateRequestCus
 import type { TestRunCreateRequestType } from './testRunCreateRequestType';
 
 export interface TestRunCreateRequest {
+  /** 执行 id */
   executionId: number;
-  /** @nullable */
+  /**
+     * 构建 id
+     * @nullable
+     */
   buildId?: number | null;
-  /** @maxLength 90 */
+  /**
+     * 测试单名称
+     * @maxLength 90
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
   /**
+     * 优先级
      * @minimum 1
      * @maximum 4
      * @nullable
      */
   priority?: number | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
   type?: TestRunCreateRequestType;
+  /** 开始日期 */
   beginDate: string;
+  /** 结束日期 */
   endDate: string;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 执行成员（登录账号集合）
+     * @nullable
+     */
   members?: string[] | null;
-  /** @nullable */
+  /**
+     * 通知人（登录账号集合）
+     * @nullable
+     */
   notifyAccounts?: string[] | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: TestRunCreateRequestCustomFields;
 }

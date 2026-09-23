@@ -7,8 +7,11 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { BugCountByResolutionResolution } from './bugCountByResolutionResolution';
 
 export interface BugCountByResolution {
-  resolution: string;
+  /** 解决结果 */
+  resolution: BugCountByResolutionResolution;
+  /** 条数 */
   count: number;
 }

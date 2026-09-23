@@ -10,14 +10,24 @@
 
 export interface DepartmentCreateRequest {
   /**
+     * 部门名称
      * @minLength 1
      * @maxLength 60
      */
   name: string;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
-  /** @minimum 0 */
+  /**
+     * 排序值（升序，越小越前）
+     * @minimum 0
+     */
   sort?: number;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   manager?: string | null;
 }

@@ -14,21 +14,41 @@ import type { BoardUpdateRequestAcl } from './boardUpdateRequestAcl';
  */
 export interface BoardUpdateRequest {
   /**
+     * 看板名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   owner?: string | null;
-  /** @nullable */
+  /**
+     * 成员账号集合
+     * @nullable
+     */
   team?: string[] | null;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
   acl?: BoardUpdateRequestAcl;
-  /** @nullable */
+  /**
+     * 白名单（自定义可见集）
+     * @nullable
+     */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

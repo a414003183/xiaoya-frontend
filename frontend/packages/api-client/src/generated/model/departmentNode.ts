@@ -12,10 +12,17 @@
  * 部门节点（org 卡 §3.2；path/grade 服务端维护只读；平铺列表端点复用本 schema，children 恒空数组）
  */
 export interface DepartmentNode {
+  /** 主键 id */
   id: number;
-  /** @maxLength 60 */
+  /**
+     * 部门名称
+     * @maxLength 60
+     */
   name: string;
-  /** @nullable */
+  /**
+     * 父节点 id（0 或空=顶级）
+     * @nullable
+     */
   parentId?: number | null;
   /**
      * 上级部门名（服务端按 parent_id 一次映射解析；根部门为 null）
@@ -26,8 +33,13 @@ export interface DepartmentNode {
   path: string;
   /** 层级，根=1 */
   grade: number;
+  /** 排序值（升序，越小越前） */
   sort: number;
-  /** @nullable */
+  /**
+     * 负责人（登录账号）
+     * @nullable
+     */
   manager?: string | null;
+  /** 子节点 */
   children: DepartmentNode[];
 }

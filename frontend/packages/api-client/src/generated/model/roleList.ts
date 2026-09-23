@@ -10,9 +10,11 @@
 import type { RoleView } from './roleView';
 
 /**
- * 角色列表（字典级小列表，不分页）
+ * 角色列表（角色是配置级小列表，不分页、全量返回）
  */
 export interface RoleList {
+  /** 列表项（当前页） */
   items: RoleView[];
+  /** 总条数（满足筛选的全量） */
   total: number;
 }

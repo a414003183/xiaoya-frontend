@@ -7,8 +7,11 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { StoryCountByStageStage } from './storyCountByStageStage';
 
 export interface StoryCountByStage {
-  stage: string;
+  /** 阶段 */
+  stage: StoryCountByStageStage;
+  /** 条数 */
   count: number;
 }

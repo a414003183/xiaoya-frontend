@@ -9,6 +9,7 @@
  */
 
 /**
+ * 类型
  * @nullable
  */
 export type BugUpdateRequestType = typeof BugUpdateRequestType[keyof typeof BugUpdateRequestType] | null;

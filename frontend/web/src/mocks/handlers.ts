@@ -2,6 +2,7 @@ import { authHandlers, resetMockSession } from './auth-handlers'
 import { boardHandlers } from './board-handlers'
 import { columnPrefHandlers } from './column-pref-handlers'
 import { docHandlers } from './doc-handlers'
+import { menuHandlers } from './menu-handlers'
 import { orgHandlers } from './org-handlers'
 import { platformHandlers } from './platform-handlers'
 import { productHandlers } from './product-handlers'
@@ -17,6 +18,7 @@ import { workspaceHandlers } from './workspace-handlers'
 export const handlers = [
   ...authHandlers,
   ...platformHandlers,
+  ...menuHandlers,
   ...columnPrefHandlers,
   ...orgHandlers,
   ...productHandlers,

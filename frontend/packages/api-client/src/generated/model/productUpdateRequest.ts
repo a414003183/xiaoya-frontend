@@ -7,38 +7,73 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { ProductUpdateRequestAcl } from './productUpdateRequestAcl';
 import type { ProductUpdateRequestCustomFields } from './productUpdateRequestCustomFields';
+import type { ProductUpdateRequestType } from './productUpdateRequestType';
 
 export interface ProductUpdateRequest {
   /**
+     * 产品名称
      * @maxLength 90
      * @nullable
      */
   name?: string | null;
   /**
+     * 编码（业务唯一标识）
      * @maxLength 45
      * @nullable
      */
   code?: string | null;
-  /** @nullable */
-  type?: string | null;
-  /** @nullable */
+  /**
+     * 类型
+     * @nullable
+     */
+  type?: ProductUpdateRequestType;
+  /**
+     * 所属项目集 id（空=不挂项目集）
+     * @nullable
+     */
   programId?: number | null;
-  /** @nullable */
+  /**
+     * 产品负责人（登录账号）
+     * @nullable
+     */
   po?: string | null;
-  /** @nullable */
+  /**
+     * 测试负责人（登录账号）
+     * @nullable
+     */
   qd?: string | null;
-  /** @nullable */
+  /**
+     * 研发负责人（登录账号）
+     * @nullable
+     */
   rd?: string | null;
-  /** @nullable */
-  acl?: string | null;
-  /** @nullable */
+  /**
+     * 访问控制（可见范围策略）
+     * @nullable
+     */
+  acl?: ProductUpdateRequestAcl;
+  /**
+     * 白名单（acl=custom 时的可见账号集合）
+     * @nullable
+     */
   whitelist?: string[] | null;
-  /** @nullable */
+  /**
+     * 描述
+     * @nullable
+     */
   description?: string | null;
-  /** @nullable */
+  /**
+     * 排序值（升序，越小越前）
+     * @nullable
+     */
   sort?: number | null;
-  /** @nullable */
+  /**
+     * 自定义字段（动态字段表）
+     * @nullable
+     */
   customFields?: ProductUpdateRequestCustomFields;
+  /** 乐观锁版本号（更新须回传，不符 → 40901） */
   lockVersion: number;
 }

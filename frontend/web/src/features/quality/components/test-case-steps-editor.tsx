@@ -1,3 +1,4 @@
+// list-standard: exempt (sub-table) — 详情/表单内的结构性子表，非列表页
 import { Button, Input, Space, Table, Typography } from '@zentao/design-system'
 import { useTranslation } from 'react-i18next'
 import type { StepInput } from '../model'

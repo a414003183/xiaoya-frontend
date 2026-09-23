@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
+/**
+ * 执行结果
+ */
 export type RecordResultRequestResult = typeof RecordResultRequestResult[keyof typeof RecordResultRequestResult];
 
 

@@ -24,8 +24,6 @@ export const siderCollapsedWidth = 80
 /** 侧栏一级栏宽（用户裁决 2026-09-20：一级＝图标+名称的纵向栏，点击不下拉、只切换右侧二级栏）。
  *  收起态即整个侧栏宽度（只剩一级栏，图标居中）。 */
 export const siderRailWidth = siderCollapsedWidth
-/** 展开态右侧二级栏宽度（一级栏 + 本栏 = siderWidth；二级含子项时在栏内下拉出三级）。 */
-export const siderMenuWidth = siderWidth - siderRailWidth
 /** 侧栏品牌区高度（与旧 Header 同高，折叠态只留品牌标记居中）。 */
 export const siderBrandHeight = 56
 

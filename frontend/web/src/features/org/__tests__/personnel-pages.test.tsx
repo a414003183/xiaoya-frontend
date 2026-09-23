@@ -122,7 +122,7 @@ describe('工作量统计页', () => {
   const PATH = '/personnel/workload'
 
   test('区间内按人聚合消耗工时与完成任务数', async () => {
-    renderPage(<PersonnelWorkloadPage />, `${PATH}?from=2026-02-01&to=2026-02-28`, PATH)
+    renderPage(<PersonnelWorkloadPage />, `${PATH}?filters[date]=2026-02-01..2026-02-28`, PATH)
     expect(await screen.findByRole('img', { name: '工作量统计' })).toBeInTheDocument()
     const table = screen.getByRole('table')
     const row = within(table).getByText('Dev One').closest('tr') as HTMLElement
@@ -132,17 +132,17 @@ describe('工作量统计页', () => {
     expect(cells[4]?.textContent).toBe('2')
   })
 
-  test('缺省区间为当前自然月（URL 同步进日期输入）', async () => {
+  test('缺省区间为当前自然月（回填进区间控件两半）', async () => {
     renderPage(<PersonnelWorkloadPage />, PATH, PATH)
     const expected = monthRange(new Date().toISOString().slice(0, 10))
     await waitFor(() => {
-      expect(screen.getByLabelText('personnel-workload-from')).toHaveValue(expected.from)
+      expect(screen.getByPlaceholderText('开始日期')).toHaveValue(expected.from)
     })
-    expect(screen.getByLabelText('personnel-workload-to')).toHaveValue(expected.to)
+    expect(screen.getByPlaceholderText('结束日期')).toHaveValue(expected.to)
   })
 
   test('区间倒置被后端拒绝（40001）时原样呈现服务端文案', async () => {
-    renderPage(<PersonnelWorkloadPage />, `${PATH}?from=2026-03-01&to=2026-02-01`, PATH)
+    renderPage(<PersonnelWorkloadPage />, `${PATH}?filters[date]=2026-03-01..2026-02-01`, PATH)
     expect(await screen.findByText('请求参数有误，请检查后重试。')).toBeInTheDocument()
   })
 })
