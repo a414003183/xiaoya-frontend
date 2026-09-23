@@ -39,3 +39,8 @@ contract/   openapi.yaml —— 从后端仓库同步的 API 契约副本
 tools/      工程门禁脚本（契约 diff / 域边界 / 语言键 / 路由生成 / bundle 预算）
 package.json + pnpm-lock.yaml   tools/ 脚本运行依赖（yaml 等）
 ```
+
+## 许可与来源
+
+本仓库是禅道（ZenTao）开源版管理后台的独立重写实现，上游为 <https://gitee.com/wwccss/zentaopms>，
+以上游双授权中的 **AGPL-3.0** 发布。衍生范围、来源说明与商标声明见 [NOTICE.md](NOTICE.md)，许可全文见 [LICENSE](LICENSE)。
